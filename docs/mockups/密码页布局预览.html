@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>密码页布局方案预览 · 无忧密码本</title>
+<style>
+  :root{
+    --bg-page:#F7F8FA; --bg-card:#FFFFFF; --bg-input:#F5F6F8;
+    --text-primary:#1A1A1A; --text-secondary:#575757; --text-weak:#9AA0A6;
+    --border:#EBEDF0; --brand:#07C160; --radius:8px;
+    --shadow:0 1px 6px rgba(0,0,0,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#E9EBEF; color:var(--text-primary); padding:28px 20px 60px;
+  }
+  h1{font-size:20px;margin-bottom:6px}
+  .sub{font-size:13px;color:#5b6470;margin-bottom:22px;line-height:1.7}
+  .sub b{color:#111}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .col{width:300px}
+  .tag{
+    font-size:13px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px
+  }
+  .tag .badge{
+    font-size:11px;font-weight:500;background:var(--brand);color:#fff;
+    padding:1px 7px;border-radius:20px
+  }
+  .tag .badge.gray{background:#8a929c}
+  .tag .badge.blue{background:#3b82f6}
+  .meta{font-size:11.5px;color:#5b6470;margin-bottom:8px;line-height:1.55}
+  .meta b{color:#111}
+
+  /* 手机外框 */
+  .phone{
+    width:300px;height:600px;background:var(--bg-page);border-radius:26px;
+    box-shadow:0 8px 26px rgba(0,0,0,.13);overflow:hidden;position:relative;
+    border:1px solid #d8dce2;
+  }
+  .status{height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:11px;color:#4a5158}
+  .body{height:calc(600px - 26px - 52px);overflow:hidden;padding:0 12px}
+
+  /* 顶部品牌区 */
+  .brand{display:flex;align-items:center;gap:8px;padding:2px 0 8px}
+  .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2CD06A,#06A855);flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:600}
+  .brand-info{flex:1;min-width:0}
+  .brand-name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:5px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--brand)}
+  .vip{font-size:9px;background:#FFF3E0;color:#ED6A0C;border:1px solid #FFE0B2;border-radius:4px;padding:0 3px}
+  .brand-count{font-size:10.5px;color:var(--text-weak);margin-top:1px}
+  .capbar{height:3px;background:var(--border);border-radius:3px;margin-top:5px;overflow:hidden}
+  .capbar i{display:block;height:100%;width:34%;background:var(--brand);border-radius:3px}
+
+  /* 搜索 */
+  .search{height:32px;background:var(--bg-input);border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;padding:0 10px;gap:6px;margin:6px 0 8px}
+  .search .mag{width:11px;height:11px;border:1.6px solid #b6bcc4;border-radius:50%;position:relative;flex:0 0 auto}
+  .search .mag::after{content:"";position:absolute;width:5px;height:1.6px;background:#b6bcc4;transform:rotate(45deg);right:-3px;bottom:-1px;border-radius:2px}
+  .search span{font-size:12px;color:#a8aeb6}
+
+  /* chips */
+  .chips{display:flex;gap:6px;overflow:hidden;padding-bottom:8px}
+  .chip{font-size:11.5px;color:var(--text-secondary);background:#fff;border:1px solid var(--border);border-radius:20px;padding:3px 9px;white-space:nowrap}
+  .chip.active{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:500}
+  .chip small{opacity:.65;margin-left:3px;font-size:10px}
+
+  /* 列表栏 */
+  .listbar{display:flex;justify-content:space-between;align-items:center;padding:2px 2px 6px}
+  .listbar span{font-size:11px;color:var(--text-weak)}
+  .sort{font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:3px}
+  .arrows{display:flex;flex-direction:column;gap:1px}
+  .arrows i{width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent}
+  .arrows i.up{border-bottom:4px solid var(--brand)}
+  .arrows i.dn{border-top:4px solid #c9ced6}
+
+  /* ===== 现状：卡片式，行高 72px ===== */
+  .cards{display:flex;flex-direction:column;gap:8px}
+  .card{display:flex;align-items:center;gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px}
+  .ic{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;flex:0 0 auto}
+  .cinfo{flex:1;min-width:0}
+  .cname{font-size:16px;font-weight:500;display:flex;align-items:center;gap:4px}
+  .csub{font-size:14px;color:var(--text-secondary);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chev{width:7px;height:7px;border-right:1.6px solid #c9ced6;border-top:1.6px solid #c9ced6;transform:rotate(45deg);flex:0 0 auto}
+
+  /* ===== 方案 A / A+C：紧凑列表，行高 48px ===== */
+  .list{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .li{display:flex;align-items:center;gap:10px;padding:0 12px;height:48px;border-bottom:1px solid var(--border)}
+  .li:last-child{border-bottom:none}
+  .li .ic{width:28px;height:28px;border-radius:7px;font-size:12px}
+  .li .cname{font-size:15px;font-weight:500}
+  .li .csub{font-size:13px;margin-top:0}
+  .cpy{font-size:11px;color:var(--brand);border:1px solid rgba(7,193,96,.45);border-radius:20px;padding:3px 9px;flex:0 0 auto;background:#F2FCF6}
+
+  /* 分组索引 */
+  .ghead{font-size:11px;color:var(--text-weak);font-weight:600;padding:8px 4px 5px;letter-spacing:.5px}
+  .rail{position:absolute;right:5px;top:140px;display:flex;flex-direction:column;gap:2px;font-size:8.5px;color:#aab0b8;font-weight:600}
+  .rail b{color:var(--brand)}
+
+  /* 底部 tabbar */
+  .tab{position:absolute;left:0;right:0;bottom:0;height:52px;background:#fff;border-top:1px solid var(--border);display:flex}
+  .tab div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:#9AA0A6}
+  .tab div.on{color:var(--brand)}
+  .tab i{width:16px;height:16px;border-radius:4px;background:#dfe3e8}
+  .tab div.on i{background:var(--brand)}
+
+  .cut{position:absolute;left:0;right:0;bottom:52px;height:26px;background:linear-gradient(transparent,rgba(247,248,250,.95));pointer-events:none}
+  .fence{position:relative}
+  .fence::after{content:"";position:absolute;left:0;right:0;height:1px;background:repeating-linear-gradient(90deg,#c8cdd4 0 6px,transparent 6px 12px)}
+</style>
+</head>
+<body>
+
+<h1>密码页布局方案预览</h1>
+<div class="sub">
+  按<b>真实配色与尺寸</b>渲染（1rpx = 0.5px，品牌绿 #07C160，行高/字号取自现有 wxss）。四个方案用<b>同一批 12 条数据</b>，方便直接比密度。<br>
+  虚线是「首屏可见范围」的分界线——线下方的条目需要滚动才能看到。
+</div>
+
+<div class="row">
+
+  <!-- ========== 现状 ========== -->
+  <div class="col">
+    <div class="tag"><span class="badge gray">当前</span> 现状</div>
+    <div class="meta">顶部 5 个区块占 <b>≈34%</b> 首屏 · 行高 <b>72px</b> · 一屏 <b>6 条</b></div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="body">
+        <div class="brand">
+          <div class="avatar">无</div>
+          <div class="brand-info">
+            <div class="brand-name">无忧密码本 <span class="dot"></span> <span class="vip">会员</span></div>
+            <div class="brand-count">已用 12 条 · 总容量 10 条</div>
+            <div class="capbar"><i></i></div>
+          </div>
+        </div>
+        <div class="search"><span class="mag"></span><span>搜索平台、账号...</span></div>
+        <div class="chips">
+          <span class="chip active">全部<small>12</small></span>
+          <span class="chip">登录<small>7</small></span>
+          <span class="chip">服务器<small>2</small></span>
+          <span class="chip">其他<small>3</small></span>
+        </div>
+        <div class="listbar"><span>共 12 条</span><span class="sort">排序：默认<span class="arrows"><i class="up"></i><i class="dn"></i></span></span></div>
+        <div class="cards">
+          <div class="card"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="cinfo"><div class="cname">微信</div><div class="csub">wxid_abc123</div></div><div class="chev"></div></div>
+          <div class="card"><div class="ic" style="background:#FFF0E8;color:#FF5000">淘</div><div class="cinfo"><div class="cname">淘宝</div><div class="csub">shop_2024</div></div><div class="chev"></div></div>
+          <div class="card"><div class="ic" style="background:#EAF2FF;color:#3B82F6">邮</div><div class="cinfo"><div class="cname">公司邮箱</div><div class="csub">me@corp.cn</div></div><div class="chev"></div></div>
+          <div class="card"><div class="ic" style="background:#F3EEFF;color:#7C3AED">支</div><div class="cinfo"><div class="cname">支付宝</div><div class="csub">138****8888</div></div><div class="chev"></div></div>
+          <div class="card"><div class="ic" style="background:#E8F8EF;color:#07C160">服</div><div class="cinfo"><div class="cname">阿里云服务器</div><div class="csub">root@47.98.x.x</div></div><div class="chev"></div></div>
+          <div class="card"><div class="ic" style="background:#FFEEF0;color:#EF4444">游</div><div class="cinfo"><div class="cname">Steam</div><div class="csub">player_one</div></div><div class="chev"></div></div>
+        </div>
+        <div class="cut" style="position:static;height:0"></div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 A ========== -->
+  <div class="col">
+    <div class="tag"><span class="badge">方案 A</span> 紧凑列表</div>
+    <div class="meta">卡片→分隔线列表 · 行高 <b>48px</b> · 一屏 <b>9 条</b>（+50%）</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="body">
+        <div class="brand">
+          <div class="avatar">无</div>
+          <div class="brand-info">
+            <div class="brand-name">无忧密码本 <span class="dot"></span> <span class="vip">会员</span></div>
+            <div class="brand-count">已用 12 条 · 总容量 10 条</div>
+            <div class="capbar"><i></i></div>
+          </div>
+        </div>
+        <div class="search"><span class="mag"></span><span>搜索平台、账号...</span></div>
+        <div class="chips">
+          <span class="chip active">全部<small>12</small></span>
+          <span class="chip">登录<small>7</small></span>
+          <span class="chip">服务器<small>2</small></span>
+          <span class="chip">其他<small>3</small></span>
+        </div>
+        <div class="listbar"><span>共 12 条</span><span class="sort">默认<span class="arrows"><i class="up"></i><i class="dn"></i></span></span></div>
+        <div class="list">
+          <div class="li"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="cinfo"><div class="cname">微信</div><div class="csub">wxid_abc123</div></div><div class="chev"></div></div>
+          <div class="li"><div class="ic" style="background:#FFF0E8;color:#FF5000">淘</div><div class="cinfo"><div class="cname">淘宝</div><div class="csub">shop_2024</div></div><div class="chev"></div></div>
+          <div class="li"><div class="ic" style="background:#EAF2FF;color:#3B82F6">邮</div><div class="cinfo"><div class="cname">公司邮箱</div><div class="csub">me@corp.cn</div></div><div class="chev"></div></div>
+          <div class="li"><div class="ic" style="background:#F3EEFF;color:#7C3AED">支</div><div class="cinfo"><div class="cname">支付宝</div><div class="csub">138****8888</div></div><div class="chev"></div></div>
+          <div class="li"><div class="ic" style="background:#E8F8EF;color:#07C160">服</div><div class="cinfo"><div class="cname">阿里云服务器</div><div class="csub">root@47.98.x.x</div></div><div class="chev"></div></div>
+          <div class="li"><div class="ic" style="background:#FFEEF0;color:#EF4444">游</div><div class="cinfo"><div class="cname">Steam</div><div class="csub">player_one</div></div><div class="chev"></div></div>
+          <div class="li"><div class="ic" style="background:#E8F8EF;color:#07C160">Q</div><div class="cinfo"><div class="cname">QQ</div><div class="csub">10001</div></div><div class="chev"></div></div>
+          <div class="li"><div class="ic" style="background:#FFF7E6;color:#F59E0B">卡</div><div class="cinfo"><div class="cname">招商银行卡</div><div class="csub">6225 **** 1234</div></div><div class="chev"></div></div>
+          <div class="li"><div class="ic" style="background:#EEF2FF;color:#6366F1">WF</div><div class="cinfo"><div class="cname">家里 WiFi</div><div class="csub">TP-LINK_5G</div></div><div class="chev"></div></div>
+          <div class="li"><div class="ic" style="background:#E8F8EF;color:#07C160">知</div><div class="cinfo"><div class="cname">知乎</div><div class="csub">reader_01</div></div><div class="chev"></div></div>
+        </div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 A+C ========== -->
+  <div class="col">
+    <div class="tag"><span class="badge">推荐</span> A + C 紧凑 + 行内复制</div>
+    <div class="meta">顶部减负（容量移走）· 行高 <b>48px</b> · 一屏 <b>10 条</b> · 复制<b> 1 步</b></div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="body">
+        <div class="brand" style="padding-bottom:4px">
+          <div class="avatar">无</div>
+          <div class="brand-info">
+            <div class="brand-name">无忧密码本 <span class="dot"></span></div>
+            <div class="brand-count">12 条</div>
+          </div>
+        </div>
+        <div class="search"><span class="mag"></span><span>搜索平台、账号...</span></div>
+        <div class="chips">
+          <span class="chip active">全部<small>12</small></span>
+          <span class="chip">登录<small>7</small></span>
+          <span class="chip">服务器<small>2</small></span>
+          <span class="chip">其他<small>3</small></span>
+        </div>
+        <div class="list">
+          <div class="li"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="cinfo"><div class="cname">微信</div><div class="csub">wxid_abc123</div></div><span class="cpy">复制</span></div>
+          <div class="li"><div class="ic" style="background:#FFF0E8;color:#FF5000">淘</div><div class="cinfo"><div class="cname">淘宝</div><div class="csub">shop_2024</div></div><span class="cpy">复制</span></div>
+          <div class="li"><div class="ic" style="background:#EAF2FF;color:#3B82F6">邮</div><div class="cinfo"><div class="cname">公司邮箱</div><div class="csub">me@corp.cn</div></div><span class="cpy">复制</span></div>
+          <div class="li"><div class="ic" style="background:#F3EEFF;color:#7C3AED">支</div><div class="cinfo"><div class="cname">支付宝</div><div class="csub">138****8888</div></div><span class="cpy">复制</span></div>
+          <div class="li"><div class="ic" style="background:#E8F8EF;color:#07C160">服</div><div class="cinfo"><div class="cname">阿里云服务器</div><div class="csub">root@47.98.x.x</div></div><span class="cpy">复制</span></div>
+          <div class="li"><div class="ic" style="background:#FFEEF0;color:#EF4444">游</div><div class="cinfo"><div class="cname">Steam</div><div class="csub">player_one</div></div><span class="cpy">复制</span></div>
+          <div class="li"><div class="ic" style="background:#E8F8EF;color:#07C160">Q</div><div class="cinfo"><div class="cname">QQ</div><div class="csub">10001</div></div><span class="cpy">复制</span></div>
+          <div class="li"><div class="ic" style="background:#FFF7E6;color:#F59E0B">卡</div><div class="cinfo"><div class="cname">招商银行卡</div><div class="csub">6225 **** 1234</div></div><span class="cpy">复制</span></div>
+          <div class="li"><div class="ic" style="background:#EEF2FF;color:#6366F1">WF</div><div class="cinfo"><div class="cname">家里 WiFi</div><div class="csub">TP-LINK_5G</div></div><span class="cpy">复制</span></div>
+          <div class="li"><div class="ic" style="background:#E8F8EF;color:#07C160">知</div><div class="cinfo"><div class="cname">知乎</div><div class="csub">reader_01</div></div><span class="cpy">复制</span></div>
+        </div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 B ========== -->
+  <div class="col">
+    <div class="tag"><span class="badge blue">方案 B</span> 分组 + 字母索引</div>
+    <div class="meta">按类型分组 · 右侧索引 · 一屏 <b>7 条</b> · 几十条时定位最快</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="body">
+        <div class="brand" style="padding-bottom:4px">
+          <div class="avatar">无</div>
+          <div class="brand-info">
+            <div class="brand-name">无忧密码本 <span class="dot"></span></div>
+            <div class="brand-count">12 条 · 4 个分组</div>
+          </div>
+        </div>
+        <div class="search"><span class="mag"></span><span>搜索平台、账号...</span></div>
+        <div class="ghead">常用 · 2</div>
+        <div class="cards" style="gap:0;background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div class="li" style="border-bottom:1px solid var(--border)"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="cinfo"><div class="cname">微信</div><div class="csub">wxid_abc123</div></div><div class="chev"></div></div>
+          <div class="li" style="border-bottom:none"><div class="ic" style="background:#F3EEFF;color:#7C3AED">支</div><div class="cinfo"><div class="cname">支付宝</div><div class="csub">138****8888</div></div><div class="chev"></div></div>
+        </div>
+        <div class="ghead">登录 · 5</div>
+        <div class="cards" style="gap:0;background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div class="li" style="border-bottom:1px solid var(--border)"><div class="ic" style="background:#FFF0E8;color:#FF5000">淘</div><div class="cinfo"><div class="cname">淘宝</div><div class="csub">shop_2024</div></div><div class="chev"></div></div>
+          <div class="li" style="border-bottom:1px solid var(--border)"><div class="ic" style="background:#EAF2FF;color:#3B82F6">邮</div><div class="cinfo"><div class="cname">公司邮箱</div><div class="csub">me@corp.cn</div></div><div class="chev"></div></div>
+          <div class="li" style="border-bottom:1px solid var(--border)"><div class="ic" style="background:#E8F8EF;color:#07C160">Q</div><div class="cinfo"><div class="cname">QQ</div><div class="csub">10001</div></div><div class="chev"></div></div>
+          <div class="li" style="border-bottom:1px solid var(--border)"><div class="ic" style="background:#E8F8EF;color:#07C160">知</div><div class="cinfo"><div class="cname">知乎</div><div class="csub">reader_01</div></div><div class="chev"></div></div>
+          <div class="li" style="border-bottom:none"><div class="ic" style="background:#FFEEF0;color:#EF4444">游</div><div class="cinfo"><div class="cname">Steam</div><div class="csub">player_one</div></div><div class="chev"></div></div>
+        </div>
+        <div class="ghead">服务器 · 2</div>
+        <div class="cards" style="gap:0;background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div class="li" style="border-bottom:1px solid var(--border)"><div class="ic" style="background:#E8F8EF;color:#07C160">服</div><div class="cinfo"><div class="cname">阿里云服务器</div><div class="csub">root@47.98.x.x</div></div><div class="chev"></div></div>
+          <div class="li" style="border-bottom:none"><div class="ic" style="background:#EEF2FF;color:#6366F1">WF</div><div class="cinfo"><div class="cname">家里 WiFi</div><div class="csub">TP-LINK_5G</div></div><div class="chev"></div></div>
+        </div>
+        <div class="rail"><span>A</span><span>B</span><span>C</span><span>D</span><b>E</b><span>F</span><span>G</span><span>H</span><span>J</span><span>K</span><span>L</span><span>M</span><span>N</span><span>P</span><span>Q</span><span>S</span><span>T</span><span>W</span><span>X</span><span>Y</span><span>Z</span></div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sub" style="margin-top:26px">
+  <b>关键差异一眼看：</b>现状一屏只能看到 6 条（且底部被第 7 条截断），A/C 能完整看到 9–10 条；
+  方案 B 行高和现状接近，所以条数没变，它解决的是「几十条时找得到」，不是「一屏看更多」。
+</div>
+
+</body>
+</html>

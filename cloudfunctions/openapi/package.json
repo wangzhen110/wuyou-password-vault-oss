@@ -1,0 +1,9 @@
+{
+  "name": "openapi",
+  "version": "4.3.15",
+  "description": "密码本开放 API（HTTP）：授权码换令牌、拉取密文与公开参数",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "4.0.2"
+  }
+}

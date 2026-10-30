@@ -1,0 +1,212 @@
+<!-- settings V4.0：comp-cell 四分组重组 + 会员/邀请常驻 -->
+<view class="page {{themeClass}}">
+<view class="container">
+
+  <view class="status-bar-placeholder"></view>
+
+  <view class="page-header">
+    <text class="page-title">设置</text>
+  </view>
+
+  <!-- 个人资料 -->
+  <view class="profile-card tappable" bindtap="onGoAccount">
+    <view class="profile-avatar">
+      <image class="profile-avatar-img" wx:if="{{avatarFileId}}" src="{{avatarFileId}}" mode="aspectFill"/>
+      <text class="profile-avatar-text" wx:else>{{nickName ? nickName[0] : '客'}}</text>
+    </view>
+    <view class="profile-info">
+      <text class="profile-name">{{nickName || '未设置昵称'}}</text>
+      <text class="profile-sub">邀请码 {{inviteCode || '--'}} · {{isVip ? '年度会员' : '免费用户'}}</text>
+    </view>
+    <view class="item-arrow"></view>
+  </view>
+
+  <!-- 会员升级 -->
+  <view class="settings-group vip-entry tappable" bindtap="onGoMember">
+    <view class="vip-entry-left">
+      <text class="vip-entry-title">{{isVip ? '年度会员' : '升级年度会员'}}</text>
+      <text class="vip-entry-desc" wx:if="{{isVip}}">{{vipExpireText}} 到期 · 会员容量使用中（已购/邀请容量叠加）</text>
+      <text class="vip-entry-desc" wx:else>500 条容量起 · 开放 API</text>
+    </view>
+    <view class="item-right">
+      <text class="vip-entry-badge" wx:if="{{!isVip}}">39元/年</text>
+      <view class="item-arrow"></view>
+    </view>
+  </view>
+
+  <!-- 邀请好友（紧凑版 2026-10-24） -->
+  <view class="invite-card-compact">
+    <view class="invite-row-main">
+      <view class="invite-code-block">
+        <text class="invite-code-label">邀请码</text>
+        <text class="invite-code-value">{{inviteCode || '——'}}</text>
+      </view>
+      <view class="invite-copy-pill tappable" bindtap="onCopyInviteCode">复制</view>
+    </view>
+    <view class="invite-hint">邀请好友注册，双方各得 <text class="invite-hint-accent">5 条</text> 永久容量</view>
+    <view class="invite-row-foot">
+      <text class="invite-count">已邀请 {{inviteCount}}/3</text>
+      <view class="invite-foot-actions">
+        <button class="invite-share" open-type="share" bindtap="onShareInvite">邀请好友</button>
+        <text class="invite-card-link tappable" bindtap="generateInviteImage">生成邀请图</text>
+      </view>
+    </view>
+    <view class="invite-enter-box tappable" bindtap="onOpenInviteInput">
+      <text class="invite-enter-text">收到好友邀请码？点此填写</text>
+      <text class="invite-enter-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 安全说明卡（显眼入口 → 产品介绍） -->
+  <view class="trust-card tappable" bindtap="onAbout">
+    <view class="trust-card-mark"></view>
+    <view class="trust-card-body">
+      <view class="trust-card-title">隐私与安全<text class="trust-badge" wx:if="{{!aboutRead}}">必读</text></view>
+      <view class="trust-card-sub">了解我们如何保护你的数据</view>
+    </view>
+    <view class="trust-dot" wx:if="{{!aboutRead}}"></view>
+    <view class="item-arrow trust-card-arrow"></view>
+  </view>
+
+  <view class="section-title">账号与安全</view>
+  <view class="settings-group">
+    <comp-cell title="修改主密码" arrow bind:tap="onChangePassword"/>
+    <view class="settings-divider"></view>
+    <comp-cell title="主密码提示" arrow bind:tap="onHintOpen"/>
+    <view class="settings-divider"></view>
+    <comp-cell title="手动同步" desc="{{syncDetail}}" value="{{syncStatus}}" arrow bind:tap="onManualSync"/>
+  </view>
+
+  <view class="section-title">数据与备份</view>
+  <view class="settings-group">
+    <comp-cell title="备份密码本" desc="{{lastBackupText}}" arrow bind:tap="onBackup"/>
+    <view class="settings-divider"></view>
+    <comp-cell title="导入加密备份" arrow bind:tap="onRestoreBackup"/>
+    <view class="settings-divider"></view>
+    <comp-cell title="清空云端数据" desc="删除云端备份（不可恢复），本机数据同时清除" arrow bind:tap="onPurgeCloud"/>
+    <view class="privacy-hint">
+      <text class="privacy-hint-text">说明：在微信里删除小程序只会清空本机缓存，不会删除云端备份。若想彻底删除，请使用上方入口。</text>
+    </view>
+  </view>
+
+  <view class="section-title">通用</view>
+  <view class="settings-group">
+    <comp-cell title="主题" value="{{themeLabel}}" arrow bind:tap="onTheme"/>
+    <view class="settings-divider"></view>
+    <view class="settings-item feedback-wrap">
+      <comp-cell title="意见反馈" arrow>
+        <view slot="right"></view>
+      </comp-cell>
+      <button class="feedback-btn" open-type="feedback"></button>
+    </view>
+    <view class="settings-divider"></view>
+    <view class="settings-item feedback-wrap">
+      <comp-cell title="联系客服" arrow>
+        <view slot="right"></view>
+      </comp-cell>
+      <button class="feedback-btn" open-type="contact"></button>
+    </view>
+  </view>
+
+  <!-- 开发者 / 开放 API -->
+  <view class="settings-group section-group">
+    <view class="section-group-title">开发者</view>
+    <comp-cell title="开放 API 授权" desc="让第三方程序读取密码（只返回密文）" arrow bind:tap="onOpenApiAccess"/>
+  </view>
+
+  <view class="section-title">关于</view>
+  <view class="settings-group">
+    <comp-cell title="用户协议与隐私" arrow bind:tap="onAgreement"/>
+  </view>
+
+  <view class="version-area">
+    <text class="version-text">无忧密码本 v{{version}}</text>
+  </view>
+
+  <view class="safe-area-bottom"></view>
+
+  <!-- 修改主密码（通用输入弹窗） -->
+  <comp-input-dialog id="pwdDlg"
+    visible="{{changePwdDialog.visible}}"
+    title="修改主密码"
+    desc="本机与云端所有密码记录将重新加密并重新上传，请勿关闭小程序直到完成。"
+    fields="{{changePwdFields}}"
+    busy="{{changePwdDialog.busy}}"
+    error="{{changePwdDialog.error}}"
+    confirm-text="确认修改"
+    busy-text="正在重新加密..."
+    bind:confirm="onPwdConfirm"
+    bind:close="onPwdClose"
+  />
+
+  <!-- 主密码提示（通用输入弹窗） -->
+  <comp-input-dialog
+    visible="{{hintDialog.visible}}"
+    title="主密码提示"
+    desc="锁屏页可查看的提醒文字。请不要把密码本身写在这里，最多 200 字。"
+    fields="{{hintFields}}"
+    busy="{{hintDialog.busy}}"
+    error="{{hintDialog.error}}"
+    confirm-text="保存"
+    bind:confirm="onHintConfirm"
+    bind:close="onHintClose"
+  />
+
+  <!-- 导入加密备份 -->
+  <comp-input-dialog
+    visible="{{importDialog.visible}}"
+    title="导入加密备份"
+    desc="备份文件已读取，请输入该文件的密码"
+    fields="{{importFields}}"
+    busy="{{importDialog.busy}}"
+    error="{{importDialog.error}}"
+    confirm-text="开始导入"
+    busy-text="正在导入..."
+    bind:confirm="onImportConfirm"
+    bind:close="onImportClose"
+  />
+
+  <!-- 输入邀请码 -->
+  <comp-input-dialog
+    visible="{{inviteDialog.visible}}"
+    title="使用邀请码"
+    desc="输入好友分享给你的邀请码，双方各得 5 条永久容量（每人限用一次）"
+    fields="{{inviteFields}}"
+    busy="{{inviteDialog.busy}}"
+    error="{{inviteDialog.error}}"
+    confirm-text="确认使用"
+    busy-text="正在绑定..."
+    bind:confirm="onInviteCodeConfirm"
+    bind:close="onInviteCodeClose"
+  />
+</view>
+
+  <!-- 编辑个人资料 -->
+</view>
+
+  <!-- 邀请卡片离屏画布（生成图片用，不可见） -->
+  <canvas type="2d" id="inviteCanvas" class="invite-canvas"></canvas>
+
+  <!-- 取件链接弹窗（品牌自定义样式） -->
+  <view class="pickup-mask" wx:if="{{pickupModal.visible}}" catchtouchmove="noop">
+    <view class="pickup-card" catchtap="noop">
+      <view class="pickup-brand">
+        <view class="pickup-brand-icon"></view>
+        <view class="pickup-brand-name">备份取件已就绪</view>
+      </view>
+      <view class="pickup-label">备份文件</view>
+      <view class="pickup-filename">{{pickupModal.filename}}</view>
+      <view class="pickup-label">取件链接 · 10 分钟内有效</view>
+      <view class="pickup-link-box">
+        <text class="pickup-link-text" user-select>{{pickupModal.url}}</text>
+      </view>
+      <view class="pickup-steps">
+        <view class="pickup-step"><text class="pickup-step-num">1</text><text>将链接发送到电脑（微信/QQ 均可）</text></view>
+        <view class="pickup-step"><text class="pickup-step-num">2</text><text>电脑浏览器打开链接</text></view>
+        <view class="pickup-step"><text class="pickup-step-num">3</text><text>输入主密码，下载备份文件（直链 5 分钟有效）</text></view>
+      </view>
+      <view class="pickup-copy-btn tappable" hover-class="pickup-copy-btn-hover" bindtap="onCopyPickupLink">复制取件链接</view>
+      <view class="pickup-close" bindtap="onClosePickupModal">知道了</view>
+      <view class="pickup-expire">链接 10 分钟内有效 · 下载需输入主密码</view>
+    </view>
+  </view>

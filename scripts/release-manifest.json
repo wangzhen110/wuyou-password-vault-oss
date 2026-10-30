@@ -1,0 +1,60 @@
+{
+  "version": "4.3.15",
+  "appid": "wx0000000000000000",
+  "envId": "your-cloud-env-id",
+  "miniprogramRoot": "miniprogram",
+  "cloudfunctionRoot": "cloudfunctions",
+  "cloudFunctions": [
+    "invite",
+    "login",
+    "pay",
+    "payCallback",
+    "sync",
+    "apiAuth",
+    "openapi",
+    "vpay",
+    "vpayCallback"
+  ],
+  "existingProductionFunctions": {
+    "ensureCollections": {
+      "action": "exclude",
+      "reason": "maintenance-only; may write and delete probe records; do not invoke in production"
+    },
+    "globalStats": {
+      "action": "retain-unmodified",
+      "reason": "existing production function; not part of the 4.3.15 client cutover"
+    },
+    "initDB": {
+      "action": "retain-unmodified",
+      "reason": "existing production function; do not invoke during cutover"
+    },
+    "leaderboard": {
+      "action": "retain-unmodified",
+      "reason": "existing production function; not part of the 4.3.15 client cutover"
+    }
+  },
+  "maintenanceOnlyFunctions": [
+    "ensureCollections"
+  ],
+  "excludedFromRelease": [
+    "devtools-probe*.js",
+    "preview*.png",
+    "shots/",
+    "AI_SYNC/",
+    "AI协作模块/",
+    "logs/",
+    "scripts/*query.json",
+    "scripts/*update.json",
+    "scripts/production-user-*.json",
+    "scripts/id-projection.json",
+    "scripts/empty-query.json",
+    ".env*",
+    "*.pem",
+    "*.key",
+    "*.p12",
+    "*.pfx",
+    ".workbuddy/",
+    "project.private.config.json",
+    "node_modules/"
+  ]
+}

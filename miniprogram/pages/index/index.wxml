@@ -1,0 +1,163 @@
+<!-- pages/index 密码列表（4.3.11 改版：抽屉式分组） -->
+<view class="page {{themeClass}}">
+  <view class="container">
+    <view class="status-bar-placeholder"></view>
+
+    <!-- 离线 / 演示横幅（保持原样） -->
+    <view class="offline-banner" wx:if="{{offlineMode}}">
+      <text class="offline-text">离线模式 · 数据仅存本机，联网后自动同步</text>
+    </view>
+    <view class="demo-banner tappable" wx:if="{{demoMode}}" bindtap="onExitDemo">
+      <text class="demo-banner-text">演示模式 · 当前为示例数据，点此退出并输入主密码</text>
+    </view>
+
+    <!-- ===== 信息栏：头像 / 昵称 / 会员 / 容量（永不被抽屉遮挡；右侧留白避开微信胶囊）===== -->
+    <view class="infobar">
+      <view class="ib-left tappable" bindtap="onGoAccount">
+        <image class="ib-avatar" wx:if="{{avatarFileId}}" src="{{avatarFileId}}" mode="aspectFill"/>
+        <view class="ib-logo" wx:else>
+          <view class="ib-logo-icon"></view>
+        </view>
+        <view class="ib-name-wrap">
+          <view class="ib-name-row">
+            <text class="ib-name">{{nickName || '无忧密码本'}}</text>
+            <text class="vip-badge" wx:if="{{isVip}}">会员</text>
+            <view class="net-dot {{offlineMode ? 'off' : 'on'}}"></view>
+          </view>
+          <view class="ib-cap-row">
+            <text class="ib-cap">已用 <text class="ib-cap-num">{{usedCount}}</text> / {{capacity}} 条</text>
+            <view class="cap-bar"><view class="cap-bar-fill" style="width: {{capacityPercent}}%"></view></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 超额提示（会员到期） -->
+    <view class="overflow-tip" wx:if="{{overflowCount > 0}}">
+      <text>{{overflowCount}} 条超出容量，仅可查看/复制/删除</text>
+      <text class="overflow-renew" bindtap="goMember">续费</text>
+    </view>
+
+    <!-- ===== 工具栏：菜单 / 组名 / 条数 / 新建 ===== -->
+    <view class="toolbar">
+      <view class="tb-menu tappable" bindtap="onToggleDrawer">
+        <view class="tb-menu-line"></view>
+        <view class="tb-menu-line"></view>
+        <view class="tb-menu-line"></view>
+      </view>
+      <text class="tb-title">{{currentGroupLabel}}</text>
+      <text class="tb-count">{{filteredPasswords.length}}</text>
+    </view>
+
+    <!-- ===== 常驻搜索 ===== -->
+    <view class="search-bar">
+      <view class="search-icon-wrap">
+        <view class="search-icon-circle"></view>
+        <view class="search-icon-line"></view>
+      </view>
+      <input class="search-input" placeholder="搜索平台、账号..." value="{{searchText}}"
+             bindinput="onSearchInput" confirm-type="search" placeholder-class="pwd-placeholder"/>
+      <view class="search-clear tappable" wx:if="{{searchText}}" bindtap="onClearSearch">
+        <view class="clear-x-line clear-x1"></view>
+        <view class="clear-x-line clear-x2"></view>
+      </view>
+    </view>
+
+    <!-- ===== 列表 ===== -->
+    <view class="pwd-list skeleton-list" wx:if="{{loading}}">
+      <view class="skeleton-card" wx:for="{{[1, 2, 3]}}" wx:key="*this">
+        <view class="skeleton-icon"></view>
+        <view class="skeleton-lines">
+          <view class="skeleton-line skeleton-w60"></view>
+          <view class="skeleton-line skeleton-w40"></view>
+        </view>
+      </view>
+    </view>
+
+    <block wx:elif="{{groupedList.length > 0}}">
+      <view class="pwd-list">
+        <block wx:for="{{groupedList}}" wx:key="key" wx:for-item="grp">
+          <!-- 分组头：仅分组模式显示（「全部」是平铺，无组头） -->
+          <view class="g-head tappable" wx:if="{{!grp.flat}}" bindtap="onToggleGroup" data-key="{{grp.key}}">
+            <view class="g-tri {{grp.collapsed ? 'fold' : ''}}"></view>
+            <text class="g-name">{{grp.label}}</text>
+            <text class="g-count">{{grp.count}}</text>
+          </view>
+
+          <view class="g-body" wx:if="{{grp.flat || !grp.collapsed}}">
+            <view class="pwd-row card-press" wx:for="{{grp.items}}" wx:key="id" wx:for-item="p"
+                  data-item="{{p}}" bindtap="onPasswordTap" bindlongpress="onPasswordLongPress">
+              <view class="platform-icon" style="background: {{p.iconBg}}">
+                <text class="platform-letter" wx:if="{{p.entryType === 'login'}}" style="color: {{p.iconColor}}">{{p.platformLetter}}</text>
+                <view class="list-type-icon" wx:else>
+                  <view class="lti lti-{{p.typeIcon}}"></view>
+                </view>
+              </view>
+              <view class="pwd-info">
+                <view class="row-name-line">
+                  <text class="pwd-seq" wx:if="{{p.seq}}">#{{p.seq}}</text>
+                  <text class="pwd-name">{{p.platform}}</text>
+                  <view class="pin-dot" wx:if="{{p.pinned}}"></view>
+                </view>
+                <text class="pwd-account">{{p.subtitle || p.account}}</text>
+              </view>
+              <view class="row-more tappable" catchtap="onRowMore" data-item="{{p}}">
+                <view class="row-more-dot"></view>
+                <view class="row-more-dot"></view>
+                <view class="row-more-dot"></view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </block>
+
+    <comp-empty wx:else
+      title="{{searchText ? '没有匹配的结果' : '还没有存密码'}}"
+      description="{{searchText ? '换个关键词试试' : '点击右下角按钮添加第一条'}}"
+      buttonText="{{searchText ? '' : '立即添加'}}"
+      bind:action="onAdd"/>
+
+    <view class="safe-area-bottom"></view>
+  </view>
+
+  <!-- ===== 分组抽屉（覆盖式，从信息栏下方开始，不遮挡头像与容量）===== -->
+  <view class="drawer-mask {{drawerOpen ? 'show' : ''}}" bindtap="onCloseDrawer"></view>
+  <view class="drawer {{drawerOpen ? 'show' : ''}}" style="top: {{drawerTop}}px" catchtap="onDrawerNoop">
+    <view class="drawer-head">
+      <text class="drawer-title">分组</text>
+      <text class="drawer-sub">共 {{usedCount}} 条 · {{drawerGroups.length}} 个分组</text>
+    </view>
+    <scroll-view class="drawer-list" scroll-y>
+      <view class="drawer-item tappable {{currentGroup === '全部' ? 'on' : ''}}"
+            bindtap="onSelectGroup" data-key="全部">
+        <text class="di-name">全部</text>
+        <text class="di-count">{{usedCount}}</text>
+      </view>
+      <view class="drawer-item tappable {{currentGroup === item.key ? 'on' : ''}}"
+            wx:for="{{drawerGroups}}" wx:key="key" bindtap="onSelectGroup" data-key="{{item.key}}">
+        <view class="di-dot" style="background: {{item.color}}"></view>
+        <text class="di-name">{{item.label}}</text>
+        <text class="di-count">{{item.count}}</text>
+      </view>
+    </scroll-view>
+    <view class="drawer-foot">
+      <view class="drawer-act tappable" bindtap="onOpenGroupEditor">
+        <text class="drawer-act-text">编辑分组</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 浮动添加按钮 -->
+<view class="fab tappable" bindtap="onAdd">
+  <view class="fab-inner">
+    <view class="fab-plus-h"></view>
+    <view class="fab-plus-v"></view>
+  </view>
+</view>
+
+<!-- 演示模式：固定悬浮「退出演示」按钮 -->
+<view class="demo-exit-fab tappable" wx:if="{{demoMode}}" bindtap="onExitDemo">
+  <text class="demo-exit-fab-text">退出演示</text>
+</view>

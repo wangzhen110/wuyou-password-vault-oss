@@ -1,0 +1,42 @@
+<view class="dlg-mask" wx:if="{{visible}}" catchtap="_onCancel" catchtouchmove="noop">
+  <view class="dlg-card" catchtap="noop">
+    <text class="dlg-title">{{title}}</text>
+    <text class="dlg-desc" wx:if="{{desc}}">{{desc}}</text>
+
+    <view class="dlg-field" wx:for="{{fields}}" wx:key="key">
+      <text class="dlg-label">{{item.label}}</text>
+      <textarea
+        wx:if="{{item.multiline}}"
+        class="dlg-input dlg-textarea"
+        value="{{values[item.key]}}"
+        placeholder="{{item.placeholder}}"
+        placeholder-class="dlg-placeholder"
+        data-key="{{item.key}}"
+        bindinput="_onInput"
+        disabled="{{busy}}"
+        maxlength="{{item.maxlength || 200}}"
+        auto-height
+      />
+      <input
+        wx:else
+        class="dlg-input"
+        value="{{values[item.key]}}"
+        password="{{item.password}}"
+        placeholder="{{item.placeholder}}"
+        placeholder-class="dlg-placeholder"
+        data-key="{{item.key}}"
+        bindinput="_onInput"
+        disabled="{{busy}}"
+      />
+    </view>
+
+    <text class="dlg-error" wx:if="{{error}}">{{error}}</text>
+
+    <view class="dlg-actions">
+      <button class="dlg-btn cancel" catchtap="_onCancel" disabled="{{busy}}">{{cancelText}}</button>
+      <button class="dlg-btn confirm" catchtap="_onConfirm" disabled="{{busy}}">
+        {{busy ? busyText : confirmText}}
+      </button>
+    </view>
+  </view>
+</view>

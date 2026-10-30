@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开源密码管理项目竞品档案 — 无忧密码本</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; color: #2c3e50; background: #f5f6fa; line-height: 1.75; padding: 24px; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 26px; margin-bottom: 4px; }
+  .meta { color: #7f8c8d; font-size: 13px; margin-bottom: 24px; }
+  h2 { font-size: 20px; margin: 32px 0 12px; padding-left: 10px; border-left: 4px solid #07C160; }
+  h3 { font-size: 16px; margin: 20px 0 8px; color: #16a34a; }
+  p, li { font-size: 14.5px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 13.5px; margin: 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  th, td { border: 1px solid #e2e8f0; padding: 9px 12px; text-align: left; vertical-align: top; }
+  th { background: #07C160; color: #fff; font-weight: 600; white-space: nowrap; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; margin: 14px 0; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 10px; border-radius: 20px; margin-right: 6px; font-weight: 600; }
+  .t-red { background: #fee2e2; color: #b91c1c; }
+  .t-gray { background: #e5e7eb; color: #4b5563; }
+  .t-green { background: #dcfce7; color: #15803d; }
+  .t-blue { background: #dbeafe; color: #1d4ed8; }
+  .t-orange { background: #ffedd5; color: #c2410c; }
+  .hl { background: #fef9c3; padding: 0 3px; }
+  .insight { border-left: 4px solid #f59e0b; background: #fffbeb; padding: 12px 16px; margin: 10px 0; font-size: 14px; border-radius: 0 8px 8px 0; }
+  .notice { border: 1px solid #f59e0b; background: #fffbeb; padding: 14px 18px; margin: 16px 0 24px; border-radius: 8px; font-size: 14px; }
+  .footer { margin-top: 36px; color: #94a3b8; font-size: 12px; text-align: center; }
+  code { background: #eef2f5; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  a { color: #0369a1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>开源密码管理项目 · 竞品功能档案</h1>
+<div class="meta">调研快照：2026-09-28 ｜ 用途：历史竞品研究与功能规划参考 ｜ 信息来源：GitHub / Gitee / 微信公众号（含 README 全文抓取，LockMe 仓库已删除、采用搜索快照）</div>
+<div class="notice"><b>状态边界：</b>本文保留当时的竞品研究；竞品状态、数据与市场判断未在本轮重新核实，不应视为当前行业结论。项目状态以<a href="项目状态与路线图.md">唯一当前状态入口</a>为准，加密实现以<a href="../miniprogram/utils/CRYPTO_README.md">加密说明</a>为准。项目源码描述不证明已部署、云端历史数据仅含密文、真实支付可用或完成生产验收。</div>
+
+<h2>一、微信小程序赛道 · 直接竞品（5 个）</h2>
+
+<div class="card">
+  <h3>1. wechat-1password「有本密码」— arleyGuoLei</h3>
+  <p>
+    <span class="tag t-orange">停更：最后提交 2023-01</span>
+    <span class="tag t-gray">个人项目 · 自用为主</span>
+    <span class="tag t-green">同类中知名度最高</span>
+  </p>
+  <table>
+    <tr><th style="width:120px">维度</th><th>内容</th></tr>
+    <tr><td>核心功能</td><td>添加/编辑/删除密码、随机密码生成（大小写+数字+特殊字符可配置）、高级模糊搜索（空格分词转 OR 条件、正则特殊字符转义）、查看密码自动复制到剪贴板并计使用次数、偏好设置、关于页</td></tr>
+    <tr><td>安全设计</td><td>主密码 SHA256 摘要存云端（用于校验，不可逆）｜账号密码字段 AES 加密后上云｜<span class="hl">指纹验证（SoterAuthentication）通过后从本地缓存读取主密码解密</span>，不支持指纹则弹窗手输</td></tr>
+    <tr><td>技术架构</td><td>小程序原生 + 云开发；model 层封装（base/user/password 继承体系）；自封装 cryptojs（SHA256+AES）；工具库 $（toast/sleep/loading/store/encrypt/decrypt）</td></tr>
+    <tr><td>数据库</td><td>2 个集合：user（存 encryption 摘要）、password（加密后数据），权限「仅创建者可读写」</td></tr>
+    <tr><td>UI</td><td>Sketch 绘制（附 .sketch 源文件），自评「大师级 UI」，蓝湖标注</td></tr>
+    <tr><td>商业模式</td><td>无。赞赏码求打赏</td></tr>
+  </table>
+  <div class="insight">💡 <b>历史启示（未作行业验证）：</b>当时的研究据此提出指纹解锁、查看即复制和使用次数统计等体验方向。旧文曾称本项目已有 Soter 解锁、使用 PBKDF2/SHA-256 500 轮；这与当前源码不符：生物识别解锁已禁用，新格式使用 PBKDF2-HMAC-SHA256 600,000 次，旧格式兼容校验才是 SHA-256 迭代 500 次。不能据此宣称相对竞品更安全或零知识；详见加密说明。</div>
+</div>
+
+<div class="card">
+  <h3>2. miniprogram-1password — codemyhappy</h3>
+  <p>
+    <span class="tag t-orange">最后提交 2025-03</span>
+    <span class="tag t-blue">教学案例（小红书引流）</span>
+    <span class="tag t-gray">Apache 2.0</span>
+  </p>
+  <table>
+    <tr><th style="width:120px">维度</th><th>内容</th></tr>
+    <tr><td>核心功能</td><td>添加/编辑/删除密码记录、密码搜索、密码复制、问题反馈与技术支持（内置工单）、使用说明页</td></tr>
+    <tr><td>安全设计</td><td>客户端 CryptoJS AES-256 加密（key=主密码）｜主密码本地存储不上云｜账号/密码/描述全字段加密后上云｜5 天内免登录</td></tr>
+    <tr><td>技术架构</td><td>小程序原生 + 云开发；3 个云函数（bugManage / psdRecordsManage / psdUserManage）；npm 方式引入 crypto-js；TypeScript 类型定义（database.d.ts）</td></tr>
+    <tr><td>数据库</td><td>3 个集合：psd_records（密码）、psd_users（用户）、bug_list（反馈）</td></tr>
+    <tr><td>商业模式</td><td>无。作者定位：开源打消安全疑虑 + 小程序教学引流（小红书 @要一直开心啊）</td></tr>
+  </table>
+  <div class="insight">💡 <b>历史启示（候选项，未评估成本或实施状态）：</b>①可评估问题反馈入口；②可研究免登录时长与锁定策略的取舍；③如补充安全说明，应准确解释当前封套与边界，不使用未经验证的“端到端”或“零知识”标签。</div>
+</div>
+
+<div class="card">
+  <h3>3. LockMe — pushmetop（原仓库已删除，sunlianlong 有镜像）</h3>
+  <p>
+    <span class="tag t-red">原仓库 404（已删/转私）</span>
+    <span class="tag t-gray">博客性质 · 免费开源</span>
+  </p>
+  <table>
+    <tr><th style="width:120px">维度</th><th>内容</th></tr>
+    <tr><td>核心功能</td><td>密码中心（多个 safe 保险箱）、设置页；交互设计对标「百度」（大众最熟悉的搜索交互）</td></tr>
+    <tr><td>安全设计</td><td><span class="hl">国密 SM2 公私钥算法</span>：私钥用户个人保存且不触网，密码数据全部公钥加密存储</td></tr>
+    <tr><td>技术架构</td><td>小程序 + 云开发；集合：safes / settings / publicKeys；环境变量配置文件 config.js</td></tr>
+    <tr><td>商业模式</td><td>无</td></tr>
+  </table>
+  <div class="insight">💡 <b>历史启示（待评估）：</b>①「国密算法」曾被列为政务/企业场景的差异化候选，适用性仍需验证；②「保险箱(safe)分组」可作为信息架构参考；③仓库删除提示需要考虑项目持续性，但单个案例不能证明商业化是必要条件。</div>
+</div>
+
+<div class="card">
+  <h3>4. 密码档案 mp_gpass_ts — GaGaChina</h3>
+  <p>
+    <span class="tag t-gray">个人练手 · 2020 年底作品</span>
+    <span class="tag t-gray">TypeScript</span>
+  </p>
+  <table>
+    <tr><th style="width:120px">维度</th><th>内容</th></tr>
+    <tr><td>核心功能</td><td>基于 <span class="hl">KDBX 开源加密格式</span>的账号管理：可导入/导出 .kdbx 文件；首次导入抽取附件 AES 加密另存，清除历史记录提速</td></tr>
+    <tr><td>技术架构</td><td>TypeScript + 组件化开发 + 独立数据模型驱动；云函数 cloud/all/functions/WXBaseInfo</td></tr>
+    <tr><td>商业模式</td><td>无</td></tr>
+  </table>
+  <div class="insight">💡 <b>历史启示（待评估）：</b>KDBX 兼容曾被视为 KeePass 用户迁移方向；用户规模、需求及会员转化未在本轮核实。可作为远期候选，工程参考价值有限（当时记录认为代码较旧）。</div>
+</div>
+
+<div class="card">
+  <h3>5. 私密密码本 v2.0 — Gitee（haoshoufang-reads-half-a-book）</h3>
+  <p>
+    <span class="tag t-gray">Gitee 项目</span>
+    <span class="tag t-orange">纯本地路线</span>
+  </p>
+  <table>
+    <tr><th style="width:120px">维度</th><th>内容</th></tr>
+    <tr><td>核心功能</td><td>本地加密存储（数据不出手机）、AES-256、主密码派生密钥（永不存储）、加密备份导出/导入（换机）、智能搜索（平台/账号/备注）、一键复制并自动清剪贴板、魔方交互登录页</td></tr>
+    <tr><td>规划中</td><td>指纹/面部解锁（待实现）</td></tr>
+    <tr><td>技术架构</td><td>小程序原生；pages: login/index/add/detail/export/import；utils: crypto.js + crypto-js-min + storage</td></tr>
+    <tr><td>商业模式</td><td>无</td></tr>
+  </table>
+  <div class="insight">💡 <b>启示：</b>①「一键复制后自动清除剪贴板」是个安全细节，咱们可以做（wx.setClipboardData 后延时清空）；②它的登录页「魔方交互」是花活，咱们的锁屏走专业暗色路线更对；③纯本地 = 换机靠手动导出导入，云同步是咱们最硬的差异点。</div>
+</div>
+
+<h2>二、国际开源参考（形态不同，思路可借鉴）</h2>
+<table>
+  <tr><th>项目</th><th>⭐</th><th>形态</th><th>特色功能</th><th>对我们的参考价值</th></tr>
+  <tr><td><a href="https://github.com/keepassxreboot/keepassxc">KeePassXC</a></td><td>29k</td><td>桌面端</td><td>KDBX 生态核心，浏览器扩展联动</td><td>KDBX 兼容策略的标杆</td></tr>
+  <tr><td><a href="https://github.com/bitwarden/android">Bitwarden</a> 系</td><td>9.4k+</td><td>全平台</td><td>自建服务端（Vaultwarden/nodewarden 3.8k⭐）、组织/集合共享、CLI</td><td>组织共享=团队版方向；Secrets Manager 是「开发者密码中台」的直接老师</td></tr>
+  <tr><td><a href="https://github.com/padloc/padloc">Padloc</a></td><td>2.9k</td><td>Web/PWA</td><td>端到端加密、个人+团队双模式</td><td>E2E 加密的现代化产品叙事</td></tr>
+  <tr><td><a href="https://github.com/lesspass/lesspass">LessPass</a></td><td>6.1k</td><td>无状态</td><td>无数据库：站点+账号+主密码确定性生成密码</td><td>「免同步」另类思路，可做彩蛋功能</td></tr>
+  <tr><td><a href="https://github.com/aliasvault/aliasvault">AliasVault</a></td><td>3.1k</td><td>自托管</td><td>密码管理 + 内置邮箱别名（隐私套件化）</td><td>「密码+邮箱别名」的组合卖点，远期可抄</td></tr>
+  <tr><td><a href="https://github.com/AChep/keyguard-app">Keyguard</a></td><td>3.3k</td><td>Android</td><td>Watchtower 弱密码/泄露检测、passkey 支持</td><td>「弱密码体检」是低成本高价值功能</td></tr>
+  <tr><td><a href="https://github.com/clipperz/password-manager">Clipperz</a></td><td>750</td><td>Web</td><td>零知识老祖宗（2011），浏览器端本地加密</td><td>零知识叙事的历史依据</td></tr>
+  <tr><td><a href="https://github.com/apple/password-manager-resources">apple/password-manager-resources</a></td><td>4.9k</td><td>资源库</td><td>各家密码管理器互操作规范</td><td>密码规则/填写规范参考</td></tr>
+</table>
+
+<h2>三、非 GitHub 竞品补充</h2>
+<div class="card">
+  <h3>金盾密码本（安卓 APP，公众号「鱼观」2025-06 自发布）</h3>
+  <p>MD5 密匙校验 + AES-256 本地存储；自研安全键盘（防输入法上云）、禁截屏、退出销毁内存；不联网不上架（网盘发 APK）；固定 6 条银行卡 + 20 条平台记录位；捐赠变现。传播文已见公众号推文。</p>
+  <div class="insight">💡 安全键盘、防截屏（wx.onUserCaptureScreen 可检测）两项曾被列为安全强化候选；该项目的固定记录位与本项目历史容量设计可作思路对照，但当前实现和生产运营情况应查唯一当前状态入口。</div>
+</div>
+
+<h2>四、功能对比矩阵（历史研究快照）</h2>
+<p>竞品列保留调研时的记录，未在本轮复核。项目列只对加密、同步、生物识别、支付、备案等条目按当前源码和路线图加注边界；其他功能行仍是未重新核验的历史记录。此表不是云端、生产、支付或人工验收报告，不应视为当前承诺。</p>
+<table>
+  <tr><th>功能</th><th>有本密码</th><th>miniprogram-1password</th><th>LockMe</th><th>密码档案</th><th>私密密码本</th><th style="background:#065f46">无忧密码本（历史项目列）</th></tr>
+  <tr><td>加密与新格式 KDF</td><td>✅</td><td>✅ AES-256</td><td>✅ 国密SM2</td><td>✅ KDBX</td><td>✅ AES-256</td><td>源码：AES-256-CBC + HMAC-SHA256；PBKDF2-HMAC-SHA256 600,000 次</td></tr>
+  <tr><td>旧格式口令校验</td><td>SHA256 摘要上云</td><td>本地校验</td><td>SM2 私钥</td><td>KDBX 标准</td><td>本地派生</td><td>兼容校验：SHA-256 迭代 500 次；非当前新格式 KDF</td></tr>
+  <tr><td>云端同步</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>❌ 纯本地</td><td>源码有封套同步路径；历史云记录、备份及部署状态未核</td></tr>
+  <tr><td>生物识别解锁</td><td>✅ 指纹</td><td>❌</td><td>❌</td><td>❌</td><td>规划中</td><td>当前源码禁用</td></tr>
+  <tr><td>密码生成器</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✅ comp-pwd-generator</td></tr>
+  <tr><td>邀请扩容/裂变</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✅ 邀请 +20 容量</td></tr>
+  <tr><td>支付/会员</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>源码有相关流程；平台契约、部署、沙箱及真实交易均未核</td></tr>
+  <tr><td>逾期只读降级</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>历史设计记录；当前验收状态以路线图为准</td></tr>
+  <tr><td>合规（协议/隐私页）</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>历史记录称有页面；内容合规与审核状态未核</td></tr>
+  <tr><td>ICP 备案 + 企业主体</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>旧快照称审核中；当前状态未知</td></tr>
+  <tr><td>维护状态</td><td>停更 2023</td><td>2025-03 后停</td><td>已删库</td><td>停更</td><td>活跃度未知</td><td>本地工作区有改动；不代表已发布或生产维护状态</td></tr>
+  <tr><td>商业闭环</td><td>打赏</td><td>教学引流</td><td>无</td><td>无</td><td>无</td><td>历史付费方案记录；实际售卖及收入状态未核</td></tr>
+</table>
+
+<h2>五、历史结论与功能路线启示（当时判断，未复核）</h2>
+<div class="card">
+  <p><b>历史市场观察：</b>当时抽样的 5 个微信小程序项目被记录为个人项目；该样本有限，检索快照和维护/商业状态未重新核验，不能据此推断当前赛道处于空窗期。</p>
+  <p style="margin-top:8px"><b>历史定位假设（不是已验证的护城河）：</b></p>
+  <ol>
+    <li>曾规划支付、会员与容量方案；源码含相关流程，但云部署、平台契约、沙箱和真实交易均未核，不能称为生产可用的商业闭环。</li>
+    <li>曾把企业主体、备案与协议页视为信任要素；当前备案状态及合规结论未知，页面存在不等于审核通过。</li>
+    <li>邀请扩容与逾期只读曾被视作差异化设想；当前实现、部署及实际使用情况应以路线图和验收证据为准。</li>
+    <li>旧版“500 轮”比较有误：新格式使用 PBKDF2-HMAC-SHA256 600,000 次，500 次是旧格式 SHA-256 兼容校验；未做独立安全审计，不据此宣称优于竞品或零知识。</li>
+  </ol>
+  <p style="margin-top:8px"><b>功能路线候选池（按投入产出排序）：</b></p>
+  <ol>
+    <li>反馈工单入口（抄 miniprogram-1password，云函数直入库，1 天）</li>
+    <li>复制密码后自动清剪贴板（抄私密密码本，半天）</li>
+    <li>弱密码体检 / Watchtower（抄 Keyguard 思路，2~3 天）</li>
+    <li>「安全说明」页面（可考虑介绍源码加密格式和未验证边界；不宣称零知识或已验证的端到端安全）</li>
+    <li>KDBX 导入（抢 KeePass 用户，会员专属，远期）</li>
+    <li>国密 SM2/SM4 版本（政务/企业采购叙事，远期）</li>
+    <li>安全键盘 + 截屏检测（安全强化，远期）</li>
+  </ol>
+</div>
+
+<div class="footer">无忧密码本 · 历史内部资料 ｜ 生成：WorkBuddy 2026-09-28 ｜ 竞品数据按当时记录保留，未在本轮复核；当前项目状态见唯一状态入口</div>
+</div>
+</body>
+</html>

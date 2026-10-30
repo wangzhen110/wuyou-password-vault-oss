@@ -1,0 +1,9 @@
+{
+  "name": "vpay",
+  "version": "4.3.15",
+  "description": "微信虚拟支付下单签名（道具直购）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "4.0.2"
+  }
+}

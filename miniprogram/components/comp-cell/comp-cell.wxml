@@ -1,0 +1,14 @@
+<view class="c-cell tappable" catchtap="onTap" aria-role="button">
+  <view class="c-cell__icon c-cell__icon--{{iconTone}}" wx:if="{{icon}}">
+    <view class="ic ic-{{icon}}"></view>
+  </view>
+  <view class="c-cell__body">
+    <text class="c-cell__title">{{title}}</text>
+    <text class="c-cell__desc" wx:if="{{desc}}">{{desc}}</text>
+  </view>
+  <view class="c-cell__right">
+    <slot name="right"></slot>
+    <text class="c-cell__value" wx:if="{{value}}">{{value}}</text>
+    <view class="c-cell__arrow" wx:if="{{arrow}}"></view>
+  </view>
+</view>

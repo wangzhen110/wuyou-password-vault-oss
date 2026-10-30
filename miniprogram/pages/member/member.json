@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "会员升级",
+  "usingComponents": {
+    "comp-nav-bar": "/components/comp-nav-bar/comp-nav-bar"
+  }
+}

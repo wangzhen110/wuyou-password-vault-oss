@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "comp-cell": "/components/comp-cell/comp-cell",
+    "comp-input-dialog": "/components/comp-input-dialog/comp-input-dialog"
+  },
+  "navigationBarTitleText": "设置"
+}

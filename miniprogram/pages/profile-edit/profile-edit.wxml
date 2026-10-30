@@ -1,0 +1,37 @@
+<view class="page {{themeClass}}">
+
+  <comp-nav-bar title="{{isFirst ? '完善个人资料' : '编辑资料'}}" back="{{!isFirst}}"/>
+
+  <!-- 微信官方「头像昵称填写能力」标准形态：form 收集 + chooseAvatar 头像 + nickname 昵称 -->
+  <form class="form" bindsubmit="onProfileSave">
+    <view class="form-card">
+
+      <view class="field">
+        <text class="field-label">头像</text>
+        <view class="avatar-picker">
+          <image class="avatar-picker-img" wx:if="{{draftAvatarPath || avatarFileId}}" src="{{draftAvatarPath || avatarFileId}}" mode="aspectFill"/>
+          <text class="avatar-picker-text" wx:else>选择头像</text>
+          <!-- 视觉与触发分离：button 只承接 chooseAvatar，视觉由外层渲染（全机型圆形一致） -->
+          <button class="avatar-picker-trigger" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar"></button>
+        </view>
+      </view>
+
+      <view class="field">
+        <text class="field-label">昵称</text>
+        <input class="field-input" type="nickname" name="nickname" maxlength="20"
+               value="{{nickName}}"
+               placeholder="使用键盘上方「使用微信昵称」"
+               bindinput="onNickInput"/>
+      </view>
+
+    </view>
+
+    <text class="form-hint">提示：点击头像在微信面板中选择微信头像；点击昵称输入框，在键盘上方点「使用微信昵称」一键填入你的微信昵称</text>
+
+    <button class="save-btn" form-type="submit" loading="{{saving}}" disabled="{{saving}}">
+      {{saving ? '保存中...' : '保存'}}
+    </button>
+    <button class="skip-btn" wx:if="{{isFirst}}" bindtap="onSkip">跳过，稍后再设置</button>
+  </form>
+
+</view>

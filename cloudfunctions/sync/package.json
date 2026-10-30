@@ -1,0 +1,11 @@
+{
+  "name": "sync",
+  "version": "4.3.15",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "4.0.2"
+  },
+  "overrides": {
+    "lodash.unset": "4.18.0"
+  }
+}

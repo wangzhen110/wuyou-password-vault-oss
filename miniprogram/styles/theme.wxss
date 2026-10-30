@@ -1,0 +1,154 @@
+/* theme.wxss - CSS变量主题系统 V5.1 - 深色默认 */
+
+/* ========== 默认深色主题 ========== */
+.page {
+  --bg-page: #121212;
+  --skeleton-bg: #232B27;
+  --skeleton-shine: #2E3A33;
+  --top-grad-a: #0b6b3d;
+  --top-grad-b: rgba(11, 107, 61, 0);
+  --nav-front: #ffffff;
+  --bg-card: #1E1E1E;
+  --bg-input: #2A2A2A;
+  --bg-elevated: #262626;
+  --bg-hover: #2A2A2A;
+  --bg-pressed: #333333;
+  --text-primary: #E8E8E8;
+  --text-secondary: #B0B0B0;
+  --text-muted: #808080;
+  --border-color: #333333;
+  --color-primary: #2CD06A;
+  --color-primary-dark: #06A855;
+  --color-primary-light: #0D3D26;
+  --color-primary-pressed: #05924A;
+  --color-success: #2CD06A;
+  --color-warning: #F08C38;
+  --color-danger: #F06058;
+  --color-danger-light: #3D1A1E;
+  --shadow-card: 0 2rpx 8rpx rgba(0,0,0,0.40);
+  --shadow-float: 0 8rpx 32rpx rgba(0,0,0,0.50);
+  --shadow-pressed: 0 1rpx 4rpx rgba(0,0,0,0.20);
+  --radius-sm: 12rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 24rpx;
+  --radius-full: 9999rpx;
+  --fs-xs: 24rpx;
+  --fs-sm: 28rpx;
+  --fs-base: 32rpx;
+  --fs-md: 36rpx;
+  --fs-lg: 40rpx;
+  --fs-xl: 48rpx;
+  --fs-xxl: 56rpx;
+  --sp-2: 4rpx;
+  --sp-4: 8rpx;
+  --sp-6: 12rpx;
+  --sp-8: 16rpx;
+  --sp-10: 20rpx;
+  --sp-12: 24rpx;
+  --sp-16: 32rpx;
+  --sp-20: 40rpx;
+  --sp-24: 48rpx;
+  --sp-32: 64rpx;
+  --sp-xs: 8rpx;
+  --sp-sm: 16rpx;
+  --sp-md: 24rpx;
+  --sp-lg: 32rpx;
+  --sp-xl: 48rpx;
+  --lh-tight: 1.3;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.7;
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --tap-min-size: 88rpx;
+  --tabbar-active: #2CD06A;
+  --tabbar-inactive: #808080;
+}
+
+/* ========== 强制浅色(class) ========== */
+.page.theme-light {
+  --bg-page: #F7F8FA;
+  --skeleton-bg: #EEF1F0;
+  --skeleton-shine: #F7F9F8;
+  --top-grad-a: #b9ecd2;
+  --top-grad-b: rgba(217, 244, 230, 0);
+  --nav-front: #1f3b2c;
+  --bg-card: #FFFFFF;
+  --bg-input: #F5F6F8;
+  --bg-elevated: #FFFFFF;
+  --bg-hover: #F2F3F5;
+  --bg-pressed: #E8E9EC;
+  --text-primary: #1A1A1A;
+  --text-secondary: #575757;
+  --text-muted: #909095;
+  --border-color: #EBEDF0;
+  --color-primary: #07C160;
+  --color-primary-dark: #06A855;
+  --color-primary-light: #E8F8EF;
+  --color-primary-pressed: #05924A;
+  --color-success: #07C160;
+  --color-warning: #ED6A0C;
+  --color-danger: #E8453C;
+  --color-danger-light: #FEF2F2;
+  --shadow-card: 0 2rpx 12rpx rgba(0,0,0,0.05);
+  --shadow-float: 0 8rpx 32rpx rgba(0,0,0,0.10);
+  --shadow-pressed: 0 1rpx 4rpx rgba(0,0,0,0.06);
+  --tabbar-active: #07C160;
+  --tabbar-inactive: #888888;
+}
+
+/* ========== 全局基础样式 ========== */
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg-page);
+}
+
+/* ========== 触摸反馈系统 ========== */
+.tappable {
+  transition: opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+.tappable:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.card-press {
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.card-press:active {
+  box-shadow: var(--shadow-pressed);
+  transform: scale(0.985);
+}
+
+.btn-press {
+  transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-press:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* ========== 安全区适配 ========== */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* ========== 无障碍辅助 ========== */
+.min-tap {
+  min-height: var(--tap-min-size);
+  min-width: var(--tap-min-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

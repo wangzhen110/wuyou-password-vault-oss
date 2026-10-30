@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>密码本开放 API · 原理讲解</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d21; --sub:#5b6270; --line:#e5e7eb;
+    --green:#0f9d58; --green-bg:#eaf7ef; --blue:#2563eb; --blue-bg:#eef3ff;
+    --amber:#b45309; --amber-bg:#fef6e7; --red:#c0392b; --red-bg:#fdeeec;
+    --code-bg:#0f172a; --code-ink:#e2e8f0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.75;font-size:16px}
+  .wrap{max-width:920px;margin:0 auto;padding:48px 24px 80px}
+  h1{font-size:34px;margin:0 0 8px;letter-spacing:-.5px}
+  .lead{color:var(--sub);font-size:17px;margin:0 0 40px}
+  h2{font-size:23px;margin:52px 0 14px;padding-left:12px;border-left:4px solid var(--green)}
+  h3{font-size:17px;margin:26px 0 8px;color:var(--ink)}
+  p{margin:10px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px 24px;margin:16px 0;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+  .concl{background:var(--green-bg);border-color:#c9e9d6}
+  .warn{background:var(--amber-bg);border-color:#f0dcb4}
+  .danger{background:var(--red-bg);border-color:#f3cfc9}
+  .info{background:var(--blue-bg);border-color:#cddcfb}
+  strong{font-weight:650}
+  code{background:#eef1f5;padding:2px 6px;border-radius:5px;font-size:14.5px;
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#0b4a2f}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:18px 20px;border-radius:12px;
+    overflow-x:auto;font-size:14px;line-height:1.65;
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+  pre .c{color:#7f8ea3}
+  pre .k{color:#7dd3fc}
+  pre .s{color:#a7f3d0}
+  .flow{display:flex;flex-direction:column;gap:0;margin:20px 0}
+  .step{display:flex;gap:14px;align-items:flex-start}
+  .dot{flex:0 0 30px;height:30px;border-radius:50%;background:var(--green);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-top:3px}
+  .dot.blue{background:var(--blue)} .dot.amber{background:var(--amber)} .dot.red{background:var(--red)}
+  .step-body{padding-bottom:18px;border-left:2px dashed var(--line);margin-left:14px;padding-left:18px;flex:1}
+  .step:last-child .step-body{border-left-color:transparent}
+  .step-body b{display:block;margin-bottom:2px}
+  .step-body span{color:var(--sub);font-size:15px}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px;background:var(--card)}
+  th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+  th{background:#f0f2f5;font-weight:600}
+  .tag{display:inline-block;font-size:12.5px;padding:1px 8px;border-radius:999px;
+    background:var(--green-bg);color:#0b6b3a;border:1px solid #c9e9d6;margin-right:6px}
+  .tag.red{background:var(--red-bg);color:#8f2c20;border-color:#f3cfc9}
+  .tag.blue{background:var(--blue-bg);color:#1e40af;border-color:#cddcfb}
+  ul{margin:8px 0;padding-left:22px} li{margin:6px 0}
+  .kbd{font-family:ui-monospace,monospace;background:#fff;border:1px solid var(--line);
+    border-bottom-width:2px;border-radius:6px;padding:1px 6px;font-size:14px}
+  .foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);color:var(--sub);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>密码本开放 API · 原理讲解</h1>
+  <p class="lead">为什么 API 只能「搬密文」、由第三方本地解密；授权令牌为什么泄露也不至于泄露密码。</p>
+
+  <div class="card concl">
+    <b>一句话结论</b>
+    <p style="margin-bottom:0">你的密码本本质是<b>端到端加密</b>：主密码派生出的密钥只存在用户设备上，云端只有密文。
+    所以开放 API 只能传密文 + 公开参数，<b>解密必须发生在第三方程序本地</b>。
+    任何"服务端解密后返回明文"的 API 都会把产品从「密码管理器」降级为「密码托管」——一次被攻破就全库泄露。</p>
+  </div>
+
+  <h2>一、你现在的密码本是怎么加密的</h2>
+  <p>这是理解 API 方案的地基。<b>全流程以一个主密码为源头，云端不参与任何解密</b>。</p>
+
+  <div class="flow">
+    <div class="step">
+      <div class="dot">1</div>
+      <div class="step-body">
+        <b>主密码 → 派生密钥（PBKDF2-HMAC-SHA256，60 万次迭代）</b>
+        <span>主密码 + 16 字节随机盐 <code>salt</code>，迭代 60 万次，派生 64 字节材料，切成两把钥匙：<b>AES 加密密钥</b> 和 <b>HMAC 认证密钥</b>。60 万次的作用是让暴力猜密码的成本高到不可行。</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot">2</div>
+      <div class="step-body">
+        <b>每条记录独立加密（AES-256-CBC + Encrypt-then-MAC）</b>
+        <span>先用 AES 加密正文，再用 HMAC-SHA256 对「封套元数据 + 密文」做认证签名（<code>mac</code>）。解密时先验签名再解密，密文被篡改一个字节都会被拒绝。</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot">3</div>
+      <div class="step-body">
+        <b>云端只存两类东西：密文封套 + 公开参数</b>
+        <span>每条记录：<code>nonce</code>（随机数）、<code>ciphertext</code>（密文）、<code>mac</code>（认证券）。
+        另有一份 <code>vault_meta</code>：<code>kdf</code>、<code>iterations</code>、<code>salt</code>、<code>verifier</code>——<b>全是公开参数，不含主密码、不含密钥</b>。</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot amber">4</div>
+      <div class="step-body">
+        <b>verifier 只是"验密码"，不是"藏密码"</b>
+        <span>解锁时用派生密钥对固定内容做一次 MAC，与云端存的 <code>verifier</code> 比对：一致=主密码正确。它不能反推出主密码（是单向运算）。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card info">
+    <b>关键性质</b>
+    <p style="margin-bottom:0">把云端数据库整个拷走，攻击者得到的是 <code>salt + verifier + 一堆密文</code>。
+    没有主密码，他既解不开密文，也只会被 60 万次迭代的 KDF 拖死在暴力破解上。这就是"零知识"的含义。</p>
+  </div>
+
+  <h2>二、为什么不能做「云端解密」的 API</h2>
+  <p>最省事的实现显然是：第三方带着账号调用 API，云端查库、解密、把明文密码返回。但这样一来：</p>
+
+  <table>
+    <tr><th style="width:34%">做法</th><th>上线后发生什么</th></tr>
+    <tr>
+      <td><span class="tag red">云端解密</span>服务端持有可解密密钥</td>
+      <td>① 云函数或数据库一旦被攻破（或内部人员、日志误打印），<b>全部用户的全部密码明文暴露</b>；
+          ② 用户对"密码管理器"的信任基础消失，属于产品定位级错误；
+          ③ 合规上无法向用户承诺"我们看不到你的密码"。</td>
+    </tr>
+    <tr>
+      <td><span class="tag">本地解密</span>云端只搬密文</td>
+      <td>即使令牌和密文全部泄露，攻击者拿到的仍是密文，<b>还需要用户的密码主密码才能解开</b>。安全等级与现在的小程序完全一致。</td>
+    </tr>
+  </table>
+
+  <p>这也是行业通行做法：Bitwarden、1Password、KeePass 的同步/开放接口，全部是「服务端零知识 + 客户端解密」。</p>
+
+  <h2>三、那 API 到底怎么让开发者"拿到密码"</h2>
+  <p>分两段：<b>先证明"你有权访问这个人的库"（授权），再在本地把密文解开（解密）</b>。</p>
+
+  <h3>3.1 授权：一次性码 → 令牌</h3>
+  <div class="flow">
+    <div class="step">
+      <div class="dot">1</div>
+      <div class="step-body">
+        <b>用户在小程序里点「生成授权码」</b>
+        <span>云端生成 6 位一次性码，5 分钟有效。此时还没有任何权限。</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot">2</div>
+      <div class="step-body">
+        <b>第三方程序用它换令牌</b>
+        <span><code>POST /v1/token { code, device_name }</code> → 云端返回 <code>token</code>（30 天有效）。令牌在云端只存 <b>sha256 哈希</b>，即使库被拖走也拿不到可用令牌。</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot blue">3</div>
+      <div class="step-body">
+        <b>用户在小程序里看到设备名并点「允许」</b>
+        <span>这一步防钓鱼：别人猜不到码也没用，必须本人在小程序里确认。授权列表可随时一键吊销。</span>
+      </div>
+    </div>
+  </div>
+  <div class="card warn">
+    <b>为什么令牌泄露不等于密码泄露</b>
+    <p style="margin-bottom:0">令牌只授予"读取密文"的权限。拿到令牌的人能拉走 <code>salt</code> 与密文，但<b>解不开</b>——他缺的是只存在用户脑子里的主密码。
+    这和小程序"手机丢了也解不开"是同一个安全边界。</p>
+  </div>
+
+  <h3>3.2 解密：SDK 在调用方本地完成</h3>
+  <p>第三方程序拿到密文后，用 SDK 复现第 1、2 步的逆向过程：</p>
+<pre><span class="c">// 第三方程序里（Node / 浏览器插件 / 自建服务）</span>
+<span class="k">const</span> vault = <span class="k">new</span> VaultClient({ token, masterPassword: <span class="s">'用户输入的主密码'</span> });
+
+<span class="k">await</span> vault.unlock();
+<span class="c">// 内部：GET /v1/vault/meta → 取 salt/iterations</span>
+<span class="c">//       PBKDF2(主密码, salt, 60万次) → AES密钥 + HMAC密钥</span>
+<span class="c">//       算 verifier 与云端比对，不一致直接报"主密码错误"</span>
+
+<span class="k">const</span> items = <span class="k">await</span> vault.list();
+<span class="c">// 内部：GET /v1/items → 拿密文 → 逐条验 MAC → AES 解密</span>
+
+<span class="k">const</span> pwd = vault.getField(items[0], <span class="s">'password'</span>); <span class="c">// 明文只出现在这一行</span>
+</pre>
+  <p>明文<b>只存在于第三方程序的内存里</b>，云端、日志、网络传输全程只有密文。SDK 不把密钥写磁盘，进程退出即失效。</p>
+
+  <h2>四、完整链路（一张图看懂）</h2>
+  <table>
+    <tr><th style="width:16%">环节</th><th style="width:20%">谁在做</th><th>流通的数据</th><th style="width:14%">是否含明文</th></tr>
+    <tr><td>1. 生成授权码</td><td>小程序 + 云端</td><td>6 位一次性码</td><td><span class="tag">否</span></td></tr>
+    <tr><td>2. 换令牌</td><td>第三方 ↔ 云端</td><td>授权码 → token（云端存哈希）</td><td><span class="tag">否</span></td></tr>
+    <tr><td>3. 拉元数据</td><td>第三方 ↔ 云端</td><td>kdf / iterations / salt / verifier</td><td><span class="tag">否</span></td></tr>
+    <tr><td>4. 拉密文</td><td>第三方 ↔ 云端</td><td>nonce / ciphertext / mac</td><td><span class="tag">否</span></td></tr>
+    <tr><td>5. 本地解密</td><td><b>第三方本机</b></td><td>主密码只在本地内存参与</td><td><span class="tag red">是（仅内存）</span></td></tr>
+  </table>
+
+  <h2>五、安全清单（P1 上线前必须做到）</h2>
+  <div class="card">
+    <ul>
+      <li><b>令牌只存哈希</b>，数据库泄露无法直接使用令牌</li>
+      <li><b>一次性授权码</b> 5 分钟过期 + 用户二次确认，杜绝猜测与误授</li>
+      <li><b>作用域分离</b>：默认只读；写入需用户单独勾选，降低被篡改风险</li>
+      <li><b>限流与审计</b>：每令牌 60 次/分钟；记录 IP、设备名、访问条目 id，用户可见、可吊销</li>
+      <li><b>错误信息脱敏</b>：不暴露"该账号不存在/密码错误"等可用于探测的信息</li>
+      <li><b>SDK 不落盘密钥</b>，避免第三方机器被入侵后长期可用</li>
+      <li><b>文档红线声明</b>：主密码只在调用方本地使用，任何索要主密码上传的服务都应视为危险</li>
+    </ul>
+  </div>
+
+  <h2>六、需要你拍板的 4 件事</h2>
+  <div class="card">
+    <ul>
+      <li>① 是否接受「只返回密文、本地解密」的安全模型（这是地基，不接受则整个方案要推翻重做）</li>
+      <li>② 一期只做<b>只读</b>（第三方不能改你的库），可以吗？</li>
+      <li>③ 浏览器插件示例现在就做，还是先只做 SDK + 命令行示例？</li>
+      <li>④ 授权交互接受「6 位码 → 第三方输入 → 小程序内确认」三步吗？</li>
+    </ul>
+  </div>
+
+  <p class="foot">对应方案文档：<code>docs/api-integration-proposal.md</code>　·　本文参数取自当前源码（PBKDF2-HMAC-SHA256 / 600,000 次 / 16 字节 salt / AES-256-CBC + HMAC-SHA256）</p>
+</div>
+</body>
+</html>

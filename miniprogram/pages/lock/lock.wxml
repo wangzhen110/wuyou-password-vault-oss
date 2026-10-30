@@ -1,0 +1,11 @@
+<view class="page {{themeClass}}">
+  <comp-lock-screen id="lockScreen" visible="{{true}}" theme-class="{{themeClass}}" hint="{{masterHint}}" bind:unlock="onUnlock"/>
+  <text class="lock-version-text">v{{version}}</text>
+  <!-- 版本强制更新遮罩（login 校验触发时盖住锁屏）；放在 .page 内才能继承主题变量 -->
+  <view class="force-update-mask" wx:if="{{forceUpdate}}">
+    <view class="force-update-title">版本过旧</view>
+    <view class="force-update-desc">当前版本已无法正常使用\n请更新到最新版本后继续</view>
+    <button class="force-update-btn" bindtap="onForceUpdateTap">立即更新</button>
+    <view class="force-update-tip">若无反应，请彻底退出小程序后重新打开</view>
+  </view>
+</view>

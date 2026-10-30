@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>左侧分组：常驻 vs 可收起</title>
+<style>
+  :root{--brand:#07C160;--page:#F7F8FA;--line:#EBEDF0;--t1:#1A1A1A;--t2:#575757;--t3:#9AA0A6;--side:#F1F3F5}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#E9EBEF;color:var(--t1);padding:24px 20px 60px}
+  h1{font-size:19px;margin-bottom:5px}
+  .sub{font-size:13px;color:#5b6470;line-height:1.7;margin-bottom:18px}
+  .sub b{color:#111}
+  .row{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+  .col{width:300px}
+  .tag{font-size:13px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+  .badge{font-size:10.5px;font-weight:500;background:var(--brand);color:#fff;padding:1px 7px;border-radius:20px}
+  .badge.gray{background:#8a929c}
+  .meta{font-size:11.5px;color:#5b6470;margin-bottom:8px;line-height:1.5}
+  .meta b{color:#111}
+
+  .frame{width:300px;height:624px;overflow:hidden}
+  .phone{width:375px;height:780px;background:var(--page);border-radius:30px;overflow:hidden;position:relative;
+    border:1px solid #d8dce2;box-shadow:0 8px 26px rgba(0,0,0,.13);display:flex;flex-direction:column;
+    transform:scale(.8);transform-origin:top left}
+  .status{height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:11px;color:#4a5158;flex:0 0 auto}
+  .main-wrap{flex:1;display:flex;min-height:0}
+
+  .side{width:92px;background:var(--side);border-right:1px solid var(--line);overflow-y:auto;flex:0 0 auto;padding-bottom:6px}
+  .s-head{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 7px;font-size:10px;color:var(--t3);position:sticky;top:0;background:var(--side);z-index:2}
+  .s-head .edit{color:var(--brand);font-size:10px}
+  .s-head .fold{color:#9AA0A6;font-size:11px;font-weight:600}
+  .s-item{height:40px;display:flex;flex-direction:column;justify-content:center;padding:0 7px;font-size:12px;color:var(--t2);position:relative}
+  .s-item .nm{display:flex;align-items:center;gap:4px;overflow:hidden}
+  .s-item .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .s-item .n{font-size:9.5px;color:var(--t3);line-height:1.2}
+  .s-item.on{background:#fff;color:var(--t1);font-weight:600}
+  .s-item.on::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--brand);border-radius:0 3px 3px 0}
+  .s-item.on .n{color:var(--brand)}
+  .s-dot{width:5px;height:5px;border-radius:50%;flex:0 0 auto}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;background:#fff}
+  .m-head{height:36px;display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--t3);border-bottom:1px solid var(--line);gap:6px;flex:0 0 auto}
+  .m-head b{color:var(--t1);font-size:13px}
+  .m-head .sp{margin-left:auto;color:var(--brand);font-size:15px;font-weight:300}
+  .hamb{width:20px;height:16px;display:flex;flex-direction:column;justify-content:space-between;flex:0 0 auto}
+  .hamb i{height:2px;background:#5b6470;border-radius:2px;display:block}
+  .m-list{flex:1;overflow-y:auto}
+  .g-head{height:24px;display:flex;align-items:center;gap:4px;padding:0 10px;background:#FAFBFC;font-size:10.5px;color:#6b7280;font-weight:600;border-bottom:1px solid var(--line)}
+  .g-head .tri{font-size:8px;color:#9AA0A6}
+  .g-head .cnt{margin-left:auto;font-weight:500;color:#a5abb3;font-size:10px}
+  .r{height:46px;display:flex;align-items:center;gap:8px;padding:0 10px 0 16px;border-bottom:1px solid var(--line)}
+  .r .ic{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex:0 0 auto}
+  .r .info{flex:1;min-width:0}
+  .r .nm{font-size:13px;font-weight:500;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .r .sb{font-size:10.5px;color:var(--t2);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .r .dots{color:#c3c8cf;font-size:12px;flex:0 0 auto}
+
+  .tab{height:46px;background:#fff;border-top:1px solid var(--line);display:flex;flex:0 0 auto}
+  .tab div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:9.5px;color:#9AA0A6}
+  .tab div.on{color:var(--brand)}
+  .tab i{width:14px;height:14px;border-radius:4px;background:#dfe3e8}
+  .tab div.on i{background:var(--brand)}
+
+  /* 收起后：全宽 + 顶部横向分组 chips */
+  .chips{display:flex;gap:6px;padding:7px 10px;overflow-x:auto;background:#fff;border-bottom:1px solid var(--line);flex:0 0 auto}
+  .chips::-webkit-scrollbar{height:0}
+  .chip{font-size:11.5px;padding:4px 9px;border-radius:20px;background:#F1F3F5;color:var(--t2);white-space:nowrap;flex:0 0 auto}
+  .chip.on{background:var(--brand);color:#fff;font-weight:500}
+
+  .edge{position:absolute;left:0;top:120px;bottom:120px;width:3px;background:linear-gradient(var(--brand),#2CD06A);border-radius:0 3px 3px 0;opacity:.55}
+
+  .note{font-size:12px;color:#4a5158;background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:13px 15px;margin-top:24px;line-height:1.85}
+  .note b{color:#111}
+  .note ul{margin:6px 0 0 18px}.note li{margin:4px 0}
+  table{border-collapse:collapse;width:100%;margin-top:8px;font-size:11.5px}
+  th,td{border:1px solid #e3e6ea;padding:5px 7px;text-align:left}
+  th{background:#f5f7f9;font-weight:600}
+</style>
+</head>
+<body>
+
+<h1>左侧分组：常驻 vs 可收起</h1>
+<div class="sub">同一个界面，左边栏<b>固定占位</b>还是<b>能收回去</b>，对内容宽度影响很大（375px 屏）。</div>
+
+<div class="row">
+
+  <!-- 常驻 -->
+  <div class="col">
+    <div class="tag"><span class="badge gray">A 常驻</span> 一直占着</div>
+    <div class="meta">内容区 <b>283px（-24.5%）</b> · 切组 1 步 · 账号更易截断</div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="main-wrap">
+        <div class="side">
+          <div class="s-head"><span>分组</span><span class="edit">编辑</span></div>
+          <div class="s-item on"><div class="nm"><span>全部</span></div><div class="n">12 条 · 按录入</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#07C160"></span><span>微信</span></div><div class="n">5 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#FE2C55"></span><span>抖音</span></div><div class="n">3 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#FF5000"></span><span>淘宝</span></div><div class="n">2 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#3B82F6"></span><span>公司邮箱</span></div><div class="n">1 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#EF4444"></span><span>Steam</span></div><div class="n">1 条</div></div>
+        </div>
+        <div class="main">
+          <div class="m-head"><b>全部</b><span>12 条</span><span class="sp">＋</span></div>
+          <div class="m-list">
+            <div class="g-head"><span class="tri">▼</span>微信<span class="cnt">5</span></div>
+            <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信工作号</div><div class="sb">wxid_work</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信生活号</div><div class="sb">wxid_life</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">企业微信</div><div class="sb">work@corp.cn</div></div><span class="dots">···</span></div>
+            <div class="g-head"><span class="tri">▼</span>抖音<span class="cnt">3</span></div>
+            <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音小店号</div><div class="sb">shop_dy</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音个人号</div><div class="sb">dy_me</div></div><span class="dots">···</span></div>
+            <div class="g-head"><span class="tri">▶</span>淘宝<span class="cnt">2</span></div>
+            <div class="g-head"><span class="tri">▶</span>公司邮箱<span class="cnt">1</span></div>
+            <div class="g-head"><span class="tri">▶</span>Steam<span class="cnt">1</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div></div>
+  </div>
+
+  <!-- 可收起 -->
+  <div class="col">
+    <div class="tag"><span class="badge">B 可收起</span> 默认展开，可收回</div>
+    <div class="meta">收起后内容区 <b>375px（全宽）</b> · 顶栏「☰」或左滑展开/收起</div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="m-head" style="background:#fff">
+        <div class="hamb"><i></i><i></i><i></i></div>
+        <b>全部</b><span>12 条</span><span class="sp">＋</span>
+      </div>
+      <div class="chips">
+        <span class="chip on">全部 12</span>
+        <span class="chip">微信 5</span>
+        <span class="chip">抖音 3</span>
+        <span class="chip">淘宝 2</span>
+        <span class="chip">公司邮箱 1</span>
+        <span class="chip">Steam 1</span>
+      </div>
+      <div class="main" style="flex:1;min-height:0">
+        <div class="m-list">
+          <div class="g-head"><span class="tri">▼</span>微信<span class="cnt">5</span></div>
+          <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信工作号</div><div class="sb">wxid_work</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信生活号</div><div class="sb">wxid_life</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">企业微信</div><div class="sb">work@corp.cn</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信小号</div><div class="sb">wxid_small</div></div><span class="dots">···</span></div>
+          <div class="g-head"><span class="tri">▼</span>抖音<span class="cnt">3</span></div>
+          <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音小店号</div><div class="sb">shop_dy</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音个人号</div><div class="sb">dy_me</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音测试号</div><div class="sb">dy_test</div></div><span class="dots">···</span></div>
+          <div class="g-head"><span class="tri">▶</span>淘宝<span class="cnt">2</span></div>
+          <div class="g-head"><span class="tri">▶</span>公司邮箱<span class="cnt">1</span></div>
+          <div class="g-head"><span class="tri">▶</span>Steam<span class="cnt">1</span></div>
+          <div class="g-head"><span class="tri">▶</span>招商银行<span class="cnt">1</span></div>
+        </div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+      <div class="edge"></div>
+    </div></div>
+  </div>
+
+</div>
+
+<div class="note">
+  <b>B 方案（可收起）的两种状态</b>
+  <ul>
+    <li><b>展开态</b>＝你看到的 G3（左侧分组栏）——切组最快。</li>
+    <li><b>收起态</b>＝上图：左侧栏消失，内容占满全宽；顶部出现一条<b>横向分组 chips</b>（可左右滑），仍能一步切组。</li>
+    <li>收起后左边缘留一条 <b>3px 绿条</b>：向右滑可拉回侧栏（跟微信侧滑返回的习惯一致）。</li>
+    <li>状态会<b>记住</b>：你收起过，下次进来就是收起态。</li>
+  </ul>
+  <br>
+  <b>代价对比</b>
+  <table>
+    <tr><th></th><th>A 常驻</th><th>B 可收起</th></tr>
+    <tr><td>内容宽度</td><td>283px</td><td><b>375px 全宽</b></td></tr>
+    <tr><td>切分组</td><td>1 步</td><td>展开时 1 步；收起时用 chips 也是 1 步</td></tr>
+    <tr><td>实现复杂度</td><td>低</td><td>中（两套布局 + 手势 + 记住状态）</td></tr>
+    <tr><td>账号截断风险</td><td>高</td><td><b>无</b></td></tr>
+  </table>
+  <br>
+  <b>我的建议：做 B（可收起），默认展开。</b>理由是：你既然嫌占地方，说明这 92px 你并不总是需要；
+  默认展开保留"切组快"的优点，需要看全账号时一收就回全宽。<b>多花的实现成本可控</b>（两套布局就够，不做复杂动画）。
+</div>
+
+</body>
+</html>

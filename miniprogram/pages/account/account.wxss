@@ -1,0 +1,167 @@
+@import '../../styles/theme.wxss';
+
+/* 页面背景（与其他页一致：主题深灰绿，而非微信默认纯黑） */
+.page {
+  background: var(--bg-page);
+  min-height: 100vh;
+}
+
+/* 状态栏占位（与 settings 页一致，避免内容顶进系统状态栏/胶囊区） */
+.status-bar-placeholder {
+  height: 96rpx;
+}
+
+.acc-profile {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 24rpx;
+  padding: 32rpx;
+  margin: 24rpx 32rpx;
+  border-radius: 24rpx;
+  background: var(--bg-card);
+  border: 1rpx solid var(--border-color);
+}
+.acc-avatar {
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.acc-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2CD06A 0%, #06A855 100%);
+}
+.acc-avatar-fallback-text { font-size: 44rpx; color: #fff; font-weight: 600; }
+.acc-profile-info { flex: 1; min-width: 0; }
+.acc-name-row { display: flex; align-items: center; gap: 14rpx; }
+.acc-nick { font-size: var(--fs-lg); font-weight: 700; color: var(--text-primary); }
+.acc-vip-badge {
+  font-size: 20rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: #ED6A0C;
+  color: #fff;
+  font-weight: 600;
+}
+.acc-vip-expire { font-size: var(--fs-xs); color: var(--text-secondary); margin-top: 8rpx; }
+/* 微信登录身份行：让静默登录可感知（display:table 独占一行且宽度收缩包裹） */
+.acc-wechat-line {
+  display: table;
+  margin-top: 10rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  color: #07C160;
+  background: rgba(7, 194, 96, 0.10);
+}
+
+.acc-summary {
+  margin: 0 32rpx var(--sp-md);
+  padding: 28rpx;
+  border-radius: 24rpx;
+  background: var(--bg-card);
+  border: 1rpx solid var(--border-color);
+}
+.acc-summary-head { display: flex; justify-content: space-between; align-items: baseline; }
+.acc-summary-title { font-size: var(--fs-md); font-weight: 600; color: var(--text-primary); }
+.acc-summary-total { font-size: var(--fs-lg); font-weight: 700; color: #2CD06A; }
+.acc-progress-track {
+  height: 16rpx;
+  border-radius: 999rpx;
+  background: var(--bg-input);
+  margin-top: 20rpx;
+  overflow: hidden;
+}
+.acc-progress-bar {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #2CD06A 0%, #7BF0A8 100%);
+  transition: width 400ms ease;
+}
+.acc-remain { display: block; margin-top: 14rpx; font-size: var(--fs-xs); color: var(--text-secondary); }
+
+.acc-group {
+  margin: 0 32rpx var(--sp-md);
+  border-radius: 24rpx;
+  background: var(--bg-card);
+  border: 1rpx solid var(--border-color);
+  overflow: hidden;
+}
+.acc-group-title {
+  padding: 26rpx 28rpx 10rpx;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.acc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 26rpx 28rpx;
+}
+.acc-divider { height: 1rpx; background: var(--border-color); margin: 0 28rpx; }
+.acc-row-label { font-size: var(--fs-base); color: var(--text-primary); }
+.acc-row-label-strong { font-size: var(--fs-base); font-weight: 600; color: var(--text-primary); }
+.acc-row-value { font-size: var(--fs-base); color: var(--text-primary); font-weight: 500; }
+.acc-row-value-strong { font-size: var(--fs-md); color: #2CD06A; font-weight: 700; }
+.acc-green { color: #2CD06A; font-weight: 600; }
+
+.acc-note-item { padding: 14rpx 28rpx 20rpx; }
+.acc-note-text { font-size: var(--fs-xs); color: var(--text-muted, #808080); line-height: 1.7; }
+
+
+/* 合计行：浅绿底突出 */
+.acc-row-total {
+  background: rgba(44, 208, 106, 0.08);
+}
+
+
+
+/* 昵称行内输入 */
+.acc-nick-input {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  border-bottom: 2rpx solid #2CD06A;
+  padding-bottom: 4rpx;
+  min-width: 220rpx;
+  max-width: 320rpx;
+}
+
+
+
+
+
+
+.acc-muted { color: var(--text-muted, #808080); font-weight: 400; }
+.acc-profile { text-align: left; }
+.acc-profile-info { text-align: left; }
+
+
+/* 头像：视觉与点击分离（触发层为隐形 button，全机型渲染一致） */
+.acc-avatar-wrap {
+  position: relative;
+  width: 110rpx;
+  height: 110rpx;
+  flex: 0 0 110rpx;
+  flex-shrink: 0;
+}
+/* 编辑入口角标：提示资料卡可点 */
+.acc-avatar-edit-hint {
+  position: absolute;
+  right: -4rpx;
+  bottom: -4rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #2CD06A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3rpx solid var(--bg-card, #1E1E1E);
+}
+.acc-avatar-edit-hint-text { font-size: 20rpx; color: #FFFFFF; }

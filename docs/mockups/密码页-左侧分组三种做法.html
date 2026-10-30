@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>左侧分组侧栏 · 三种做法</title>
+<style>
+  :root{--brand:#07C160;--page:#F7F8FA;--line:#EBEDF0;--t1:#1A1A1A;--t2:#575757;--t3:#9AA0A6;--side:#F1F3F5}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#E9EBEF;color:var(--t1);padding:26px 20px 70px}
+  h1{font-size:20px;margin-bottom:6px}
+  .sub{font-size:13px;color:#5b6470;line-height:1.75;margin-bottom:20px}
+  .sub b{color:#111}
+  .row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+  .col{width:300px}
+  .tag{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+  .badge{font-size:10.5px;font-weight:500;background:var(--brand);color:#fff;padding:1px 7px;border-radius:20px}
+  .badge.gray{background:#8a929c}
+  .meta{font-size:11.5px;color:#5b6470;margin-bottom:8px;line-height:1.5}
+  .meta b{color:#111}
+
+  .phone{width:300px;height:610px;background:var(--page);border-radius:26px;overflow:hidden;position:relative;
+    border:1px solid #d8dce2;box-shadow:0 8px 26px rgba(0,0,0,.13);display:flex;flex-direction:column}
+  .status{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:10.5px;color:#4a5158;flex:0 0 auto}
+  .main-wrap{flex:1;display:flex;min-height:0}
+
+  /* ---- 左侧分组栏 ---- */
+  .side{width:96px;background:var(--side);border-right:1px solid var(--line);overflow-y:auto;flex:0 0 auto;padding-bottom:8px}
+  .side::-webkit-scrollbar{width:2px}
+  .side::-webkit-scrollbar-thumb{background:#cfd4da;border-radius:2px}
+  .s-head{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:10px;color:var(--t3);position:sticky;top:0;background:var(--side);z-index:2}
+  .s-head .edit{color:var(--brand);font-size:10px;font-weight:500}
+  .s-item{height:46px;display:flex;flex-direction:column;justify-content:center;padding:0 8px;font-size:12.5px;color:var(--t2);position:relative;gap:1px}
+  .s-item .nm{display:flex;align-items:center;gap:4px;overflow:hidden}
+  .s-item .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .s-item .n{font-size:10px;color:var(--t3)}
+  .s-item.on{background:#fff;color:var(--t1);font-weight:600}
+  .s-item.on::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;background:var(--brand);border-radius:0 3px 3px 0}
+  .s-item.on .n{color:var(--brand)}
+  .s-dot{width:5px;height:5px;border-radius:50%;flex:0 0 auto}
+
+  /* ---- 右侧内容 ---- */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;background:#fff}
+  .m-head{height:40px;display:flex;align-items:center;padding:0 12px;font-size:12.5px;color:var(--t3);border-bottom:1px solid var(--line);gap:6px}
+  .m-head b{color:var(--t1);font-size:13.5px}
+  .m-head .sp{margin-left:auto;color:var(--brand);font-size:11px}
+  .m-list{flex:1;overflow-y:auto}
+  .r{height:56px;display:flex;align-items:center;gap:9px;padding:0 12px;border-bottom:1px solid var(--line)}
+  .r .ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:0 0 auto}
+  .r .info{flex:1;min-width:0}
+  .r .nm{font-size:14px;font-weight:500;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .r .sb{font-size:11.5px;color:var(--t2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .r .dots{color:#b9bfc7;font-size:14px;letter-spacing:1px;flex:0 0 auto}
+
+  /* 抽屉式 */
+  .drawer-btn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .drawer-btn i{width:15px;height:2px;background:#5b6470;position:relative;display:block}
+  .drawer-btn i::before,.drawer-btn i::after{content:"";position:absolute;left:0;width:15px;height:2px;background:#5b6470}
+  .drawer-btn i::before{top:-5px}.drawer-btn i::after{top:5px}
+  .d-top{height:44px;display:flex;align-items:center;gap:8px;padding:0 10px;background:#fff;border-bottom:1px solid var(--line)}
+  .d-title{flex:1;font-size:15px;font-weight:600}
+  .d-plus{font-size:19px;color:var(--brand);font-weight:300}
+  .mask{position:absolute;inset:0;background:rgba(0,0,0,.34);z-index:5}
+  .drawer{position:absolute;left:0;top:0;bottom:0;width:150px;background:var(--side);z-index:6;box-shadow:4px 0 18px rgba(0,0,0,.16)}
+  .drawer .s-item{height:48px;font-size:13px}
+
+  .tab{height:50px;background:#fff;border-top:1px solid var(--line);display:flex;flex:0 0 auto}
+  .tab div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9.5px;color:#9AA0A6}
+  .tab div.on{color:var(--brand)}
+  .tab i{width:15px;height:15px;border-radius:4px;background:#dfe3e8}
+  .tab div.on i{background:var(--brand)}
+
+  .note{font-size:12px;color:#4a5158;background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:13px 15px;margin-top:24px;line-height:1.8}
+  .note b{color:#111}
+  .note ul{margin:6px 0 0 18px}.note li{margin:4px 0}
+  .kbd{background:#eef0f3;border:1px solid #dfe3e8;border-radius:4px;padding:0 4px;font-size:11px}
+</style>
+</head>
+<body>
+
+<h1>左侧分组栏 · 三种做法</h1>
+<div class="sub">
+  按你说的：<b>分组在左侧、可上下滑动、分组可自定义</b>；「全部」按<b>录入时间</b>排序；只有 1 条的平台也单独成组；进页面<b>默认收起</b>（先看分组目录）。<br>
+  左侧栏只有 96px 宽（屏幕 300px 的 32%），所以要先确认它能放下多长的分组名。
+</div>
+
+<div class="row">
+
+  <!-- G1 常驻窄侧栏 -->
+  <div class="col">
+    <div class="tag"><span class="badge">方案 G1</span> 常驻窄侧栏</div>
+    <div class="meta">左栏一直可见 · 左 <b>96px</b> / 右 <b>204px</b> · 分组随手上滑</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="main-wrap">
+        <div class="side">
+          <div class="s-head"><span>分组</span><span class="edit">编辑</span></div>
+          <div class="s-item on"><div class="nm"><span>全部</span></div><div class="n">12 条 · 按录入</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#07C160"></span><span>微信</span></div><div class="n">5 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#FE2C55"></span><span>抖音</span></div><div class="n">3 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#FF5000"></span><span>淘宝</span></div><div class="n">2 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#3B82F6"></span><span>公司邮箱</span></div><div class="n">1 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#EF4444"></span><span>Steam</span></div><div class="n">1 条</div></div>
+        </div>
+        <div class="main">
+          <div class="m-head"><b>全部</b><span>12 条</span><span class="sp">＋</span></div>
+          <div class="m-list">
+            <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信工作号</div><div class="sb">wxid_work</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音小店号</div><div class="sb">shop_dy</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信生活号</div><div class="sb">wxid_life</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#FFF0E8;color:#FF5000">淘</div><div class="info"><div class="nm">淘宝主号</div><div class="sb">shop_2024</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音个人号</div><div class="sb">dy_me</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信小号</div><div class="sb">wxid_small</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#EAF2FF;color:#3B82F6">邮</div><div class="info"><div class="nm">公司邮箱</div><div class="sb">me@corp.cn</div></div><span class="dots">···</span></div>
+            <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音测试号</div><div class="sb">dy_test</div></div><span class="dots">···</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div>
+  </div>
+
+  <!-- G2 抽屉式 -->
+  <div class="col">
+    <div class="tag"><span class="badge gray">方案 G2</span> 抽屉式（点开才出现）</div>
+    <div class="meta">平时全宽显示内容 · 点左上角滑出分组 · 抽屉 <b>150px</b></div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="d-top">
+        <div class="drawer-btn"><i></i></div>
+        <div class="d-title">全部</div>
+        <span style="font-size:11px;color:#9AA0A6">12 条</span>
+        <div class="d-plus">＋</div>
+      </div>
+      <div class="main" style="flex:1;min-height:0">
+        <div class="m-list">
+          <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信工作号</div><div class="sb">wxid_work</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音小店号</div><div class="sb">shop_dy</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信生活号</div><div class="sb">wxid_life</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#FFF0E8;color:#FF5000">淘</div><div class="info"><div class="nm">淘宝主号</div><div class="sb">shop_2024</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音个人号</div><div class="sb">dy_me</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信小号</div><div class="sb">wxid_small</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#EAF2FF;color:#3B82F6">邮</div><div class="info"><div class="nm">公司邮箱</div><div class="sb">me@corp.cn</div></div><span class="dots">···</span></div>
+          <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音测试号</div><div class="sb">dy_test</div></div><span class="dots">···</span></div>
+        </div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+      <div class="mask"></div>
+      <div class="drawer">
+        <div class="s-head"><span>分组</span><span class="edit">编辑</span></div>
+        <div class="s-item on"><div class="nm"><span>全部</span></div><div class="n">12 条 · 按录入</div></div>
+        <div class="s-item"><div class="nm"><span class="s-dot" style="background:#07C160"></span><span>微信</span></div><div class="n">5 条</div></div>
+        <div class="s-item"><div class="nm"><span class="s-dot" style="background:#FE2C55"></span><span>抖音</span></div><div class="n">3 条</div></div>
+        <div class="s-item"><div class="nm"><span class="s-dot" style="background:#FF5000"></span><span>淘宝</span></div><div class="n">2 条</div></div>
+        <div class="s-item"><div class="nm"><span class="s-dot" style="background:#3B82F6"></span><span>公司邮箱</span></div><div class="n">1 条</div></div>
+        <div class="s-item"><div class="nm"><span class="s-dot" style="background:#EF4444"></span><span>Steam</span></div><div class="n">1 条</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- G3 侧栏 + 折叠列表 -->
+  <div class="col">
+    <div class="tag"><span class="badge blue">方案 G3</span> 侧栏 + 组内可折叠</div>
+    <div class="meta">左栏选组 · 右侧组内再按账号折叠（你原话的"展开收缩"）</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="main-wrap">
+        <div class="side">
+          <div class="s-head"><span>分组</span><span class="edit">编辑</span></div>
+          <div class="s-item"><div class="nm"><span>全部</span></div><div class="n">12 条</div></div>
+          <div class="s-item on"><div class="nm"><span class="s-dot" style="background:#07C160"></span><span>微信</span></div><div class="n">5 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#FE2C55"></span><span>抖音</span></div><div class="n">3 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#FF5000"></span><span>淘宝</span></div><div class="n">2 条</div></div>
+          <div class="s-item"><div class="nm"><span class="s-dot" style="background:#3B82F6"></span><span>公司邮箱</span></div><div class="n">1 条</div></div>
+        </div>
+        <div class="main">
+          <div class="m-head"><b>微信</b><span>5 条</span><span class="sp">＋</span></div>
+          <div class="m-list">
+            <div style="padding:8px 12px 4px;font-size:11px;color:#9AA0A6;font-weight:600;">▾ 工作号（2）</div>
+            <div class="r" style="padding-left:22px"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">企业微信</div><div class="sb">work@corp</div></div><span class="dots">···</span></div>
+            <div class="r" style="padding-left:22px"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">工作小号</div><div class="sb">wxid_work2</div></div><span class="dots">···</span></div>
+            <div style="padding:8px 12px 4px;font-size:11px;color:#9AA0A6;font-weight:600;">▸ 个人号（2）</div>
+            <div style="padding:8px 12px 4px;font-size:11px;color:#9AA0A6;font-weight:600;">▸ 小号（1）</div>
+          </div>
+        </div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+  <b>三种做法的取舍</b>
+  <ul>
+    <li><b>G1 常驻窄侧栏</b>：分组永远可见，切换最快；代价是右侧内容只剩 204px，<b>长账号会被截断</b>（如 me@corp.cn 后面看不见）。</li>
+    <li><b>G2 抽屉式</b>：内容区全宽，长账号完整显示；切换分组要多一步（点开抽屉）。<b>条目普遍较长时更稳。</b></li>
+    <li><b>G3 侧栏 + 组内折叠</b>：最接近你原话"相同名字自动归类 + 可展开收缩"——但它多一层结构（组内再分组），<b>层级变深，容易迷路</b>。</li>
+  </ul>
+  <br>
+  <b>需要你定的两件事</b>（其余我按最优默认做）：
+  <br>① 选 G1 / G2 / G3 哪种？我倾向 <b>G2</b>：窄屏上左侧栏会明显挤压账号显示。
+  <br>② 「分组自定义」具体要做到什么程度？<span class="kbd">改名字</span> <span class="kbd">调顺序</span> <span class="kbd">隐藏分组</span> <span class="kbd">手动新建空分组</span> <span class="kbd">把某条移动到别组</span> —— 这几项工作量和风险差别很大，你勾需要的即可。
+</div>
+
+</body>
+</html>

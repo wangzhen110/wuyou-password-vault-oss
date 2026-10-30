@@ -1,0 +1,17 @@
+<view class="tab-bar {{themeClass}}">
+  <view class="tab-item {{selected === 0 ? 'active' : ''}} tappable" bindtap="switchTab" data-index="0" data-path="/pages/index/index">
+    <view class="tab-icon-wrap">
+      <!-- 纯CSS锁图标 -->
+      <view class="tab-lock-body"></view>
+      <view class="tab-lock-shackle"></view>
+    </view>
+    <text class="tab-text">密码</text>
+  </view>
+  <view class="tab-item {{selected === 1 ? 'active' : ''}} tappable" bindtap="switchTab" data-index="1" data-path="/pages/settings/settings">
+    <view class="tab-icon-wrap">
+      <!-- 纯CSS齿轮图标 -->
+      <view class="tab-gear"></view>
+    </view>
+    <text class="tab-text">设置</text>
+  </view>
+</view>

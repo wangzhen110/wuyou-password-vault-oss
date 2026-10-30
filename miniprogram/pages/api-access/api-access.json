@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "comp-nav-bar": "/components/comp-nav-bar/comp-nav-bar"
+  },
+  "navigationBarTitleText": "开放 API 授权"
+}

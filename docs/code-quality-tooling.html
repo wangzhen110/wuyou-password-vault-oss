@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>无忧密码本 · 代码质量工具调研与优化方案</title>
+<style>
+  :root{
+    --bg:#f6f7f9;--card:#fff;--ink:#14171c;--sub:#5b6270;--line:#e4e7ec;
+    --green:#0f9d58;--green-bg:#eaf7ef;--blue:#2563eb;--blue-bg:#eef3ff;
+    --amber:#b45309;--amber-bg:#fef6e7;--red:#c0392b;--red-bg:#fdeeec;
+    --purple:#6d28d9;--purple-bg:#f3efff;--code:#0f172a;--codeInk:#e2e8f0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.78;font-size:16px;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:48px 24px 90px}
+  h1{font-size:32px;margin:0 0 6px;letter-spacing:-.5px}
+  .lead{color:var(--sub);margin:0 0 34px;font-size:16px}
+  h2{font-size:22px;margin:46px 0 12px;padding-left:12px;border-left:4px solid var(--green)}
+  h3{font-size:17px;margin:24px 0 6px}
+  p{margin:9px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:14px 0;
+    box-shadow:0 1px 2px rgba(16,24,40,.04)}
+  .concl{background:var(--green-bg);border-color:#c9e9d6}
+  .warn{background:var(--amber-bg);border-color:#f0dcb4}
+  .danger{background:var(--red-bg);border-color:#f3cfc9}
+  .info{background:var(--blue-bg);border-color:#cddcfb}
+  code{background:#eef1f5;padding:2px 6px;border-radius:5px;font-size:14px;
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#0b4a2f}
+  pre{background:var(--code);color:var(--codeInk);padding:16px 18px;border-radius:11px;overflow-x:auto;
+    font-size:13.5px;line-height:1.62;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+  pre .c{color:#7f8ea3}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+  .metric{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .metric .k{font-size:12.5px;color:var(--sub);margin-bottom:4px}
+  .metric .v{font-size:24px;font-weight:700;letter-spacing:-.5px}
+  .metric .n{font-size:12.5px;color:var(--sub);margin-top:2px}
+  .bad{color:var(--red)} .good{color:var(--green)} .mid{color:var(--amber)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px;background:var(--card)}
+  th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+  th{background:#f0f2f5;font-weight:600;font-size:14px}
+  .p0{display:inline-block;background:var(--red-bg);color:#8f2c20;border:1px solid #f3cfc9;
+    font-size:12px;padding:1px 8px;border-radius:999px;font-weight:600}
+  .p1{display:inline-block;background:var(--amber-bg);color:#8a5a09;border:1px solid #f0dcb4;
+    font-size:12px;padding:1px 8px;border-radius:999px;font-weight:600}
+  .p2{display:inline-block;background:var(--blue-bg);color:#1e40af;border:1px solid #cddcfb;
+    font-size:12px;padding:1px 8px;border-radius:999px;font-weight:600}
+  .tag{display:inline-block;font-size:12px;padding:1px 7px;border-radius:999px;margin-left:6px;
+    background:#eef1f5;color:#475467;border:1px solid var(--line)}
+  ul,ol{margin:8px 0;padding-left:22px} li{margin:5px 0}
+  .foot{margin-top:54px;padding-top:16px;border-top:1px solid var(--line);color:var(--sub);font-size:13.5px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>代码质量工具调研与优化方案</h1>
+  <p class="lead">面向「无忧密码本」（微信原生小程序 + 云开发云函数，10 个函数 / 28 个小程序 JS 文件 / 135 项测试）<br>2026-10-18</p>
+
+  <div class="card concl">
+    <b>结论先说</b>
+    <p style="margin-bottom:0">项目已有的测试体系（135 项 node:test + 发布/备份门禁）质量高于多数小程序项目，<b>真正缺的不是"再写测试"，而是四类基础设施</b>：
+      ① 静态检查（今天暴露出"部署成功但代码是空壳"这类问题，静态+部署校验能拦住）；
+      ② 覆盖率门禁（函数覆盖仅 58%）；
+      ③ 依赖漏洞治理（5 个 high，全在 wx-server-sdk 传递依赖里）；
+      ④ 小程序特有的性能度量（解锁时 PBKDF2 60 万次在低端机是明显卡顿点）。</p>
+  </div>
+
+  <h2>一、体检数据（本次实测，非估算）</h2>
+  <div class="grid">
+    <div class="metric">
+      <div class="k">语句覆盖率</div>
+      <div class="v good">78.2%</div>
+      <div class="n">5830/7454</div>
+    </div>
+    <div class="metric">
+      <div class="k">分支覆盖率</div>
+      <div class="v mid">71.7%</div>
+      <div class="n">1436/2003</div>
+    </div>
+    <div class="metric">
+      <div class="k">函数覆盖率</div>
+      <div class="v bad">58.2%</div>
+      <div class="n">323/555 ← 短板</div>
+    </div>
+    <div class="metric">
+      <div class="k">依赖漏洞</div>
+      <div class="v bad">5 high</div>
+      <div class="n">axios / lodash.set</div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th style="width:30%">检查项</th><th style="width:34%">实测结果</th><th>说明</th></tr>
+    <tr><td>测试套件</td><td class="good">135/135 通过（232 秒）</td><td>node:test 自研 harness，覆盖云函数与页面逻辑</td></tr>
+    <tr><td>覆盖率工具</td><td>项目内未接入</td><td>本次用 <code>npx c8 node --test</code> 临时测得</td></tr>
+    <tr><td>依赖漏洞</td><td class="bad">5 high，可修复</td><td><code>wx-server-sdk → @cloudbase/node-sdk → axios(CSRF) / lodash.set(原型污染)</code>，<code>fixAvailable: true</code></td></tr>
+    <tr><td>静态检查</td><td class="bad">无 ESLint / Prettier / TS 配置</td><td>无 lint 门禁，风格与潜在错误全靠人工</td></tr>
+    <tr><td>PBKDF2 60 万次</td><td class="mid">桌面 118ms</td><td>低端安卓 JS 环境约慢 5~15 倍 → <b>0.6~1.8 秒</b>，解锁/首次设置可感知卡顿</td></tr>
+    <tr><td>日志调用</td><td>2817 处（云端为主）</td><td>小程序侧约 25 处；需确认无密码/密钥入日志</td></tr>
+    <tr><td>部署校验</td><td class="bad">缺失</td><td>今天 <code>vpay</code> 部署"成功"但实际是 Hello World 骨架，直到用户点支付才暴露</td></tr>
+  </table>
+
+  <h2>二、工具调研（按三类目标）</h2>
+
+  <h3>A. 漏洞检测</h3>
+  <table>
+    <tr><th style="width:20%">工具</th><th style="width:14%">开源/许可</th><th>能力与适配度</th></tr>
+    <tr>
+      <td><b>npm audit</b></td><td>npm 内置</td>
+      <td>依赖 CVE 扫描，零成本。<b>本项目立即可用</b>：已实测出 5 个 high，根因是 <code>wx-server-sdk</code> 的传递依赖。</td>
+    </tr>
+    <tr>
+      <td><b>OSV-Scanner</b></td><td>Google / Apache-2.0</td>
+      <td>比 npm audit 覆盖面更广（含 GHSA、语言无关），单二进制即可跑，适合进 CI 做门禁。</td>
+    </tr>
+    <tr>
+      <td><b>Semgrep</b></td><td>r2c / LGPL-2.1</td>
+      <td>可写自定义规则的 SAST，<b>对本项目价值最高</b>：可自定义"云函数必须校验 <code>getWXContext().OPENID</code>""禁止 console 打印 password/token""回调必须幂等（查重 entitlement_delivered_at）"等规则，把安全约定变成可执行检查。</td>
+    </tr>
+    <tr>
+      <td><b>Gitleaks / TruffleHog</b></td><td>MIT / AGPL-3.0</td>
+      <td>密钥泄露扫描。<b>本项目刚经历过</b>：AppKey、AppSecret 已进过对话与后台，必须确保不进 git；这类工具能防"手滑提交密钥"。</td>
+    </tr>
+    <tr>
+      <td><b>CodeQL</b></td><td>GitHub（受限许可）</td>
+      <td>深度数据流分析，强但重（需 CI 编译数据库），对纯 JS 小程序性价比一般，<b>不建议现阶段引入</b>。</td>
+    </tr>
+  </table>
+
+  <h3>B. 排查问题（静态检查 / 类型 / 结构）</h3>
+  <table>
+    <tr><th style="width:20%">工具</th><th style="width:14%">开源/许可</th><th>能力与适配度</th></tr>
+    <tr>
+      <td><b>ESLint + Prettier</b></td><td>MIT</td>
+      <td>基础静态检查。<b>小程序需补全局声明</b>（<code>wx</code>/<code>Page</code>/<code>Component</code>/<code>App</code>/<code>getApp</code>/<code>getCurrentPages</code>）。能直接抓到"绑定了不存在的方法""未定义变量"这类<b>线上一打开就白屏</b>的问题。</td>
+    </tr>
+    <tr>
+      <td><b>TypeScript checkJs</b><br><span class="tag">低成本高收益</span></td><td>Apache-2.0</td>
+      <td>不改造代码，用 <code>// @ts-check</code> + JSDoc 就能校验；配合 <code>miniprogram-api-typings</code> 获得 <b>wx API 参数类型提示</b>（把"传错参数"从运行时错误变成编辑器报错）。</td>
+    </tr>
+    <tr>
+      <td><b>miniprogram-ci</b></td><td>微信官方 npm 包</td>
+      <td>官方 CI 能力：预览/上传/包体积与依赖分析脚本化。<b>可替代现在依赖 wechatide CLI 的人工步骤</b>，让发版完全可重复。</td>
+    </tr>
+    <tr>
+      <td><b>c8</b></td><td>ISC</td>
+      <td>Node 原生测试的覆盖率工具，<b>与现有 node:test 零摩擦</b>。实测语句 78%、函数仅 58%，可直接设门禁。</td>
+    </tr>
+    <tr>
+      <td><b>madge / dependency-cruiser</b></td><td>MIT</td>
+      <td>循环依赖与架构规则检查。本项目 <code>utils/</code> 与 <code>pages/</code> 已有清晰分层，可用来锁死"页面不得直接 require crypto 底层"这类边界。</td>
+    </tr>
+    <tr>
+      <td><b>jscpd</b></td><td>MIT</td>
+      <td>重复代码检测。云函数间存在大量同构逻辑（pay/payCallback/vpay/vpayCallback 的订单与权益代码），可用它量化重复度并驱动抽公共模块。</td>
+    </tr>
+  </table>
+
+  <h3>C. 性能</h3>
+  <table>
+    <tr><th style="width:20%">工具</th><th style="width:14%">开源/许可</th><th>能力与适配度</th></tr>
+    <tr>
+      <td><b>开发者工具「体验评分 / 性能面板」</b></td><td>官方内置</td>
+      <td>最贴近真实：启动耗时、渲染、setData 体积、内存。<b>建议纳入每次发版的人工检查项</b>（可截图留档）。</td>
+    </tr>
+    <tr>
+      <td><b>wx.getPerformance</b></td><td>官方 API</td>
+      <td>自定义打点：可埋"解锁耗时（含 KDF）""同步往返耗时"，在真机上量化而不是猜。</td>
+    </tr>
+    <tr>
+      <td><b>clinic.js / 0x</b></td><td>MIT</td>
+      <td>Node 火焰图，可定位云函数 CPU 热点（如同步大包、加解密循环）。本项目的 <code>sync</code> 与 <code>vpay</code> 是最值得看的两个。</td>
+    </tr>
+    <tr>
+      <td><b>云开发监控</b></td><td>平台内置</td>
+      <td>函数耗时 P99、错误率、调用量。可对"错误率 > 1%""P99 > 3s"设告警，比用户投诉早发现。</td>
+    </tr>
+    <tr>
+      <td><b>代码依赖分析</b></td><td>官方内置</td>
+      <td>包体积构成。当前 606KB（主包上限 2MB），有空间但需盯着 crypto-js 等大依赖。</td>
+    </tr>
+  </table>
+
+  <h2>三、针对本项目的建议（含优先级与实施方式）</h2>
+
+  <div class="card">
+    <b><span class="p0">P0-1</span> 部署后校验（今天事故的直接解药）</b>
+    <p>背景：<code>vpay</code> 用 CLI 部署返回 success，但函数里仍是默认 Hello World 骨架（CodeSize 286），直到真机支付才暴露。</p>
+    <p><b>做法</b>：扩展现有 <code>scripts/deploy-function.ps1</code>，部署后自动调一次函数并断言返回结构；或直接查 <code>CodeSize</code>/<code>CodeInfo</code> 是否包含特征字符串。</p>
+<pre><span class="c"># 部署后最小校验（示例思路）</span>
+1) invoke 一次（带已知入参）→ 断言返回 JSON 含预期字段
+2) 或 getFunctionDetail → CodeSize 与本地 zip 大小偏差 &lt; 20%
+3) 校验失败 → 脚本非 0 退出，阻断后续发版</pre>
+  </div>
+
+  <div class="card">
+    <b><span class="p0">P0-2</span> ESLint + Prettier 接入（半天）</b>
+    <p>目标：把"未定义方法/变量""绑定了不存在的事件处理函数"这类会导致页面白屏的错误拦在提交前。</p>
+<pre><span class="c"># 安装</span>
+npm i -D eslint prettier eslint-config-prettier
+
+<span class="c"># .eslintrc.cjs 关键配置</span>
+module.exports = {
+  env: { es2022: true, node: true },
+  globals: { wx: 'readonly', App: 'readonly', Page: 'readonly',
+             Component: 'readonly', Behavior: 'readonly',
+             getApp: 'readonly', getCurrentPages: 'readonly' },
+  rules: {
+    'no-undef': 'error',
+    'no-unused-vars': ['warn', { args: 'none' }],
+    complexity: ['warn', 15],
+    'no-console': ['warn', { allow: ['error', 'warn'] }],
+  },
+};
+
+<span class="c"># 接入现有门禁：package.json</span>
+"lint": "eslint miniprogram cloudfunctions --max-warnings 40",
+"test:gate": "npm run lint && npm test"</pre>
+    <p>建议第一轮<b>只报错不阻断</b>（<code>--max-warnings</code> 设宽），2 周内逐步收紧，避免一次性几百条告警劝退。</p>
+  </div>
+
+  <div class="card">
+    <b><span class="p0">P0-3</span> 依赖漏洞治理（1 小时评估 + 半天验证）</b>
+    <p>实测 5 个 high，全部来自 <code>wx-server-sdk 4.0.2</code> 的传递依赖：<code>axios</code>（CSRF）、<code>lodash.set</code>（原型污染）。</p>
+    <p><b>做法</b>：先在<b>一个非关键函数</b>（如 <code>login</code>）上升级 <code>wx-server-sdk</code> 到最新 4.x，跑该函数的测试与一次真实调用；通过后批量升级 10 个函数。
+    若最新版仍带漏洞，用 <code>overrides</code> 强制提升 <code>axios</code>/<code>lodash.set</code> 版本，并回归 <code>payCallback</code> 这类敏感链路。</p>
+<pre>npm audit --production          <span class="c"># 基线</span>
+npm i wx-server-sdk@latest      <span class="c"># 单函数试点</span>
+npm audit --production          <span class="c"># 复核归零</span></pre>
+    <p class="warn" style="padding:10px 12px;border-radius:8px;margin-bottom:8px"><b>2026-10-18 实测结论</b>：<code>npm i wx-server-sdk@latest</code> 结果是 <b>仍是 4.0.2</b>（已是最新），5 个 high 全部来自上游传递依赖且上游无新版，<b>常规升级无法消除</b>。</p>
+    <p style="margin-bottom:0">可行策略：① 保持版本锁定（发布清单要求 pinned），每季度复查 <code>npm audit</code>；② 若必须清零，用 <code>overrides</code> 强制 <code>axios@^1.7</code>，并在 <code>login</code> 等非关键函数上先验证云函数是否仍正常；③ 风险评估：axios 的 CSRF 漏洞主要影响浏览器环境，云函数为服务端调用；<code>lodash.set</code> 原型污染需攻击者控制键路径，当前调用链中无可控入口。综合判定为<b>可接受风险、持续监控</b>，不为此冒险改动云函数依赖树。</p>
+  </div>
+
+  <div class="card">
+    <b><span class="p1">P1-1</span> 覆盖率门禁 + 补关键路径（1 天）</b>
+    <p>函数覆盖 58% 意味着近一半函数从未被任何测试执行。建议门禁设为<b>不低于当前值</b>并逐步提升，重点补：</p>
+    <ul>
+      <li><code>utils/crypto.js</code>：KDF 参数校验、MAC 校验失败、旧格式兼容分支</li>
+      <li><code>utils/sync.js</code> + <code>cloudfunctions/sync</code>：队列重放、冲突合并、元数据轮换</li>
+      <li><code>vpay/payCallback</code>：重复发货、跨订单串号、金额篡改（部分已有）</li>
+    </ul>
+<pre>npm i -D c8
+"test:coverage": "c8 --check-coverage --lines 78 --functions 58 --branches 71 node --test"</pre>
+    <p style="margin-bottom:0">先把"当前水位"锁住防倒退，再按周提升 3~5 个百分点。</p>
+  </div>
+
+  <div class="card">
+    <b><span class="p1">P1-2</span> Semgrep 自定义安全规则（半天）</b>
+    <p>把项目里已经遵守的安全约定变成自动检查，防未来改坏：</p>
+<pre>rules:
+  - id: cloudfn-must-check-openid
+    languages: [javascript]
+    message: 云函数入口必须校验 OPENID（避免越权读写）
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          exports.main = async (event) =&gt; { ... }
+      - pattern-not: |
+          ... cloud.getWXContext() ...
+  - id: no-secret-in-log
+    languages: [javascript]
+    message: 禁止把 password/token/session_key 打进日志
+    severity: ERROR
+    pattern-regex: console\.[a-z]+\(.*(password|session_key|paySig|AppKey)</pre>
+    <p style="margin-bottom:0">配合 <b>Gitleaks</b> 做提交前扫描（<code>gitleaks protect --staged</code>），防止 AppKey/AppSecret 这类密钥进仓库。</p>
+  </div>
+
+  <div class="card">
+    <b><span class="p1">P1-3</span> 解锁性能优化（0.5 天，用户体验最直接）</b>
+    <p>实测 PBKDF2 60 万次在桌面 118ms；低端安卓估算 <b>0.6~1.8 秒</b>。当前是同步派生，用户感知为"点了解锁卡一下"。</p>
+    <ul>
+      <li>解锁按钮立即进入"验证中…"并显示进度文案，避免误以为卡死；</li>
+      <li>同一次解锁内<b>复用已派生的 keys</b>，杜绝重复派生（重复 KDF 是最常见的性能浪费）；</li>
+      <li>用 <code>wx.getPerformance()</code> 在真机打点，把"解锁耗时"变成可观测指标（记录到本地诊断页）；</li>
+      <li><b>不要为了快而降低迭代次数</b>——60 万次是安全基线，优化方向是体验与复用，不是削弱 KDF。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <b><span class="p2">P2-1</span> 云函数可观测性（上线后）</b>
+    <ul>
+      <li>云开发监控设告警：错误率 &gt; 1%、P99 &gt; 3s、调用量突增；</li>
+      <li>对 <code>sync</code>/<code>vpay</code> 用 <code>clinic.js</code> 出一份火焰图，确认 CPU 热点（加密循环、大对象序列化）；</li>
+      <li>日志规范：结构化字段（<code>fn/action/openidHash/elapsed</code>），禁止明文敏感值。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <b><span class="p2">P2-2</span> 架构治理（上线稳定后）</b>
+    <ul>
+      <li><b>jscpd</b>：量化 4 个支付/邀请云函数的重复度，抽出 <code>common/entitlement.js</code>（收益：改规则只改一处，这类改动今年已发生 3 次）；</li>
+      <li><b>dependency-cruiser</b>：锁死分层规则（pages 不得直接 require crypto 底层、cloudfunctions 不得互相 require）；</li>
+      <li><b>miniprogram-ci</b>：把预览/上传/包体积检查脚本化，替换人工点工具，发版可复现。</li>
+    </ul>
+  </div>
+
+  <h2>四、实施路线（按投入产出排序）</h2>
+  <table>
+    <tr><th style="width:14%">时间</th><th style="width:40%">动作</th><th>产出与验收</th></tr>
+    <tr>
+      <td><b>今天</b></td>
+      <td>① 给部署脚本加校验；② 跑一次 <code>npm audit</code> 记基线；③ 接入 c8 并把当前覆盖率锁为门禁</td>
+      <td>部署"假成功"不再可能；覆盖率不倒退</td>
+    </tr>
+    <tr>
+      <td><b>本周</b></td>
+      <td>① ESLint + Prettier（先 warn）；② 单函数升级 wx-server-sdk 并验证；③ 解锁体验优化（进度 + 复用 keys）</td>
+      <td>lint 零 error；漏洞数下降；解锁不再"假死"</td>
+    </tr>
+    <tr>
+      <td><b>上线前</b></td>
+      <td>① Semgrep 两条安全规则 + Gitleaks 预提交钩子；② 覆盖率补到函数 65%+；③ 发版检查表加入"体验评分"</td>
+      <td>安全约定可执行；发版有固定检查项</td>
+    </tr>
+    <tr>
+      <td><b>上线后</b></td>
+      <td>① 云开发告警；② clinic.js 火焰图；③ jscpd 抽公共模块；④ miniprogram-ci 接管发版</td>
+      <td>可观测、可维护、发版可重复</td>
+    </tr>
+  </table>
+
+  <h2>五、不建议现在做的事（避免过度工程）</h2>
+  <ul>
+    <li><b>CodeQL / SonarQube 全量接入</b>：搭建成本高，纯 JS 小程序收益有限，P0/P1 做完再评估；</li>
+    <li><b>改造为 TypeScript</b>：迁移成本远大于收益，用 <code>checkJs + JSDoc</code> 拿到 80% 的类型收益即可；</li>
+    <li><b>为覆盖率而测覆盖率</b>：优先补 crypto / sync / 支付三条高风险路径，页面样式层不必强求。</li>
+  </ul>
+
+  <h2>六、已落地（2026-10-18 当天）</h2>
+  <table>
+    <tr><th style="width:26%">项</th><th style="width:34%">改动</th><th>效果</th></tr>
+    <tr>
+      <td><b>部署后校验</b></td>
+      <td><code>scripts/deploy-function.ps1</code> 增加「下载云端 index.js → 归一化（去 BOM/统一换行/去行尾空白）→ sha256 比对」；不一致时打印两边代码头部并 <code>exit 1</code></td>
+      <td>已实测对 <code>vpay</code> 通过（云端与本地一致 <code>8a8bbc9e907c…</code>）；"部署成功但实际是空壳"从今以后再也不可能悄悄发生</td>
+    </tr>
+    <tr>
+      <td><b>ESLint + Prettier</b></td>
+      <td>新增 <code>.eslintrc.cjs</code>（小程序 wx 全局声明、CommonJS、云函数/测试分环境）、<code>npm run lint</code>、<code>npm run test:gate</code>（lint + test）</td>
+      <td>首轮 <b>4 error → 0 error</b>（17 个 warning 待逐步收紧）；新增依赖 eslint@8 / prettier@3 / eslint-config-prettier</td>
+    </tr>
+    <tr>
+      <td><b>ESLint 抓到的真实缺陷</b></td>
+      <td>① <code>invite/index.js</code> 引用已删除的 <code>inviterRewardVipDays</code>（潜在 ReferenceError）；② <code>storage.js</code> 导出表重复键 <code>changeMasterPassword</code>；③ <code>crypto.js</code> 全局声明冲突</td>
+      <td>全部修复，测试仍 <b>135/135</b> 通过——证明静态检查确实能提前拦住运行期问题</td>
+    </tr>
+    <tr>
+      <td><b>依赖漏洞</b></td>
+      <td>试点升级 <code>wx-server-sdk@latest</code> → 确认已是最新且漏洞在上游；已回滚（保持版本锁定）</td>
+      <td>结论：记录基线 + 季度复查 + 必要时 overrides，不冒险动云函数依赖树</td>
+    </tr>
+  </table>
+
+  <p class="foot">数据来源：本次对项目实测（<code>npx c8 node --test</code> 215 项断言 232 秒、<code>npm audit --production</code>、<code>node crypto.pbkdf2Sync</code> 基准）；工具许可与用途以各项目官方仓库为准。<br>报告生成：2026-10-18 · 与项目 <code>tests/</code>、<code>scripts/</code> 现有门禁体系配套使用</p>
+</div>
+</body>
+</html>

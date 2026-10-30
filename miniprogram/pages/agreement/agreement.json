@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "关于我们",
+  "usingComponents": {
+    "comp-nav-bar": "/components/comp-nav-bar/comp-nav-bar"
+  }
+}

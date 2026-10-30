@@ -1,0 +1,57 @@
+/* comp-btn：变体由 CSS 变量驱动，两主题自动同构 */
+.c-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-min-size);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-base);
+  box-sizing: border-box;
+}
+.c-btn--small {
+  min-height: 64rpx;
+  padding: 0 var(--sp-16);
+  font-size: var(--fs-sm);
+  border-radius: var(--radius-sm);
+}
+
+.c-btn--primary {
+  background: var(--color-primary);
+  color: #FFFFFF;
+}
+.c-btn--primary:active {
+  background: var(--color-primary-pressed);
+}
+
+.c-btn--secondary {
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+.c-btn--secondary:active {
+  background: var(--bg-pressed);
+}
+
+.c-btn--danger {
+  background: transparent;
+  color: var(--color-danger);
+  border: 2rpx solid var(--color-danger);
+}
+.c-btn--danger:active {
+  background: var(--color-danger-light);
+}
+
+.c-btn--ghost {
+  background: transparent;
+  color: var(--color-primary);
+}
+.c-btn--ghost:active {
+  background: var(--color-primary-light);
+}
+
+.c-btn.is-disabled {
+  background: var(--bg-pressed);
+  color: var(--text-muted);
+  border: 1rpx solid var(--border-color);
+  opacity: 1;
+  pointer-events: none;
+}

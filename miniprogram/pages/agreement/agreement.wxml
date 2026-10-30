@@ -1,0 +1,28 @@
+<view class="page {{themeClass}}">
+
+  <comp-nav-bar title="{{content.title}}" back="{{true}}"/>
+
+  <!-- Tab 切换 -->
+  <view class="tab-bar">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="id"
+      class="tab-item {{activeTab === item.id ? 'active' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="onTabTap"
+    >{{item.name}}</view>
+  </view>
+
+  <!-- 内容 -->
+  <view class="content" wx:if="{{content}}">
+    <block wx:for="{{content.sections}}" wx:key="h">
+      <view class="section">
+        <view class="section-title">{{item.h}}</view>
+        <view class="section-p" wx:for="{{item.p}}" wx:for-item="para" wx:key="*this">{{para}}</view>
+      </view>
+    </block>
+    <view class="update-time">最后更新：2026年10月20日</view>
+  </view>
+
+  <view class="safe-area-bottom"></view>
+</view>

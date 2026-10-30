@@ -1,0 +1,57 @@
+/* comp-nav-bar：L1 表面；transparent 模式由页面自己控制内容上移 */
+.c-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  /* 状态栏文字色由 theme.syncStatusBar() 统一控制，导航栏不再需要渐变垫底 */
+  background: var(--bg-card);
+}
+.c-nav.is-transparent {
+  background: transparent;
+}
+.c-nav__inner {
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--sp-16);
+  box-sizing: border-box;
+}
+.c-nav__left {
+  width: 88rpx;
+  display: flex;
+  align-items: center;
+}
+.c-nav__back {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -12rpx;
+}
+.c-nav__back-arrow {
+  width: 18rpx;
+  height: 18rpx;
+  border-left: 4rpx solid var(--text-primary);
+  border-bottom: 4rpx solid var(--text-primary);
+  transform: rotate(45deg);
+  margin-left: 6rpx;
+}
+.c-nav__title {
+  flex: 1;
+  text-align: center;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.c-nav__right {
+  width: 88rpx;
+}
+.c-nav__placeholder {
+  width: 100%;
+}

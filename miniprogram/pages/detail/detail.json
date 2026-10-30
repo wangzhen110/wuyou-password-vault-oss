@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "comp-btn": "/components/comp-btn/comp-btn",
+    "comp-nav-bar": "/components/comp-nav-bar/comp-nav-bar",
+    "comp-input-dialog": "/components/comp-input-dialog/comp-input-dialog"
+  },
+  "navigationBarTitleText": "条目详情"
+}

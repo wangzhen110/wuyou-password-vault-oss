@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>平台选择器 · 支撑几百个平台的方案</title>
+<style>
+  :root{
+    --bg-page:#121212; --bg-card:#1E1E1E; --bg-input:#2A2A2A;
+    --t1:#E8E8E8; --t2:#B0B0B0; --border:#333; --brand:#2CD06A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#E9EBEF;color:#1A1A1A;padding:24px 20px 60px}
+  h1{font-size:19px;margin-bottom:5px;color:#111}
+  h2{font-size:15px;margin:26px 0 10px;padding-left:9px;border-left:3px solid #2CD06A;color:#111}
+  .sub{font-size:13px;color:#5b6470;line-height:1.75;margin-bottom:14px;max-width:1000px}
+  .sub b{color:#111}
+  .row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+  .col{width:300px}
+  .tag{font-size:13px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:6px;color:#111}
+  .badge{font-size:10.5px;font-weight:500;background:var(--brand);color:#0b2a18;padding:1px 7px;border-radius:20px}
+  .badge.gray{background:#8a929c;color:#fff}
+  .badge.red{background:#E64340;color:#fff}
+  .meta{font-size:11.5px;color:#5b6470;margin-bottom:8px;line-height:1.5}
+  .meta b{color:#111}
+
+  .frame{width:300px;height:630px;overflow:hidden}
+  .phone{width:375px;height:788px;background:var(--bg-page);border-radius:30px;overflow:hidden;
+    position:relative;border:1px solid #3a3a3a;box-shadow:0 10px 30px rgba(0,0,0,.35);
+    transform:scale(.8);transform-origin:top left;display:flex;flex-direction:column;color:var(--t1)}
+  .status{height:26px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 14px;font-size:11px;color:#cfcfcf;flex:0 0 auto}
+  .nav{height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;flex:0 0 auto}
+  .nav-back{width:10px;height:10px;border-left:2px solid var(--t1);border-bottom:2px solid var(--t1);
+    transform:rotate(45deg);margin-left:2px}
+  .nav-title{flex:1;text-align:center;font-size:16px;font-weight:600}
+  .nav-save{font-size:14px;color:var(--brand);font-weight:500}
+  .body{flex:1;overflow-y:auto;min-height:0}
+  .body::-webkit-scrollbar{width:0}
+
+  .type-scroll{padding:6px 12px 0;display:flex;gap:6px;overflow-x:auto}
+  .type-scroll::-webkit-scrollbar{height:0}
+  .type-pill{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:0 13px;
+    border-radius:14px;background:var(--bg-input);border:1px solid transparent;white-space:nowrap;flex:0 0 auto}
+  .type-pill.on{background:rgba(44,208,106,.14);border-color:var(--brand)}
+  .type-pill span{font-size:12.5px;color:var(--t2)}
+  .type-pill.on span{color:var(--brand);font-weight:600}
+
+  /* 搜索框（常驻） */
+  .searchbar{margin:8px 12px 0;height:38px;background:var(--bg-input);border-radius:10px;
+    display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--border)}
+  .searchbar.focus{border-color:var(--brand)}
+  .mag{width:12px;height:12px;border:1.6px solid #888;border-radius:50%;position:relative;flex:0 0 auto}
+  .mag::after{content:"";position:absolute;width:5px;height:1.6px;background:#888;
+    transform:rotate(45deg);right:-4px;bottom:0}
+  .searchbar input{flex:1;background:transparent;border:none;outline:none;color:var(--t1);font-size:13.5px}
+  .searchbar input::placeholder{color:#6b6b6b}
+
+  /* 最近使用 */
+  .sec{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px}
+  .sec-t{font-size:12px;color:#8a8a8a;font-weight:500}
+  .sec-r{font-size:12px;color:var(--brand)}
+  .recents{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:0 12px}
+  .rc{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .rc .ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;
+    justify-content:center;font-size:13px;font-weight:700}
+  .rc .nm{font-size:9.5px;color:var(--t2);white-space:nowrap;overflow:hidden;max-width:46px;text-overflow:ellipsis}
+
+  /* 分组列表 */
+  .glabel{font-size:11px;color:#7a7a7a;padding:10px 16px 4px;font-weight:600;letter-spacing:.5px}
+  .li{display:flex;align-items:center;gap:9px;padding:0 14px;height:42px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .li .ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;
+    justify-content:center;font-size:11px;font-weight:700;flex:0 0 auto}
+  .li .nm{flex:1;font-size:13.5px;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .li .cnt{font-size:11px;color:#7a7a7a}
+  .li.create .ic{background:rgba(44,208,106,.14);color:var(--brand);font-size:15px}
+  .li.create .nm{color:var(--brand)}
+
+  .idx{position:absolute;right:3px;top:50%;transform:translateY(-50%);display:flex;
+    flex-direction:column;gap:1px;font-size:8px;color:#6b6b6b;z-index:2}
+  .idx span{padding:0 3px}
+
+  .hintbar{padding:6px 16px;font-size:11px;color:#7a7a7a;background:rgba(255,255,255,.02)}
+
+  .note{font-size:12px;color:#4a5158;background:#fff;border:1px solid #dfe3e8;
+    border-radius:10px;padding:14px 16px;margin-top:22px;line-height:1.85;max-width:1010px}
+  .note b{color:#111}
+  .note ul{margin:6px 0 0 18px}.note li{margin:5px 0}
+  table{border-collapse:collapse;width:100%;margin-top:8px;font-size:11.5px}
+  th,td{border:1px solid #e3e6ea;padding:5px 7px;text-align:left;vertical-align:top}
+  th{background:#f5f7f9;font-weight:600}
+  .ev{background:#F2F8FF;border-color:#BFD9F5}
+  code{background:#eef0f3;border:1px solid #dfe3e8;border-radius:3px;padding:0 3px;font-size:11px}
+  .q{background:#FFF9E6;border-left:3px solid #F0B429;padding:8px 12px;margin:8px 0;font-size:12px;color:#5b4a00}
+</style>
+</head>
+<body>
+
+<h1>平台选择器：怎么支撑几百个平台</h1>
+<div class="sub">
+  上一版我给的「5 格网格 + 更多」只适合<b>少量平台</b>，你说得对。
+  这次先查了成熟方案，再出图——结论是<b>分层</b>：少量常用用网格，大量靠搜索。
+</div>
+
+<h2>一、查到的证据（企业级组件的官方口径）</h2>
+<div class="note ev">
+  <b>Ant Design（蚂蚁金服 · 企业级组件库）Select 组件文档</b><br>
+  原文：<i>「当选项少时（<b>少于 5 项</b>），建议直接将选项平铺，使用 Radio 是更好的选择。」</i><br>
+  原文：<i>「如果你在寻找一个<b>可输可选</b>的输入框，那你可能需要 AutoComplete。」</i><br>
+  参数：<code>showSearch</code>（可搜索）、<code>filterOption</code>（按输入过滤）、<code>virtual</code>（<b>虚拟滚动默认开启</b>）、文档带 <code>big-data</code> 大数据演示<br>
+  来源：github.com/ant-design/ant-design · components/select/index.zh-CN.md · 抓取 2026-10-30
+  <br><br>
+  <b>Flutter 官方 API 文档</b>（Google）DropdownMenu：<br>
+  原文：<i>「People can also <b>filter the list based on the text input</b> or search one item in the menu list.」</i><br>
+  参数：<code>enableFilter</code>、<code>enableSearch</code>、<code>filterCallback</code>、<code>searchCallback</code><br>
+  来源：api.flutter.dev/flutter/material/DropdownMenu-class.html · 抓取 2026-10-30
+  <br><br>
+  <b>→ 两条独立来源同一个结论</b>：选项少可以平铺，<b>选项多必须"输入即过滤"</b>，并且列表要能虚拟滚动（几百项不能一次渲染）。
+</div>
+
+<h2>二、三屏方案（真能点的结构）</h2>
+<div class="row">
+
+  <!-- 屏1 默认 -->
+  <div class="col">
+    <div class="tag"><span class="badge">屏 1</span> 默认：最近用 + 搜索框常驻</div>
+    <div class="meta">不用滚动 · 6 个最近用 · 搜索框一进来就在</div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>09:21</span><span>5G ▮ 59</span></div>
+      <div class="nav"><div class="nav-back"></div><div class="nav-title">添加密码</div><div class="nav-save">保存</div></div>
+      <div class="body">
+        <div class="type-scroll">
+          <div class="type-pill on"><span>登录</span></div>
+          <div class="type-pill"><span>服务器</span></div>
+          <div class="type-pill"><span>银行卡</span></div>
+        </div>
+
+        <div class="searchbar">
+          <div class="mag"></div>
+          <input placeholder="搜索平台，或直接输入新名字" readonly>
+        </div>
+
+        <div class="sec"><span class="sec-t">最近使用</span><span class="sec-r">全部平台 ›</span></div>
+        <div class="recents">
+          <div class="rc"><div class="ic" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><div class="nm">微信</div></div>
+          <div class="rc"><div class="ic" style="background:rgba(59,130,246,.14);color:#3B82F6">企</div><div class="nm">企业微信</div></div>
+          <div class="rc"><div class="ic" style="background:rgba(234,67,53,.14);color:#EA4335">邮</div><div class="nm">公司邮箱</div></div>
+          <div class="rc"><div class="ic" style="background:rgba(254,44,85,.14);color:#FE2C55">抖</div><div class="nm">抖音</div></div>
+          <div class="rc"><div class="ic" style="background:rgba(255,80,0,.14);color:#FF5000">淘</div><div class="nm">淘宝</div></div>
+          <div class="rc"><div class="ic" style="background:rgba(150,150,150,.14);color:#aaa">更</div><div class="nm">更多</div></div>
+        </div>
+
+        <div class="glabel">常用分类</div>
+        <div class="li"><div class="ic" style="background:rgba(44,208,106,.14);color:#2CD06A">社</div><div class="nm">社交</div><div class="cnt">38</div></div>
+        <div class="li"><div class="ic" style="background:rgba(59,130,246,.14);color:#3B82F6">金</div><div class="nm">金融 / 银行</div><div class="cnt">52</div></div>
+        <div class="li"><div class="ic" style="background:rgba(255,80,0,.14);color:#FF5000">购</div><div class="nm">购物</div><div class="cnt">41</div></div>
+        <div class="li"><div class="ic" style="background:rgba(124,58,237,.14);color:#7C3AED">办</div><div class="nm">办公 / 邮箱</div><div class="cnt">29</div></div>
+        <div class="li"><div class="ic" style="background:rgba(239,68,68,.14);color:#EF4444">游</div><div class="nm">游戏</div><div class="cnt">35</div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 屏2 搜索 -->
+  <div class="col">
+    <div class="tag"><span class="badge">屏 2</span> 输入「微」→ 实时过滤</div>
+    <div class="meta">几百个平台也是一样快 · 无匹配可新建</div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>09:21</span><span>5G ▮ 59</span></div>
+      <div class="nav"><div class="nav-back"></div><div class="nav-title">添加密码</div><div class="nav-save">保存</div></div>
+      <div class="body">
+        <div class="type-scroll">
+          <div class="type-pill on"><span>登录</span></div>
+          <div class="type-pill"><span>服务器</span></div>
+          <div class="type-pill"><span>银行卡</span></div>
+        </div>
+
+        <div class="searchbar focus">
+          <div class="mag"></div>
+          <input value="微" readonly>
+        </div>
+
+        <div class="hintbar">匹配到 4 个平台 · 点一下即填</div>
+        <div class="li"><div class="ic" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><div class="nm">微信</div><div class="cnt">12 次</div></div>
+        <div class="li"><div class="ic" style="background:rgba(59,130,246,.14);color:#3B82F6">企</div><div class="nm">企业微信</div><div class="cnt">3 次</div></div>
+        <div class="li"><div class="ic" style="background:rgba(234,67,53,.14);color:#EA4335">微</div><div class="nm">微博</div><div class="cnt">1 次</div></div>
+        <div class="li"><div class="ic" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><div class="nm">微信读书</div><div class="cnt">1 次</div></div>
+
+        <div class="li create" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.08)">
+          <div class="ic">＋</div><div class="nm">创建「微」</div><div class="cnt">自定义</div>
+        </div>
+
+        <div class="glabel" style="margin-top:14px">也可以从分类里找</div>
+        <div class="li"><div class="ic" style="background:rgba(44,208,106,.14);color:#2CD06A">社</div><div class="nm">社交</div><div class="cnt">38</div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 屏3 全部平台 -->
+  <div class="col">
+    <div class="tag"><span class="badge">屏 3</span> 全部平台（分组 + 字母索引）</div>
+    <div class="meta">几百项虚拟滚动 · 右侧点字母直达</div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>09:21</span><span>5G ▮ 59</span></div>
+      <div class="nav"><div class="nav-back"></div><div class="nav-title">全部平台</div><div class="nav-save">完成</div></div>
+      <div class="body">
+        <div class="searchbar" style="margin-top:6px">
+          <div class="mag"></div>
+          <input placeholder="搜索 386 个平台" readonly>
+        </div>
+        <div class="idx">
+          <span>↑</span><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span>
+          <span>F</span><span>G</span><span>H</span><span>J</span><span>K</span><span>L</span>
+          <span>M</span><span>N</span><span>O</span><span>P</span><span>Q</span><span>R</span>
+          <span>S</span><span>T</span><span>W</span><span>X</span><span>Y</span><span>Z</span>
+        </div>
+        <div class="glabel">最近</div>
+        <div class="li"><div class="ic" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><div class="nm">微信</div></div>
+        <div class="glabel">A</div>
+        <div class="li"><div class="ic" style="background:rgba(255,153,0,.14);color:#FF9900">A</div><div class="nm">阿里云</div></div>
+        <div class="li"><div class="ic" style="background:rgba(0,164,255,.14);color:#00A4FF">A</div><div class="nm">爱奇艺</div></div>
+        <div class="glabel">B</div>
+        <div class="li"><div class="ic" style="background:rgba(222,88,56,.14);color:#DE5838">B</div><div class="nm">百度</div></div>
+        <div class="li"><div class="ic" style="background:rgba(0,143,255,.14);color:#008FFF">B</div><div class="nm">哔哩哔哩</div></div>
+        <div class="glabel">C</div>
+        <div class="li"><div class="ic" style="background:rgba(7,193,96,.14);color:#07C160">C</div><div class="nm">长江证券</div></div>
+        <div style="padding:14px 16px;font-size:11px;color:#6b6b6b;text-align:center">
+          共 386 个平台 · 已按字母分组
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<h2>三、为什么这样能撑住几百个</h2>
+<div class="note">
+  <table>
+    <tr><th>平台数量</th><th>用户行为</th><th>方案</th><th>依据</th></tr>
+    <tr><td><b>&lt; 5</b></td><td>一眼看完</td><td>直接平铺（网格 / Radio）</td><td>Ant Design：「少于 5 项建议直接平铺」</td></tr>
+    <tr><td><b>5–20</b></td><td>扫一眼就能找到</td><td>网格 + 「更多」</td><td>上一版方案，适用这个区间</td></tr>
+    <tr><td><b>20–100</b></td><td>需要找</td><td>分类分组 + 搜索</td><td>—</td></tr>
+    <tr><td><b>&gt; 100</b></td><td>记不住，只能搜</td><td><b>搜索优先 + 字母索引 + 虚拟滚动</b></td><td>Ant Design <code>virtual</code> + <code>big-data</code>；Flutter <code>enableFilter</code></td></tr>
+  </table>
+  <br>
+  <b>四个关键设计</b>
+  <ul>
+    <li><b>① 搜索框一进来就在</b>，不用点。因为平台多了以后，"找"是主要动作，不是"浏览"。</li>
+    <li><b>② 最近使用置顶</b>（≤6 个）：你 90% 的录入是那几个常用平台，不用搜。</li>
+    <li><b>③ 搜索匹配"平台名 + 账号 + 分组名"</b>：输"公司"能搜到"公司邮箱"，输"work@corp"也能搜到。</li>
+    <li><b>④ 无匹配直接创建</b>：搜"建设银"没有？显示「创建「建设银」」，一键新建，不用退出重来。</li>
+    <li><b>⑤ 虚拟滚动</b>：386 项不能一次渲染（小程序 setData 会卡），只渲染屏幕内约 10 项。</li>
+  </ul>
+  <div class="q">
+    <b>一个必须先确认的现实问题：</b>「几百个平台」是指<b>内置平台库有几百个</b>（供选择），还是<b>你自己的库里存了几百条记录</b>？
+    两者设计不同——前者靠搜索库，后者靠上面列表页的分组。<b>我按"内置平台库几百个"来设计</b>，如果你指的是后者，我改。
+  </div>
+</div>
+
+<h2>四、和上一版的关系</h2>
+<div class="note">
+  上一版的<b>紧凑化（单行字段、省 24%）照样成立</b>，可以叠加。
+  这版只是把「选平台」这一块从<b>固定网格</b>换成<b>搜索 + 最近 + 分类</b>，解决平台数量增长的问题。
+  <br><br>
+  <b>需要你拍板</b>：
+  <ol>
+    <li><b>要不要引入"平台分类"</b>（社交/金融/购物/办公/游戏…）？好处是可浏览，坏处是要维护分类表。<b>我建议先做"最近 + 搜索 + 字母索引"，不做分类</b>——分类是给"内置库"用的，你的场景可能不需要。</li>
+    <li><b>内置平台库要不要做</b>？如果只是你自己用，直接输入名字最快，不需要几百个预置平台。<b>这取决于你面向的是自己还是所有用户</b>——这是产品问题，你定。</li>
+    <li><b>字母索引（屏 3 右侧那条）</b>要不要？只在"全部平台"页有用，主流程不出现。</li>
+  </ol>
+</div>
+
+</body>
+</html>

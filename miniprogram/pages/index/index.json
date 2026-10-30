@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "comp-empty": "/components/comp-empty/comp-empty"
+  },
+  "navigationBarTitleText": "密码本"
+}

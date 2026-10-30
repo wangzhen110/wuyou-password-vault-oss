@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>录入页改版 · 现状与方案</title>
+<style>
+  :root{
+    --bg-page:#121212; --bg-card:#1E1E1E; --bg-input:#2A2A2A;
+    --t1:#E8E8E8; --t2:#B0B0B0; --border:#333; --brand:#2CD06A; --brand-dark:#06A855;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#E9EBEF;color:#1A1A1A;padding:24px 20px 60px}
+  h1{font-size:19px;margin-bottom:5px;color:#111}
+  .sub{font-size:13px;color:#5b6470;line-height:1.7;margin-bottom:18px}
+  .sub b{color:#111}
+  .row{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+  .col{width:300px}
+  .tag{font-size:13px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:6px;color:#111}
+  .badge{font-size:10.5px;font-weight:500;background:var(--brand);color:#0b2a18;padding:1px 7px;border-radius:20px}
+  .badge.gray{background:#8a929c;color:#fff}
+  .meta{font-size:11.5px;color:#5b6470;margin-bottom:8px;line-height:1.5}
+  .meta b{color:#111}
+
+  .frame{width:300px;height:630px;overflow:hidden}
+  .phone{width:375px;height:788px;background:var(--bg-page);border-radius:30px;overflow:hidden;
+    position:relative;border:1px solid #3a3a3a;box-shadow:0 10px 30px rgba(0,0,0,.35);
+    transform:scale(.8);transform-origin:top left;display:flex;flex-direction:column;color:var(--t1)}
+  .status{height:26px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 14px;font-size:11px;color:#cfcfcf;flex:0 0 auto}
+  .nav{height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;flex:0 0 auto}
+  .nav-back{width:10px;height:10px;border-left:2px solid var(--t1);border-bottom:2px solid var(--t1);
+    transform:rotate(45deg);margin-left:2px}
+  .nav-title{flex:1;text-align:center;font-size:16px;font-weight:600}
+  .nav-save{font-size:14px;color:var(--brand);font-weight:500}
+
+  .body{flex:1;overflow-y:auto;min-height:0}
+  .body::-webkit-scrollbar{width:0}
+
+  /* 类型 pills */
+  .type-scroll{padding:8px 12px 0;display:flex;gap:8px;overflow-x:auto}
+  .type-scroll::-webkit-scrollbar{height:0}
+  .type-pill{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 16px;
+    border-radius:16px;background:var(--bg-input);border:1px solid transparent;white-space:nowrap;flex:0 0 auto}
+  .type-pill.on{background:rgba(44,208,106,.14);border-color:var(--brand)}
+  .type-pill span{font-size:13px;color:var(--t2)}
+  .type-pill.on span{color:var(--brand);font-weight:600}
+  .tp-ic{width:14px;height:14px;border:1.5px solid var(--t2);border-radius:3px}
+  .type-pill.on .tp-ic{border-color:var(--brand)}
+
+  /* section label */
+  .section-label{font-size:14px;color:var(--t2);margin:8px 16px 4px}
+
+  /* 平台横向列表 */
+  .platform-scroll{display:flex;gap:8px;padding:4px 16px;overflow-x:auto}
+  .platform-scroll::-webkit-scrollbar{height:0}
+  .p-item{display:inline-flex;flex-direction:column;align-items:center;gap:2px;min-width:48px;flex:0 0 auto}
+  .p-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;
+    justify-content:center;font-size:14px;font-weight:700}
+  .p-name{font-size:11px;color:var(--t2)}
+
+  /* 表单卡 */
+  .form-card{margin:8px;background:var(--bg-card);border-radius:8px;padding:4px 16px;
+    border:1px solid var(--border)}
+  .field{padding:6px 0;display:flex;flex-direction:column;gap:4px}
+  .label{font-size:14px;color:var(--t2)}
+  .input{min-height:44px;padding:0 16px;background:var(--bg-input);border-radius:8px;
+    font-size:16px;color:var(--t1);display:flex;align-items:center}
+  .input.ph{color:#6b6b6b}
+  .divider{height:1px;background:var(--border)}
+  .eye{position:absolute;right:14px;font-size:13px;color:var(--t2)}
+
+  /* 密码字段 */
+  .pwd-row{display:flex;align-items:center;gap:8px}
+  .pwd-row .input{flex:1}
+  .gen-btn{padding:0 14px;height:44px;border-radius:8px;background:rgba(44,208,106,.14);
+    color:var(--brand);font-size:13px;display:flex;align-items:center;flex:0 0 auto}
+  .strength{display:flex;gap:3px;margin-top:5px}
+  .strength i{height:3px;flex:1;border-radius:2px;background:#3a3a3a}
+  .strength i.on{background:var(--brand)}
+
+  /* 更多信息折叠 */
+  .more{margin:8px;background:var(--bg-card);border-radius:8px;border:1px solid var(--border);
+    padding:0 16px;min-height:44px;display:flex;align-items:center;justify-content:space-between}
+  .more span{font-size:14px;color:var(--t2)}
+  .arrow{width:8px;height:8px;border-right:1.5px solid var(--t2);border-bottom:1.5px solid var(--t2);
+    transform:rotate(45deg)}
+
+  .save-area{padding:12px 16px 8px}
+  .save-btn{height:48px;border-radius:8px;background:var(--brand);color:#08301a;
+    display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600}
+
+  /* 方案 B：联想输入 */
+  .suggest{margin:0 8px;background:var(--bg-card);border:1px solid var(--border);
+    border-radius:8px;overflow:hidden}
+  .sg-item{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--border)}
+  .sg-item:last-child{border-bottom:none}
+  .sg-item .p-icon{width:24px;height:24px;font-size:11px;border-radius:6px}
+  .sg-item b{font-size:14px;font-weight:500}
+  .sg-item small{font-size:11px;color:#7a7a7a;margin-left:auto}
+  .sg-hint{padding:6px 16px;font-size:11px;color:#7a7a7a}
+
+  /* 方案 A：常用平台网格 */
+  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:4px 16px 3px}
+  .g-item{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .g-item .p-icon{width:32px;height:32px;font-size:13px}
+  .g-item .p-name{font-size:10px}
+  .more-platforms{padding:0 16px 4px;font-size:12px;color:var(--brand)}
+
+  .note{font-size:12px;color:#4a5158;background:#fff;border:1px solid #dfe3e8;
+    border-radius:10px;padding:13px 15px;margin-top:24px;line-height:1.85;max-width:960px}
+  .note b{color:#111}
+  .note ul{margin:6px 0 0 18px}.note li{margin:4px 0}
+  table{border-collapse:collapse;width:100%;margin-top:8px;font-size:11.5px}
+  th,td{border:1px solid #e3e6ea;padding:5px 7px;text-align:left}
+  th{background:#f5f7f9;font-weight:600}
+</style>
+</head>
+<body>
+
+<h1>录入页（添加密码）改版</h1>
+<div class="sub">
+  <b>现状：</b>首屏先占「选类型（32px）+ 选平台（约 90px）」，真正要填的字段被推到屏幕 1/6 以下；
+  平台横向滑动，12 个平台一屏只露 5–6 个；且「选了平台」下面还要再输一次「平台名称」，容易不一致。
+</div>
+
+<div class="row">
+
+  <!-- 现状 -->
+  <div class="col">
+    <div class="tag"><span class="badge gray">现状</span> 类型 + 平台 两行占位</div>
+    <div class="meta">填第一个字前已占 <b>≈130px</b> · 录一条 <b>6 步</b></div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>23:20</span><span>5G ▮ 59</span></div>
+      <div class="nav"><div class="nav-back"></div><div class="nav-title">添加密码</div><div class="nav-save">保存</div></div>
+      <div class="body">
+        <div class="type-scroll">
+          <div class="type-pill on"><div class="tp-ic"></div><span>登录</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>服务器</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>银行卡</span></div>
+        </div>
+        <div class="section-label">选择平台</div>
+        <div class="platform-scroll">
+          <div class="p-item"><div class="p-icon" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><div class="p-name">微信</div></div>
+          <div class="p-item"><div class="p-icon" style="background:rgba(254,44,85,.14);color:#FE2C55">抖</div><div class="p-name">抖音</div></div>
+          <div class="p-item"><div class="p-icon" style="background:rgba(255,80,0,.14);color:#FF5000">淘</div><div class="p-name">淘宝</div></div>
+          <div class="p-item"><div class="p-icon" style="background:rgba(59,130,246,.14);color:#3B82F6">邮</div><div class="p-name">邮箱</div></div>
+          <div class="p-item"><div class="p-icon" style="background:rgba(124,58,237,.14);color:#7C3AED">支</div><div class="p-name">支付宝</div></div>
+          <div class="p-item"><div class="p-icon" style="background:rgba(150,150,150,.14);color:#aaa">更</div><div class="p-name">更多</div></div>
+        </div>
+        <div class="form-card">
+          <div class="field"><div class="label">平台名称</div><div class="input ph">如：微信、抖音</div></div>
+          <div class="divider"></div>
+          <div class="field"><div class="label">账号</div><div class="input ph">手机号 / 邮箱</div></div>
+          <div class="divider"></div>
+          <div class="field"><div class="label">密码</div>
+            <div class="pwd-row"><div class="input ph">输入密码</div><div class="gen-btn">生成</div></div>
+            <div class="strength"><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <div class="more"><span>更多信息（选填）</span><div class="arrow"></div></div>
+        <div class="save-area"><div class="save-btn">保存</div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 方案 A -->
+  <div class="col">
+    <div class="tag"><span class="badge">方案 A</span> 平台改网格 + 去重复输入</div>
+    <div class="meta">占位 <b>≈112px</b> · 常用平台一屏看全 · 录一条 <b>4 步</b></div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>23:20</span><span>5G ▮ 59</span></div>
+      <div class="nav"><div class="nav-back"></div><div class="nav-title">添加密码</div><div class="nav-save">保存</div></div>
+      <div class="body">
+        <div class="type-scroll">
+          <div class="type-pill on"><div class="tp-ic"></div><span>登录</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>服务器</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>银行卡</span></div>
+        </div>
+        <div class="section-label">选择平台</div>
+        <div class="grid">
+          <div class="g-item"><div class="p-icon" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><div class="p-name">微信</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(254,44,85,.14);color:#FE2C55">抖</div><div class="p-name">抖音</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(255,80,0,.14);color:#FF5000">淘</div><div class="p-name">淘宝</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(59,130,246,.14);color:#3B82F6">邮</div><div class="p-name">邮箱</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(124,58,237,.14);color:#7C3AED">支</div><div class="p-name">支付宝</div></div>
+        </div>
+        <div class="more-platforms">更多平台 ›</div>
+        <div class="form-card">
+          <div class="field"><div class="label">账号</div><div class="input ph">手机号 / 邮箱</div></div>
+          <div class="divider"></div>
+          <div class="field"><div class="label">密码</div>
+            <div class="pwd-row"><div class="input ph">输入密码</div><div class="gen-btn">生成</div></div>
+            <div class="strength"><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <div class="more"><span>更多信息（选填）</span><div class="arrow"></div></div>
+        <div class="save-area"><div class="save-btn">保存</div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 方案 B -->
+  <div class="col">
+    <div class="tag"><span class="badge">方案 B</span> 输入即联想（最省）</div>
+    <div class="meta">占位 <b>≈60px</b> · 不用滑动找平台 · 录一条 <b>3 步</b></div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>23:20</span><span>5G ▮ 59</span></div>
+      <div class="nav"><div class="nav-back"></div><div class="nav-title">添加密码</div><div class="nav-save">保存</div></div>
+      <div class="body">
+        <div class="type-scroll">
+          <div class="type-pill on"><div class="tp-ic"></div><span>登录</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>服务器</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>银行卡</span></div>
+        </div>
+        <div class="form-card">
+          <div class="field"><div class="label">平台</div><div class="input">微<span style="color:#2CD06A">|</span></div></div>
+        </div>
+        <div class="sg-hint">匹配到的平台（点一下即填）</div>
+        <div class="suggest">
+          <div class="sg-item"><div class="p-icon" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><b>微信</b><small>12 次使用</small></div>
+          <div class="sg-item"><div class="p-icon" style="background:rgba(59,130,246,.14);color:#3B82F6">企</div><b>企业微信</b><small>3 次</small></div>
+          <div class="sg-item"><div class="p-icon" style="background:rgba(234,67,53,.14);color:#EA4335">微</div><b>微博</b><small>1 次</small></div>
+        </div>
+        <div class="form-card">
+          <div class="field"><div class="label">账号</div><div class="input ph">手机号 / 邮箱</div></div>
+          <div class="divider"></div>
+          <div class="field"><div class="label">密码</div>
+            <div class="pwd-row"><div class="input ph">输入密码</div><div class="gen-btn">生成</div></div>
+            <div class="strength"><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <div class="more"><span>更多信息（选填）</span><div class="arrow"></div></div>
+        <div class="save-area"><div class="save-btn">保存</div></div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<div class="note">
+  <b>三个版本的核心差异</b>
+  <table>
+    <tr><th></th><th>现状</th><th>方案 A 网格</th><th>方案 B 联想</th></tr>
+    <tr><td>填第一个字前的占位</td><td>≈130px</td><td>≈112px</td><td><b>≈60px</b></td></tr>
+    <tr><td>找平台</td><td>横向滑动（12 个看 5–6 个）</td><td>5 个常用一屏看全，其余点「更多」</td><td><b>打字即出候选</b>，最近用的排前面</td></tr>
+    <tr><td>平台名称重复输入</td><td>❌ 选了还要再输一次</td><td>✅ 选完自动填</td><td>✅ 点候选即填</td></tr>
+    <tr><td>录一条的步数</td><td>6 步</td><td>4 步</td><td><b>3 步</b></td></tr>
+    <tr><td>陌生平台怎么办</td><td>直接输入</td><td>点「更多平台」→ 搜索</td><td>直接输入（不强制选）</td></tr>
+  </table>
+  <br>
+  <b>我推荐 A</b>，理由：
+  <ul>
+    <li><b>B 的联想有风险</b>：平台名是你自己起的（"公司邮箱""家里 WiFi"），联想不出来时反而更慢，还得回退到手动输入。</li>
+    <li><b>A 保留"看得见的选择"</b>：常用 5 个一屏看全，比横向滑动快；陌生平台走「更多平台」搜索，不打乱主流程。</li>
+    <li><b>A 顺带修掉一个真实坑</b>：现在「选了平台」和「平台名称」是两个独立输入，可能填成不一致（选微信却写成 WeChat），导致分组时归错组。</li>
+  </ul>
+  <br>
+  <b>还要你定两件事</b>：
+  <ol>
+    <li><b>「更多信息」里那 4 个字段（密保问题/答案/绑定手机/备注）</b>还要吗？现在登录类型要填 7 个字段，多数人只填账号密码。<b>我建议：默认只留「备注」，其余移入二级页面或按类型显示。</b></li>
+    <li><b>保存按钮</b>放底部固定条，还是像现在一样跟在内容后面（要滑到底才能点）？<b>我建议底部固定。</b></li>
+  </ol>
+</div>
+
+</body>
+</html>

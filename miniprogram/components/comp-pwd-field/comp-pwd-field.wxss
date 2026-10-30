@@ -1,0 +1,110 @@
+.c-pwd {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+.c-pwd__label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.c-pwd__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+}
+.c-pwd__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 88rpx;
+  padding: 0 var(--sp-16);
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-base);
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+.c-pwd__textarea {
+  min-height: 120rpx;
+  padding: var(--sp-12) var(--sp-16);
+}
+.c-pwd__ph {
+  color: var(--text-muted);
+}
+.c-pwd__eye {
+  position: relative;
+  width: 64rpx;
+  height: 64rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.c-pwd__eye-outer {
+  width: 34rpx;
+  height: 22rpx;
+  border: 3rpx solid var(--text-secondary);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.c-pwd__eye-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: var(--text-secondary);
+}
+.c-pwd__eye-dot.off {
+  opacity: 0.25;
+}
+/* 眼睛斜线：绝对定位必须给 left/top，否则停在静态位置（左上角） */
+.c-pwd__eye-slash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -19rpx;
+  margin-top: -1.5rpx;
+  width: 38rpx;
+  height: 3rpx;
+  background: var(--color-danger);
+  transform: rotate(-38deg);
+  border-radius: 2rpx;
+}
+.c-pwd__eye-slash.on {
+  display: none;
+}
+.c-pwd__gen {
+  flex-shrink: 0;
+  min-height: 64rpx;
+  padding: 0 var(--sp-16);
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+}
+.c-pwd__gen-text {
+  font-size: var(--fs-sm);
+  color: var(--color-primary);
+}
+.c-pwd__strength {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+}
+.c-pwd__bar {
+  width: 48rpx;
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: var(--border-color);
+}
+.c-pwd__bar.on.lvl-weak { background: var(--color-danger); }
+.c-pwd__bar.on.lvl-mid { background: var(--color-warning); }
+.c-pwd__bar.on.lvl-strong { background: var(--color-primary); }
+.c-pwd__strength-text {
+  font-size: var(--fs-xs);
+  margin-left: var(--sp-4);
+}
+.c-pwd__strength-text.lvl-weak { color: var(--color-danger); }
+.c-pwd__strength-text.lvl-mid { color: var(--color-warning); }
+.c-pwd__strength-text.lvl-strong { color: var(--color-primary); }

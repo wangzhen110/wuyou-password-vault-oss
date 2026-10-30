@@ -1,0 +1,189 @@
+<!-- add 新增/编辑 V4.0：类型选择器 + 模板动态表单 + 自定义字段 -->
+<view class="page {{themeClass}}">
+<view class="container">
+
+  <comp-nav-bar title="{{pageName}}" back="{{true}}"/>
+
+  <!-- 类型选择器：横滑胶囊（1Password 同款） -->
+  <scroll-view scroll-x class="type-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="type-list">
+      <view wx:for="{{typeList}}" wx:key="type"
+            class="type-pill tappable {{item.selected ? 'selected' : ''}}"
+            bindtap="onTypeSelect" data-type="{{item.type}}">
+        <view class="type-pill-icon">
+          <view class="tic tic-{{item.icon}}"></view>
+        </view>
+        <text class="type-pill-name">{{item.name}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- ===== 登录类：紧凑单行表单 + 平台自动补全 ===== -->
+  <block wx:if="{{currentType === 'login'}}">
+    <view class="form-card compact-card">
+      <!-- 平台：单行 + 补全（候选取自用户已存记录） -->
+      <view class="cf-row">
+        <text class="cf-label">平台</text>
+        <input class="cf-input" placeholder="输入或选择平台" value="{{form.platform}}"
+               bindinput="onPlatformInput" bindfocus="onPlatformFocus" bindblur="onPlatformBlur"
+               placeholder-class="form-placeholder"/>
+      </view>
+
+      <!-- 补全列表（内嵌，避免浮层被裁剪） -->
+      <view class="sug-box" wx:if="{{showSuggest && platformSuggestions.length > 0}}">
+        <view class="sug-item tappable" wx:for="{{platformSuggestions}}" wx:key="name"
+              bindtap="onPickSuggestion" data-name="{{item.name}}">
+          <view class="sug-ic" style="background: {{item.bg}}">
+            <text class="sug-letter" style="color: {{item.color}}">{{item.letter}}</text>
+          </view>
+          <text class="sug-name">{{item.name}}</text>
+          <text class="sug-count">{{item.count}} 条</text>
+        </view>
+      </view>
+
+      <view class="cf-div"></view>
+
+      <!-- 账号：单行 -->
+      <view class="cf-row">
+        <text class="cf-label">账号</text>
+        <input class="cf-input" placeholder="{{accountHint}}" value="{{form.account}}"
+               bindinput="onAccountInput" placeholder-class="form-placeholder"/>
+      </view>
+
+      <view class="cf-div"></view>
+
+      <!-- 密码：保持组件（强度条 + 生成器） -->
+      <view class="cf-pwd">
+        <comp-pwd-field label="密码" value="{{form.password}}" showStrength="{{true}}"
+                        strength="{{passwordStrength}}" bind:input="onPasswordInput" bind:gen="onGeneratePassword"/>
+      </view>
+    </view>
+
+    <!-- 最近使用：取自用户已存记录，按条数降序 -->
+    <view class="recent-wrap" wx:if="{{recentPlatforms.length > 0}}">
+      <text class="recent-label">最近使用</text>
+      <scroll-view scroll-x class="recent-scroll" enhanced show-scrollbar="{{false}}">
+        <view class="recent-list">
+          <view class="recent-chip tappable" wx:for="{{recentPlatforms}}" wx:key="name"
+                bindtap="onPickSuggestion" data-name="{{item.name}}">
+            <view class="chip-ic" style="background: {{item.bg}}">
+              <text class="chip-letter" style="color: {{item.color}}">{{item.letter}}</text>
+            </view>
+            <text class="chip-name">{{item.name}}</text>
+            <text class="chip-count">{{item.count}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="more-section">
+      <view class="more-header tappable" bindtap="onToggleMore">
+        <text class="more-title">更多信息（选填）</text>
+        <view class="more-arrow {{showMore ? 'expanded' : ''}}"></view>
+      </view>
+      <view class="more-fields" wx:if="{{showMore}}">
+        <view class="form-card">
+          <view class="form-field">
+            <text class="form-label">备注</text>
+            <textarea class="form-textarea" placeholder="补充说明" value="{{form.notes}}" bindinput="onNotesInput" placeholder-class="form-placeholder" auto-height maxlength="200"/>
+          </view>
+          <view class="form-divider"></view>
+          <view class="form-field">
+            <text class="form-label">密保问题</text>
+            <input class="form-input" placeholder="如：母亲的名字" value="{{form.securityQuestion}}" bindinput="onSecQInput" placeholder-class="form-placeholder"/>
+          </view>
+          <view class="form-divider"></view>
+          <view class="form-field">
+            <text class="form-label">密保答案</text>
+            <input class="form-input" placeholder="输入密保答案" password value="{{form.securityAnswer}}" bindinput="onSecAInput" placeholder-class="form-placeholder"/>
+          </view>
+          <view class="form-divider"></view>
+          <view class="form-field">
+            <text class="form-label">绑定手机</text>
+            <input class="form-input" placeholder="该账号绑定的手机号" value="{{form.bindPhone}}" bindinput="onBindPhoneInput" placeholder-class="form-placeholder"/>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- ===== 非 login 类型：模板动态表单 ===== -->
+  <block wx:else>
+    <view class="form-card">
+      <block wx:for="{{tplFields}}" wx:key="key" wx:for-index="idx">
+        <view wx:if="{{idx > 0}}" class="form-divider"></view>
+        <view class="form-field">
+          <!-- 下拉字段 -->
+          <block wx:if="{{item.input === 'select'}}">
+            <text class="form-label">{{item.label}}</text>
+            <view class="select-row">
+              <view wx:for="{{item.options}}" wx:for-item="opt" wx:for-index="oi" wx:key="*this"
+                    class="select-opt tappable {{item.value === opt ? 'picked' : ''}}"
+                    bindtap="onTplFieldPick" data-index="{{idx}}" data-i="{{oi}}">
+                <text>{{opt}}</text>
+              </view>
+            </view>
+          </block>
+          <!-- concealed 密码型 -->
+          <block wx:elif="{{item.concealed && item.input !== 'select'}}">
+            <comp-pwd-field label="{{item.label}}" value="{{item.value}}" showGen="{{false}}"
+                            placeholder="输入{{item.label}}" bind:input="onTplFieldInput" data-index="{{idx}}"/>
+          </block>
+          <!-- 普通字段 / 多行 -->
+          <block wx:else>
+            <text class="form-label">{{item.label}}</text>
+            <block wx:if="{{item.input === 'textarea'}}">
+              <textarea class="form-textarea" placeholder="输入{{item.label}}"
+                        value="{{item.value}}" bindinput="onTplFieldInput" data-index="{{idx}}"
+                        placeholder-class="form-placeholder" auto-height maxlength="2000"/>
+              <view class="form-counter-row">
+                <text class="form-counter">{{item.value.length}}/2000</text>
+              </view>
+            </block>
+            <input wx:elif="{{item.input === 'number'}}" class="form-input" type="number" placeholder="输入{{item.label}}"
+                   value="{{item.value}}" bindinput="onTplFieldInput" data-index="{{idx}}" placeholder-class="form-placeholder"/>
+            <input wx:else class="form-input" placeholder="输入{{item.label}}"
+                   value="{{item.value}}" bindinput="onTplFieldInput" data-index="{{idx}}" placeholder-class="form-placeholder"/>
+          </block>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <!-- ===== 自定义字段（任意类型） ===== -->
+  <view class="custom-section">
+    <view class="custom-header">
+      <text class="custom-title">自定义字段</text>
+      <view class="custom-add tappable" bindtap="onAddCustomField">
+        <view class="custom-add-plus"></view>
+        <text class="custom-add-text">添加</text>
+      </view>
+    </view>
+    <view class="form-card" wx:if="{{customFields.length > 0}}">
+      <block wx:for="{{customFields}}" wx:key="index" wx:for-index="idx">
+        <view wx:if="{{idx > 0}}" class="form-divider"></view>
+        <view class="custom-field-row">
+          <input class="form-input custom-label-input" placeholder="字段名称" value="{{item.label}}"
+                 bindinput="onCustomLabel" data-index="{{idx}}" placeholder-class="form-placeholder"/>
+          <view class="custom-remove tappable" bindtap="onRemoveCustomField" data-index="{{idx}}" aria-role="button" aria-label="删除字段">
+            <view class="custom-remove-line"></view>
+          </view>
+        </view>
+        <view class="custom-value-row">
+          <input class="form-input custom-value-input" placeholder="字段内容" password="{{item.concealed}}"
+                 value="{{item.value}}" bindinput="onCustomValue" data-index="{{idx}}" placeholder-class="form-placeholder"/>
+          <view class="custom-eye tappable" bindtap="onCustomToggle" data-index="{{idx}}" aria-role="button" aria-label="隐藏或显示">
+            <view class="custom-eye-dot {{item.concealed ? '' : 'open'}}"></view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="save-area">
+    <comp-btn variant="primary" disabled="{{!canSave || saving}}" bind:tap="onSave">{{saving ? '保存中…' : '保存'}}</comp-btn>
+  </view>
+
+  <view class="safe-area-bottom"></view>
+</view>
+</view>

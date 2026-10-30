@@ -1,0 +1,285 @@
+/* comp-cell：L1 表面上的行单元 */
+.c-cell {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap-min-size);
+  padding: var(--sp-12) var(--sp-16);
+  box-sizing: border-box;
+}
+
+.c-cell__icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--sp-16);
+  flex-shrink: 0;
+}
+.c-cell__icon--green { background: var(--color-primary-light); }
+.c-cell__icon--plain { background: var(--bg-input); }
+
+.c-cell__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+.c-cell__title {
+  font-size: var(--fs-base);
+  color: var(--text-primary);
+  line-height: var(--lh-tight);
+}
+.c-cell__desc {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: var(--lh-tight);
+}
+
+.c-cell__right {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  flex-shrink: 0;
+}
+.c-cell__value {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+.c-cell__arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 3rpx solid var(--text-muted);
+  border-right: 3rpx solid var(--text-muted);
+  transform: rotate(45deg);
+}
+
+/* ===== 纯 CSS 图标集（14rpx 网格，仅用 currentColor）===== */
+.ic { position: relative; width: 32rpx; height: 32rpx; }
+.c-cell__icon--green .ic { color: var(--color-primary); }
+.c-cell__icon--plain .ic { color: var(--text-secondary); }
+
+/* lock 锁 */
+.ic-lock::before {
+  content: '';
+  position: absolute; left: 6rpx; bottom: 4rpx;
+  width: 20rpx; height: 14rpx;
+  border-radius: 4rpx;
+  background: currentColor;
+}
+.ic-lock::after {
+  content: '';
+  position: absolute; top: 2rpx; left: 9rpx;
+  width: 14rpx; height: 10rpx;
+  border: 3rpx solid currentColor;
+  border-bottom: none;
+  border-radius: 8rpx 8rpx 0 0;
+}
+
+/* server 机架 */
+.ic-server::before, .ic-server::after {
+  content: '';
+  position: absolute; left: 3rpx;
+  width: 26rpx; height: 11rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 3rpx;
+  box-sizing: border-box;
+}
+.ic-server::before { top: 3rpx; }
+.ic-server::after { bottom: 3rpx; }
+
+/* card 卡片 */
+.ic-card::before {
+  content: '';
+  position: absolute; top: 5rpx; left: 2rpx;
+  width: 28rpx; height: 22rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 4rpx;
+  box-sizing: border-box;
+}
+.ic-card::after {
+  content: '';
+  position: absolute; top: 11rpx; left: 6rpx;
+  width: 10rpx; height: 3rpx;
+  background: currentColor;
+}
+
+/* note 纸张 */
+.ic-note::before {
+  content: '';
+  position: absolute; top: 3rpx; left: 5rpx;
+  width: 22rpx; height: 26rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 3rpx;
+  box-sizing: border-box;
+}
+.ic-note::after {
+  content: '';
+  position: absolute; top: 11rpx; left: 10rpx;
+  width: 12rpx; height: 3rpx;
+  background: currentColor;
+  box-shadow: 0 6rpx 0 currentColor;
+}
+
+/* key 钥匙 */
+.ic-key::before {
+  content: '';
+  position: absolute; top: 4rpx; left: 4rpx;
+  width: 12rpx; height: 12rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.ic-key::after {
+  content: '';
+  position: absolute; top: 15rpx; right: 3rpx;
+  width: 14rpx; height: 3rpx;
+  background: currentColor;
+  box-shadow: 0 6rpx 0 currentColor;
+  transform: rotate(38deg);
+  transform-origin: right center;
+}
+
+/* gear 齿轮 */
+.ic-gear::before {
+  content: '';
+  position: absolute; top: 8rpx; left: 8rpx;
+  width: 16rpx; height: 16rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.ic-gear::after {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 32rpx; height: 32rpx;
+  border: 3rpx dashed currentColor;
+  border-radius: 50%;
+  box-sizing: border-box;
+  opacity: 0.9;
+}
+
+/* font 字号 */
+.ic-font::before {
+  content: 'A';
+  position: absolute; top: -4rpx; left: 2rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: currentColor;
+  line-height: 1.2;
+}
+
+/* cloud 云 */
+.ic-cloud::before {
+  content: '';
+  position: absolute; bottom: 5rpx; left: 2rpx;
+  width: 28rpx; height: 14rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 12rpx;
+  box-sizing: border-box;
+}
+.ic-cloud::after {
+  content: '';
+  position: absolute; top: 4rpx; left: 9rpx;
+  width: 12rpx; height: 12rpx;
+  border: 3rpx solid currentColor;
+  border-bottom: none;
+  border-radius: 8rpx 8rpx 0 0;
+  box-sizing: border-box;
+}
+
+/* finger 指纹 */
+.ic-finger::before, .ic-finger::after {
+  content: '';
+  position: absolute;
+  border: 3rpx solid currentColor;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.ic-finger::before {
+  top: 5rpx; left: 5rpx;
+  width: 22rpx; height: 22rpx;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  transform: rotate(45deg);
+}
+.ic-finger::after {
+  top: 11rpx; left: 11rpx;
+  width: 10rpx; height: 10rpx;
+  border-bottom-color: transparent;
+  transform: rotate(45deg);
+}
+
+/* msg 消息 */
+.ic-msg::before {
+  content: '';
+  position: absolute; top: 4rpx; left: 3rpx;
+  width: 26rpx; height: 18rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 5rpx;
+  box-sizing: border-box;
+}
+.ic-msg::after {
+  content: '';
+  position: absolute; bottom: 3rpx; left: 8rpx;
+  width: 0; height: 0;
+  border-left: 6rpx solid currentColor;
+  border-bottom: 7rpx solid transparent;
+}
+
+/* headset 客服 */
+.ic-headset::before {
+  content: '';
+  position: absolute; top: 6rpx; left: 3rpx;
+  width: 26rpx; height: 16rpx;
+  border: 3rpx solid currentColor;
+  border-bottom: none;
+  border-radius: 14rpx 14rpx 0 0;
+  box-sizing: border-box;
+}
+.ic-headset::after {
+  content: '';
+  position: absolute; bottom: 3rpx;
+  width: 6rpx; height: 10rpx;
+  background: currentColor;
+  border-radius: 3rpx;
+  box-shadow: 17rpx 0 0 currentColor;
+}
+
+/* info 关于 */
+.ic-info::before {
+  content: '';
+  position: absolute; top: 3rpx; left: 3rpx;
+  width: 26rpx; height: 26rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.ic-info::after {
+  content: '';
+  position: absolute; top: 9rpx; left: 14rpx;
+  width: 3rpx; height: 11rpx;
+  background: currentColor;
+  box-shadow: 0 -5rpx 0 currentColor;
+}
+
+/* share 邀请 */
+.ic-share::before {
+  content: '';
+  position: absolute; top: 12rpx; left: 4rpx;
+  width: 0; height: 0;
+  border-left: 10rpx solid currentColor;
+  border-top: 6rpx solid transparent;
+  border-bottom: 6rpx solid transparent;
+}
+.ic-share::after {
+  content: '';
+  position: absolute; top: 5rpx; right: 3rpx;
+  width: 20rpx; height: 20rpx;
+  border-top: 3rpx solid currentColor;
+  border-right: 3rpx solid currentColor;
+  border-radius: 0 6rpx 0 0;
+  transform: rotate(-8deg);
+}

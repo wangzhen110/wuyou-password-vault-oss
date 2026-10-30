@@ -1,0 +1,45 @@
+{
+  "pages": [
+    "pages/lock/lock",
+    "pages/index/index",
+    "pages/add/add",
+    "pages/detail/detail",
+    "pages/settings/settings",
+    "pages/about/about",
+    "pages/member/member",
+    "pages/agreement/agreement",
+    "pages/api-access/api-access",
+    "pages/api-docs/api-docs",
+    "pages/account/account",
+    "pages/profile-edit/profile-edit"
+  ],
+  "window": {
+    "backgroundTextStyle": "@bgTxtStyle",
+    "navigationBarBackgroundColor": "#2CD06A",
+    "navigationBarTitleText": "密码本",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "@bgColor",
+    "navigationStyle": "custom"
+  },
+  "darkmode": true,
+  "themeLocation": "theme.json",
+  "tabBar": {
+    "custom": true,
+    "color": "#808080",
+    "selectedColor": "#2CD06A",
+    "backgroundColor": "#1E1E1E",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "密码"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置"
+      }
+    ]
+  },
+  "cloud": true,
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

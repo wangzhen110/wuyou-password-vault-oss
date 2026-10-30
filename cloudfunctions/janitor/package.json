@@ -1,0 +1,9 @@
+{
+  "name": "janitor",
+  "version": "1.0.0",
+  "description": "定时清理过期记录（api_codes/api_tokens/otp_requests/api_audit 的 expire_at）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

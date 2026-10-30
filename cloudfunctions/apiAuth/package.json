@@ -1,0 +1,9 @@
+{
+  "name": "apiAuth",
+  "version": "4.3.15",
+  "description": "开放 API 授权管理（小程序内）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "4.0.2"
+  }
+}

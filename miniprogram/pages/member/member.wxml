@@ -1,0 +1,145 @@
+<view class="page {{themeClass}}">
+
+  <comp-nav-bar title="会员升级" back="{{true}}"/>
+
+  <view class="page-body">
+
+  <!-- 当前状态 -->
+  <view class="status-card">
+    <view class="status-row">
+      <text class="status-label">当前身份</text>
+      <text class="status-value {{isVip ? 'vip' : ''}}">{{isVip ? '年度会员' : '免费用户'}}</text>
+    </view>
+    <view class="status-row" wx:if="{{isVip && vipExpireText}}">
+      <text class="status-label">会员到期</text>
+      <text class="status-value">{{vipExpireText}}</text>
+    </view>
+    <view class="status-row">
+      <text class="status-label">容量使用</text>
+      <text class="status-value">{{capacityText}}</text>
+    </view>
+    <view class="entitlement-stale" wx:if="{{entitlementStale}}">
+      <text class="entitlement-stale-text">{{entitlementStaleText}}</text>
+    </view>
+    <view class="cap-detail">
+      <text>{{isVip ? '会员 ' + memberCapacity + ' 条' : '免费 ' + freeCapacity + ' 条'}}</text>
+      <text class="dot">·</text>
+      <text>邀请 +{{inviteCapacity}} 条</text>
+      <text class="dot">·</text>
+      <text>扩容 +{{paidCapacity}} 条</text>
+    </view>
+    <view class="cap-tip" wx:if="{{!isVip}}">会员到期后，新增和部分编辑可能受限；查看、复制、导出、删除能力以当前服务状态为准，云端或备份是否保留需另行核实</view>
+  </view>
+
+  <!-- 档位选择：仅在购买开启时展示（审核版不展示任何商品与价格，避免被判定为虚拟商品销售） -->
+  <block wx:if="{{payEnabled}}">
+    <view class="section-title">选择升级方案</view>
+    <view class="product-list">
+      <view
+        wx:for="{{products}}"
+        wx:key="id"
+        class="product-card {{selectedId === item.id ? 'selected' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSelect"
+      >
+        <view class="product-head">
+          <text class="product-name">{{item.name}}</text>
+          <text class="product-tag" wx:if="{{item.recommended}}">推荐</text>
+        </view>
+        <view class="product-price">
+          <text class="price-num">{{item.price}}</text>
+          <text class="price-unit">{{item.unit}}</text>
+        </view>
+        <view class="product-desc">{{item.desc}}</view>
+        <view class="product-badge" wx:if="{{item.badgeText}}">{{item.badgeText}}</view>
+        <view class="highlight-list">
+          <view class="highlight-item" wx:for="{{item.highlights}}" wx:for-item="h" wx:key="*this">
+            <text class="check-icon">✓</text>
+            <text>{{h}}</text>
+          </view>
+        </view>
+        <view class="radio {{selectedId === item.id ? 'checked' : ''}}"></view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 审核版（未开放购买）：只展示权益说明，不出现商品、价格、购买入口 -->
+  <block wx:else>
+    <view class="section-title">{{payDisabledTitle}}</view>
+    <view class="product-list">
+      <view class="product-card">
+        <view class="highlight-list">
+          <view class="highlight-item"><text class="check-icon">✓</text><text>容量上限提升至 500 条</text></view>
+          <view class="highlight-item"><text class="check-icon">✓</text><text>开放 API 读取加密数据</text></view>
+          <view class="highlight-item"><text class="check-icon">✓</text><text>支持导出加密备份，数据随时带走</text></view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 支付按钮：payEnabled=false 时不展示购买/订单入口（审核版本规避交易类要求，上线后放开） -->
+  <block wx:if="{{payEnabled}}">
+    <button class="pay-btn {{paying ? 'disabled' : ''}}" bindtap="onPay" disabled="{{paying}}">
+      {{paying ? '支付中...' : '立即开通'}}
+    </button>
+
+    <view class="order-status" wx:if="{{orderStatusText}}">{{orderStatusText}}</view>
+    <button class="recover-btn" bindtap="onListOrders" disabled="{{recovering || paying}}">
+      {{recovering ? '查询中...' : '查询历史订单'}}
+    </button>
+  </block>
+  <view class="coming-soon" wx:else>
+    <text class="coming-soon-text">会员功能即将开放</text>
+    <text class="coming-soon-sub">当前版本容量说明仅供参考，不影响密码管理全部功能使用</text>
+  </view>
+
+  <!-- 协议 -->
+  <view class="agreement-row">
+    <text bindtap="goAgreement">《用户协议》</text>
+    <text>和</text>
+    <text bindtap="goPrivacy">《隐私政策》</text>
+  </view>
+
+  </view>
+
+  <!-- 支付返回后的等待确认窗口 -->
+  <view class="pay-confirm-mask" wx:if="{{confirming}}">
+    <view class="pay-confirm-box">
+      <view class="pay-confirm-spinner"></view>
+      <text class="pay-confirm-title">{{confirmTip}}</text>
+      <text class="pay-confirm-sub">微信正在通知服务器，请稍候勿关闭</text>
+    </view>
+  </view>
+
+  <!-- 历史订单弹窗 -->
+  <view class="orders-mask" wx:if="{{ordersDialog.visible}}" bindtap="closeOrdersDialog">
+    <view class="orders-box" catchtap="">
+      <view class="orders-head">
+        <text class="orders-title">历史订单</text>
+        <text class="orders-close" bindtap="closeOrdersDialog">✕</text>
+      </view>
+      <view class="orders-body">
+        <view class="orders-loading" wx:if="{{ordersDialog.loading}}">查询中...</view>
+        <view class="orders-error" wx:elif="{{ordersDialog.error}}">{{ordersDialog.error}}</view>
+        <view class="orders-empty" wx:elif="{{!ordersDialog.list.length}}">还没有订单记录</view>
+        <view class="order-item" wx:for="{{ordersDialog.list}}" wx:key="outTradeNo">
+          <view>
+            <view class="order-item-top">
+              <text class="order-item-name">{{item.name}}</text>
+              <text class="order-item-amount">{{item.amountText}}</text>
+            </view>
+            <view class="order-item-bottom">
+              <text class="order-item-time">{{item.timeText}}</text>
+              <text class="order-item-status {{item.statusKey}}">{{item.statusText}}</text>
+            </view>
+            <!-- 完整订单号：点击复制，方便向客服/后台报单号查询 -->
+            <view class="order-item-no-wrap" bindtap="onCopyOrderNo" data-no="{{item.outTradeNo}}">
+              <text class="order-item-no">{{item.outTradeNo}}</text>
+              <text class="order-item-no-copy">复制</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

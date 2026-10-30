@@ -1,0 +1,133 @@
+<view class="page {{themeClass}}">
+  <comp-nav-bar title="开放 API 授权" back />
+
+  <view class="intro card">
+    <text class="intro-title">让第三方程序读取你的密码</text>
+    <text class="intro-desc">授权后，你信任的程序可通过 API 拉取<b>加密数据</b>，并在它自己的设备上用主密码解密。云端与传输全程只有密文，我们不掌握你的主密码。</text>
+  </view>
+
+  <!-- 一次性读取请求（AI 索要临时码）：批准仅交付单条、60 秒内有效、取走即焚 -->
+  <view class="card otp-card">
+    <text class="section-title">一次性读取请求</text>
+    <text class="hint">AI 程序需要某条密码时，会在这里发起请求；每个请求只涉及 1 条条目，批准后 60 秒内取走一次，过期作废。</text>
+    <view class="otp-empty" wx:if="{{otpRequests.length === 0}}">
+      <text class="otp-empty-text">暂无待批准的请求</text>
+    </view>
+    <view class="otp-item" wx:for="{{otpRequests}}" wx:key="request_id">
+      <text class="otp-client">{{item.client_name}}</text>
+      <text class="otp-purpose">用途：{{item.purpose}}</text>
+      <text class="otp-entry">条目：{{item.title}}</text>
+      <view class="otp-actions">
+        <button class="otp-btn otp-deny" disabled="{{otpBusy}}" data-rid="{{item.request_id}}" bindtap="onOtpDeny">拒绝</button>
+        <button class="otp-btn otp-allow" disabled="{{otpBusy}}" data-rid="{{item.request_id}}" bindtap="onOtpAllow">仅本次允许</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 非会员：权益提示 -->
+  <view class="card vip-gate" wx:if="{{!isVip}}">
+    <text class="section-title">会员专属权益</text>
+    <text class="hint">开放 API 允许第三方程序读取你的密码（只返回密文、本地解密）。该能力仅对年度会员开放。</text>
+    <button class="primary-btn" bindtap="onGoVip">开通会员</button>
+  </view>
+
+  <!-- 授权码区 -->
+  <view class="card" wx:if="{{isVip}}">
+    <text class="section-title">① 生成授权码</text>
+    <block wx:if="{{!code}}">
+      <text class="hint">在第三方程序里输入这个 6 位码，即可发起接入请求。</text>
+      <button class="primary-btn" bindtap="onCreateCode" disabled="{{loading}}">
+        {{loading ? '生成中...' : '生成授权码'}}
+      </button>
+    </block>
+    <block wx:else>
+      <view class="code-box">
+        <text class="code-text">{{code}}</text>
+        <text class="code-tip">{{expiresText}}</text>
+      </view>
+
+      <view class="status-line" wx:if="{{status === 'waiting'}}">
+        <text class="dot-waiting"></text>
+        <text>等待第三方程序提交授权码…</text>
+      </view>
+
+      <view class="pending-box" wx:if="{{status === 'pending'}}">
+        <text class="pending-title">设备请求接入</text>
+        <text class="pending-device">{{pendingDevice}}</text>
+        <text class="pending-warn">确认是你本人的操作再允许</text>
+        <view class="pending-actions">
+          <button class="ghost-btn" bindtap="onDeny">拒绝</button>
+          <button class="primary-btn small" bindtap="onAllow">允许接入</button>
+        </view>
+      </view>
+
+      <view class="result-line" wx:if="{{status === 'approved'}}">
+        <text class="ok">✓ {{message || '已授权'}}</text>
+      </view>
+      <view class="result-line" wx:if="{{status === 'rejected'}}">
+        <text class="bad">{{message || '已拒绝'}}</text>
+      </view>
+      <view class="result-line" wx:if="{{status === 'expired'}}">
+        <text class="bad">{{message || '授权码已过期'}}</text>
+      </view>
+
+      <button class="ghost-btn full" bindtap="onCreateCode" disabled="{{loading}}">重新生成</button>
+    </block>
+  </view>
+
+  <!-- 设备列表 -->
+  <view class="card" wx:if="{{isVip}}">
+    <text class="section-title">② 已授权设备</text>
+    <view class="empty" wx:if="{{devices.length === 0}}">
+      <text class="hint">还没有任何设备接入</text>
+    </view>
+    <view class="device-item" wx:for="{{devices}}" wx:key="id">
+      <view class="device-main">
+        <text class="device-name">{{item.device_name}}</text>
+        <text class="device-meta">{{item.stateText}} · 授权于 {{item.createdText}}</text>
+        <text class="device-meta">最近使用：{{item.lastUsedText}} · 权限：只读</text>
+      </view>
+      <button
+        wx:if="{{!item.revoked}}"
+        class="revoke-btn"
+        data-id="{{item.id}}"
+        data-name="{{item.device_name}}"
+        bindtap="onRevoke"
+      >吊销</button>
+    </view>
+  </view>
+
+  <!-- 开发者文档 -->
+  <view class="card tip-card">
+    <text class="section-title">开发者文档</text>
+    <text class="hint">含接口说明、本地解密规范与示例代码。把地址发给开发者或 AI，即可直接照着写对接程序。</text>
+
+    <!-- 地址直接展示 + 可长按选中（不依赖剪贴板接口，最可靠） -->
+    <view class="doc-url-box">
+      <text class="doc-url" selectable user-select>{{docUrl}}</text>
+    </view>
+    <text class="doc-url-hint">长按上方地址可选择复制</text>
+
+    <view class="ghost-btn full tappable" hover-class="ghost-btn-hover" bindtap="onCopyDocLink">一键复制链接</view>
+    <view class="ghost-btn full tappable" hover-class="ghost-btn-hover" bindtap="onOpenDocs">在小程序内查看文档</view>
+  </view>
+
+  <view class="safe-area-bottom"></view>
+
+  <!-- 文档链接已复制（自定义弹窗，替换原生 showModal） -->
+  <view class="doc-mask" wx:if="{{docModal.visible}}" catchtouchmove="noop" bindtap="onCloseDocModal">
+    <view class="doc-card" catchtap="noop">
+      <view class="doc-brand">
+        <view class="doc-brand-icon"></view>
+        <view class="doc-brand-name">文档链接已复制</view>
+      </view>
+      <view class="doc-desc">粘贴到浏览器打开，或直接发给 AI 按文档写对接代码。</view>
+      <view class="doc-label">文档地址</view>
+      <view class="doc-link-box">
+        <text class="doc-link-text" selectable user-select>{{docUrl}}</text>
+      </view>
+      <view class="doc-copy-btn tappable" hover-class="doc-btn-hover" bindtap="onCopyDocLink">再复制一次</view>
+      <view class="doc-close tappable" hover-class="doc-btn-hover" bindtap="onCloseDocModal">知道了</view>
+    </view>
+  </view>
+</view>

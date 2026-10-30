@@ -1,0 +1,76 @@
+<view class="page {{themeClass}}">
+  <view class="status-bar-placeholder" style="height: {{topPlaceholderHeight}}px"></view>
+
+  <!-- 个人资料：点击整卡进入「编辑资料」页（官方头像昵称填写形态） -->
+  <view class="acc-profile tappable" bindtap="goProfileEdit">
+    <view class="acc-avatar-wrap">
+      <image class="acc-avatar" wx:if="{{avatarFileId}}" src="{{avatarFileId}}" mode="aspectFill"/>
+      <view class="acc-avatar acc-avatar-fallback" wx:else>
+        <text class="acc-avatar-fallback-text">{{nickName ? nickName[0] : '客'}}</text>
+      </view>
+      <view class="acc-avatar-edit-hint">
+        <text class="acc-avatar-edit-hint-text">改</text>
+      </view>
+    </view>
+    <view class="acc-profile-info">
+      <view class="acc-name-row">
+        <text class="acc-nick">{{nickName || '点击设置昵称'}}</text>
+        <text class="acc-vip-badge" wx:if="{{isVip}}">会员</text>
+      </view>
+      <text class="acc-vip-expire tappable" wx:if="{{isVip}}" catchtap="onCopyInviteCode">{{vipExpireText}} 到期 · 邀请码 {{inviteCode || '--'}}</text>
+      <text class="acc-vip-expire tappable" wx:else catchtap="onCopyInviteCode">免费用户 · 邀请码 {{inviteCode || '--'}}</text>
+      <!-- 微信身份：登录是静默完成的，显式展示让用户感知到账号绑定 -->
+      <text class="acc-wechat-line" wx:if="{{wechatTail}}">微信账号已登录 · ID 尾号 {{wechatTail}}</text>
+    </view>
+  </view>
+
+  <!-- 容量总览 -->
+  <view class="acc-summary">
+    <view class="acc-summary-head">
+      <text class="acc-summary-title">容量总览</text>
+      <text class="acc-summary-total">{{usedCount}} / {{effectiveCapacity}} 条</text>
+    </view>
+    <view class="acc-progress-track">
+      <view class="acc-progress-bar" style="width: {{usedPercent}}%"></view>
+    </view>
+    <text class="acc-remain">还可存 {{remainCount}} 条</text>
+  </view>
+
+  <!-- 容量明细 -->
+  <view class="acc-group">
+    <view class="acc-group-title">容量明细</view>
+    <view class="acc-row">
+      <text class="acc-row-label">基础容量</text>
+      <text class="acc-row-value">{{freeCapacity}} 条</text>
+    </view>
+    <view class="acc-divider"></view>
+    <view class="acc-row">
+      <text class="acc-row-label">邀请奖励（+5/人）</text>
+      <text class="acc-row-value">+{{inviteCapacity}} 条</text>
+    </view>
+    <view class="acc-divider"></view>
+    <view class="acc-row">
+      <text class="acc-row-label">已购永久容量（+10/次）</text>
+      <text class="acc-row-value">+{{paidCapacity}} 条</text>
+    </view>
+    <view class="acc-divider"></view>
+    <view class="acc-row">
+      <text class="acc-row-label">年度会员容量 {{isVip ? '' : '（开通后生效）'}}</text>
+      <text class="acc-row-value {{isVip ? 'acc-green' : 'acc-muted'}}">{{isVip ? '+' + memberCapacity + ' 条' : '+500 条'}}</text>
+    </view>
+    <view class="acc-divider"></view>
+    <view class="acc-row acc-row-total">
+      <text class="acc-row-label-strong">当前可用容量</text>
+      <text class="acc-row-value-strong">{{effectiveCapacity}} 条</text>
+    </view>
+  </view>
+
+  <!-- 规则说明 -->
+  <view class="acc-group">
+    <view class="acc-group-title">容量规则</view>
+    <view class="acc-note-item"><text class="acc-note-text">· 邀请好友，双方各得 5 条永久容量（最多 3 人）</text></view>
+    <view class="acc-note-item"><text class="acc-note-text">· 累计邀请满 3 位后，每再成功邀请 1 位得 30 天会员</text></view>
+    <view class="acc-note-item"><text class="acc-note-text">· 权益包每次 +10 条永久容量，最多购买 3 次</text></view>
+    <view class="acc-note-item"><text class="acc-note-text">· 已购容量永久有效，会员到期后仍可使用</text></view>
+  </view>
+</view>

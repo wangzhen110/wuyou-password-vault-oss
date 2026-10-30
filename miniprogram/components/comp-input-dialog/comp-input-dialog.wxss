@@ -1,0 +1,96 @@
+/* 通用输入弹窗：遮罩定位用 top/left/right/bottom（inset 简写在部分小程序 WebView 不支持） */
+.dlg-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.dlg-card {
+  width: 620rpx;
+  background: var(--bg-card, #1E1E1E);
+  border-radius: 24rpx;
+  padding: 40rpx 36rpx 32rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.dlg-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: var(--text-primary, #E8E8E8);
+  text-align: center;
+}
+.dlg-desc {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: var(--text-secondary, #B0B0B0);
+  text-align: center;
+}
+.dlg-field {
+  margin-top: 28rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.dlg-label {
+  font-size: 26rpx;
+  color: var(--text-secondary, #B0B0B0);
+}
+.dlg-input {
+  width: 100%;
+  height: 88rpx;
+  box-sizing: border-box;
+  padding: 0 24rpx;
+  border: 1rpx solid var(--border-color, #333333);
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  color: var(--text-primary, #E8E8E8);
+  background: var(--bg-page, #121212);
+}
+.dlg-placeholder {
+  color: var(--text-muted, #808080);
+  font-size: 28rpx;
+}
+.dlg-error {
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  color: var(--color-danger, #F06058);
+}
+.dlg-actions {
+  margin-top: 36rpx;
+  display: flex;
+  gap: 20rpx;
+}
+.dlg-btn {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  padding: 0;
+  margin: 0;
+}
+.dlg-btn.cancel {
+  background: var(--bg-page, #121212);
+  color: var(--text-primary, #E8E8E8);
+  border: 1rpx solid var(--border-color, #333333);
+}
+.dlg-btn.confirm {
+  background: var(--color-primary, #2CD06A);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+.dlg-btn[disabled] { opacity: 0.6; }
+.dlg-btn::after { border: none; }
+
+/* 多行输入（与 dlg-input 同风格） */
+.dlg-textarea { width: 100%; min-height: 120rpx; box-sizing: border-box; font-size: 28rpx; }

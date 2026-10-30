@@ -1,0 +1,58 @@
+<view class="page {{themeClass}}">
+  <comp-nav-bar title="API 接入文档" back />
+
+  <view class="doc-intro">
+    <text class="doc-title">无忧密码本开放 API · v1</text>
+    <text class="doc-sub">云端只返回密文，解密在你自己的程序里完成。只读权限。</text>
+  </view>
+
+  <view class="section" wx:for="{{sections}}" wx:key="key">
+    <view class="section-head tappable" data-key="{{item.key}}" bindtap="onToggle">
+      <text class="section-title">{{item.title}}</text>
+      <text class="section-arrow">{{expanded[item.key] ? '收起' : '展开'}}</text>
+    </view>
+
+    <view class="section-body" wx:if="{{expanded[item.key]}}">
+      <block wx:for="{{item.blocks}}" wx:for-item="block" wx:key="index">
+        <text class="p" wx:if="{{block.type === 'p'}}">{{block.text}}</text>
+
+        <view class="list" wx:if="{{block.type === 'list'}}">
+          <view class="li" wx:for="{{block.items}}" wx:for-item="line" wx:key="*this">
+            <text class="li-dot">·</text>
+            <text class="li-text">{{line}}</text>
+          </view>
+        </view>
+
+        <view class="kv" wx:if="{{block.type === 'kv'}}">
+          <view class="kv-row" wx:for="{{block.rows}}" wx:for-item="row" wx:key="index">
+            <text class="kv-k">{{row[0]}}</text>
+            <text class="kv-v">{{row[1]}}</text>
+          </view>
+        </view>
+
+        <view class="code-wrap" wx:if="{{block.type === 'code'}}" data-text="{{block.text}}" bindtap="onCopy">
+          <view class="code-head">
+            <text class="code-label">{{block.label}}</text>
+            <text class="code-copy">复制</text>
+          </view>
+          <text class="code-text">{{block.text}}</text>
+        </view>
+
+        <view class="table" wx:if="{{block.type === 'table'}}">
+          <view class="table-head">
+            <text class="th" wx:for="{{block.head}}" wx:for-item="h" wx:key="*this">{{h}}</text>
+          </view>
+          <view class="table-row" wx:for="{{block.rows}}" wx:for-item="row" wx:key="index">
+            <text class="td" wx:for="{{row}}" wx:for-item="cell" wx:key="*this">{{cell}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="footer-note">
+    <text class="footer-text">完整文档见项目 docs/openapi-reference.md · 接口问题可在「设置 → 开放 API 授权」查看设备与吊销</text>
+  </view>
+
+  <view class="safe-area-bottom"></view>
+</view>

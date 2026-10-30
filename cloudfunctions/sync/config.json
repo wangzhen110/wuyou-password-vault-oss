@@ -1,0 +1,8 @@
+{
+  "name": "sync",
+  "version": "4.3.15",
+  "description": "密码数据云同步云函数（passwords封套增量同步与vault_meta密码库元数据）",
+  "timeout": 30,
+  "envVariables": {},
+  "triggers": []
+}

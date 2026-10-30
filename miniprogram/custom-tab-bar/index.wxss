@@ -1,0 +1,110 @@
+/* tab-bar 主题变量：组件不在 .page 作用域内，需自行定义（暗色默认 + 浅色覆盖） */
+.tab-bar {
+  --bg-card: #1E1E1E;
+  --border-color: #333333;
+  --tabbar-active: #2CD06A;
+  --tabbar-inactive: #808080;
+  --transition-fast: 150ms ease;
+}
+.tab-bar.theme-light {
+  --bg-card: #FFFFFF;
+  --border-color: #EBEDF0;
+  --tabbar-active: #07C160;
+  --tabbar-inactive: #888888;
+}
+
+/* 自定义 tabBar 样式：CSS 变量与适老化尺寸 */
+.tab-bar {
+  display: flex;
+  background: var(--bg-card, #1E1E1E);
+  border-top: 1rpx solid var(--border-color, #333333);
+  padding-bottom: env(safe-area-inset-bottom);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12rpx 0;
+  min-height: 88rpx;
+  gap: 4rpx;
+  transition: opacity var(--transition-fast, 150ms ease);
+}
+
+.tab-icon-wrap {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* 纯CSS锁图标 */
+.tab-lock-body {
+  width: 22rpx;
+  height: 18rpx;
+  border: 2.5rpx solid var(--tabbar-inactive, #808080);
+  border-radius: 4rpx;
+  margin-top: 6rpx;
+  transition: border-color var(--transition-fast, 150ms ease);
+}
+.tab-lock-shackle {
+  position: absolute;
+  top: 6rpx;
+  width: 14rpx;
+  height: 12rpx;
+  border: 2.5rpx solid var(--tabbar-inactive, #808080);
+  border-bottom: none;
+  border-radius: 8rpx 8rpx 0 0;
+  transition: border-color var(--transition-fast, 150ms ease);
+}
+
+.tab-item.active .tab-lock-body,
+.tab-item.active .tab-lock-shackle {
+  border-color: var(--tabbar-active, #2CD06A);
+}
+
+/* 纯CSS齿轮图标 */
+.tab-gear {
+  width: 30rpx;
+  height: 30rpx;
+  border: 3rpx solid var(--tabbar-inactive, #808080);
+  border-radius: 50%;
+  position: relative;
+  transition: border-color var(--transition-fast, 150ms ease);
+}
+.tab-gear::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12rpx;
+  height: 12rpx;
+  border: 2rpx solid var(--tabbar-inactive, #808080);
+  border-radius: 50%;
+  background: var(--bg-card, #1E1E1E);
+  transition: border-color var(--transition-fast, 150ms ease);
+}
+.tab-item.active .tab-gear,
+.tab-item.active .tab-gear::before {
+  border-color: var(--tabbar-active, #2CD06A);
+}
+
+.tab-text {
+  font-size: 24rpx;
+  color: var(--tabbar-inactive, #808080);
+  transition: color var(--transition-fast, 150ms ease);
+}
+.tab-item.active .tab-text {
+  color: var(--tabbar-active, #2CD06A);
+  font-weight: 500;
+}

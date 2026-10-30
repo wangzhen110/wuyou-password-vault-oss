@@ -1,0 +1,7 @@
+@import './styles/theme.wxss';
+
+/* 全局样式 */
+page {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+}

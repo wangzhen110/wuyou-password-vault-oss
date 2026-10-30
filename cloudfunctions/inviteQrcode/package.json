@@ -1,0 +1,9 @@
+{
+  "name": "inviteQrcode",
+  "version": "1.0.0",
+  "description": "生成带邀请码的小程序码（邀请卡片用）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

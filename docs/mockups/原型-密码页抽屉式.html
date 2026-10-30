@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>交互原型 · 密码页抽屉式分组</title>
+<style>
+  :root{
+    --brand:#07C160; --page:#F7F8FA; --line:#EBEDF0;
+    --t1:#1A1A1A; --t2:#575757; --t3:#9AA0A6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#E4E7EC;color:var(--t1);min-height:100vh;
+    display:flex;gap:34px;justify-content:center;align-items:flex-start;
+    padding:30px 20px 60px;flex-wrap:wrap;
+  }
+  /* ---------- 手机 ---------- */
+  .phone{
+    width:375px;height:780px;background:#fff;border-radius:32px;position:relative;
+    overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.22);border:1px solid #d3d8de;
+    display:flex;flex-direction:column;flex:0 0 auto;
+  }
+  .status{height:26px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 16px;font-size:11px;color:#4a5158;flex:0 0 auto}
+
+  /* ===== 信息栏：头像/昵称/会员/容量（固定在顶部，抽屉不遮挡）===== */
+  .infobar{height:46px;display:flex;align-items:center;gap:9px;padding:0 14px;
+    background:#fff;flex:0 0 auto;border-bottom:1px solid var(--line);z-index:5}
+  .ava{width:28px;height:28px;border-radius:50%;flex:0 0 auto;
+    background:linear-gradient(135deg,#2CD06A,#06A855);color:#fff;font-size:12px;
+    display:flex;align-items:center;justify-content:center;font-weight:600}
+  .ib-name{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:5px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .vip{font-size:9px;background:#FFF3E0;color:#ED6A0C;border:1px solid #FFE0B2;
+    border-radius:4px;padding:0 3px;font-weight:500;flex:0 0 auto}
+  .ib-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;
+    gap:3px;flex:0 0 auto}
+  .ib-cap{font-size:10.5px;color:var(--t3);white-space:nowrap}
+  .ib-cap b{color:#07934C;font-weight:600}
+  .capbar{width:76px;height:3px;border-radius:3px;background:#E9EDF1;overflow:hidden}
+  .capbar i{display:block;height:100%;background:var(--brand);border-radius:3px;
+    transition:width .3s ease}
+  /* 顶栏 */
+  .top{height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;
+    border-bottom:1px solid var(--line);flex:0 0 auto;background:#fff;z-index:3}
+  .hamb{width:20px;height:14px;display:flex;flex-direction:column;justify-content:space-between;
+    cursor:pointer;flex:0 0 auto}
+  .hamb i{height:2px;background:#3a4048;border-radius:2px;display:block}
+  .hamb:active i{background:var(--brand)}
+  .title{flex:1;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cnt{font-size:11.5px;color:var(--t3);flex:0 0 auto}
+  .ico{width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex:0 0 auto;font-size:17px;color:#5b6470}
+  .ico:active{color:var(--brand)}
+  .plus{font-size:21px;color:var(--brand);font-weight:300;line-height:1}
+  /* 搜索条（常驻，不展开） */
+  .searchwrap{height:44px;display:flex;align-items:center;background:#fff;flex:0 0 auto;
+    border-bottom:1px solid var(--line)}
+  .searchbox{margin:0 12px;height:32px;width:calc(100% - 24px);background:#F5F6F8;
+    border:1px solid var(--line);border-radius:16px;display:flex;align-items:center;
+    gap:7px;padding:0 12px}
+  .searchbox input{flex:1;border:none;background:transparent;outline:none;font-size:13px;color:var(--t1)}
+  .searchbox input::placeholder{color:#b3b9c0}
+  .clr{color:#b3b9c0;cursor:pointer;font-size:14px;flex:0 0 auto;padding:2px 4px;
+    display:none;line-height:1}
+  .clr.show{display:block}
+  .clr:active{color:#5b6470}
+  /* 列表 */
+  .main{flex:1;overflow-y:auto;min-height:0;background:#fff;position:relative}
+  .main::-webkit-scrollbar{width:0}
+  .gh{height:27px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#FAFBFC;
+    border-bottom:1px solid var(--line);font-size:11px;font-weight:600;color:#6b7280;
+    cursor:pointer;user-select:none;position:sticky;top:0;z-index:2}
+  .gh:active{background:#F2F4F6}
+  .gh .tri{font-size:8px;color:#9AA0A6;transition:transform .18s ease;display:inline-block;width:8px}
+  .gh.collapsed .tri{transform:rotate(-90deg)}
+  .gh .gname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gh .cnt2{margin-left:auto;font-weight:500;color:#a5abb3}
+  .group-body{overflow:hidden;transition:max-height .22s ease}
+  .group-body.collapsed{max-height:0!important}
+  .r{height:46px;display:flex;align-items:center;gap:9px;padding:0 12px;
+    border-bottom:1px solid var(--line);cursor:pointer}
+  .r:active{background:#F7F8FA}
+  .r .ic{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;
+    justify-content:center;font-size:10.5px;font-weight:700;flex:0 0 auto}
+  .r .info{flex:1;min-width:0}
+  .r .nm{font-size:13px;font-weight:500;line-height:1.2;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .r .sb{font-size:10.5px;color:var(--t2);line-height:1.2;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .r .dots{color:#c3c8cf;font-size:14px;letter-spacing:0;flex:0 0 auto;
+    padding:4px 6px;margin-right:-6px;cursor:pointer}
+  .r .dots:active{color:var(--brand)}
+  .empty{padding:60px 20px;text-align:center;color:var(--t3);font-size:13px;line-height:1.8}
+  /* 底栏 */
+  .tab{height:46px;border-top:1px solid var(--line);display:flex;flex:0 0 auto;background:#fff}
+  .tab div{flex:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:1px;font-size:9.5px;color:#9AA0A6}
+  .tab div.on{color:var(--brand)}
+  .tab i{width:14px;height:14px;border-radius:4px;background:#dfe3e8}
+  .tab div.on i{background:var(--brand)}
+  /* 遮罩 + 抽屉：从信息栏下方开始（26+46=72px），信息栏永不被遮挡 */
+  .mask{position:absolute;left:0;right:0;bottom:0;top:72px;background:rgba(0,0,0,.34);
+    opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:8}
+  .mask.show{opacity:1;pointer-events:auto}
+  .drawer{position:absolute;left:0;top:72px;bottom:0;width:280px;background:#fff;z-index:9;
+    transform:translateX(-100%);transition:transform .24s cubic-bezier(.22,.61,.36,1);
+    display:flex;flex-direction:column;box-shadow:6px 0 26px rgba(0,0,0,.2);
+    border-radius:0 16px 16px 0;overflow:hidden}
+  .drawer.show{transform:translateX(0)}
+  .d-head{padding:16px 16px 12px;border-bottom:1px solid var(--line);flex:0 0 auto}
+  .d-name{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .d-ava{width:26px;height:26px;border-radius:50%;
+    background:linear-gradient(135deg,#2CD06A,#06A855);color:#fff;font-size:11px;
+    display:flex;align-items:center;justify-content:center;font-weight:600}
+  .d-sub{font-size:11.5px;color:var(--t3);margin-top:5px}
+  .d-list{flex:1;overflow-y:auto;padding:6px 0}
+  .d-list::-webkit-scrollbar{width:2px}
+  .d-list::-webkit-scrollbar-thumb{background:#d5d9de}
+  .d-item{height:44px;display:flex;align-items:center;gap:9px;padding:0 16px;
+    font-size:14px;color:#2b3138;cursor:pointer;position:relative;user-select:none}
+  .d-item:active{background:#F3F5F7}
+  .d-item.on{background:#EAF9F0;color:#07934C;font-weight:600}
+  .d-item.on::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;
+    background:var(--brand);border-radius:0 3px 3px 0}
+  .d-item .dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+  .d-item .txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .d-item .n{font-size:11.5px;color:#9AA0A6;font-weight:400}
+  .d-item.on .n{color:#07934C}
+  .d-foot{border-top:1px solid var(--line);padding:8px 0 10px;flex:0 0 auto}
+  .d-act{height:42px;display:flex;align-items:center;gap:9px;padding:0 16px;
+    font-size:13.5px;color:#3a4048;cursor:pointer}
+  .d-act:active{background:#F3F5F7}
+  .d-act .plus2{color:var(--brand);font-size:16px;font-weight:600;width:16px;text-align:center}
+  .d-act .ed{color:#5b6470;font-size:13px;width:16px;text-align:center}
+  /* 编辑面板 */
+  .editor{position:absolute;inset:0;background:#fff;z-index:10;display:flex;flex-direction:column;
+    transform:translateX(100%);transition:transform .24s cubic-bezier(.22,.61,.36,1)}
+  .editor.show{transform:translateX(0)}
+  .ed-hint{padding:10px 16px;font-size:11px;color:#9AA0A6;background:#FAFBFC;
+    border-bottom:1px solid var(--line)}
+  .ed-list{flex:1;overflow-y:auto}
+  .ed-item{height:52px;display:flex;align-items:center;gap:10px;padding:0 14px;
+    border-bottom:1px solid var(--line);background:#fff}
+  .ed-item.dragging{opacity:.4}
+  .ed-item .grip{color:#c0c6cd;font-size:15px;cursor:grab;flex:0 0 auto;padding:4px}
+  .ed-item .ed-name{flex:1;font-size:14px;color:#2b3138;border:none;outline:none;
+    background:transparent;padding:4px 0;min-width:0}
+  .ed-item .ed-name:focus{background:#F5F6F8;border-radius:4px}
+  .ed-item .ed-cnt{font-size:11.5px;color:#9AA0A6;flex:0 0 auto}
+  .sw{width:34px;height:20px;border-radius:20px;background:#d9dde2;position:relative;
+    flex:0 0 auto;cursor:pointer;transition:background .15s}
+  .sw.on{background:var(--brand)}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;
+    border-radius:50%;background:#fff;transition:left .15s}
+  .sw.on::after{left:16px}
+  .ed-foot{padding:12px 16px;border-top:1px solid var(--line);flex:0 0 auto;
+    display:flex;gap:10px;align-items:center}
+  .btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 16px;
+    font-size:13px;color:#2b3138;cursor:pointer}
+  .btn:active{background:#F3F5F7}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:500}
+  /* 操作面板 */
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;z-index:11;
+    border-radius:16px 16px 0 0;transform:translateY(100%);
+    transition:transform .22s cubic-bezier(.22,.61,.36,1);padding-bottom:8px}
+  .sheet.show{transform:translateY(0)}
+  .sh-title{padding:14px 18px 8px;font-size:13px;color:#9AA0A6;border-bottom:1px solid var(--line)}
+  .sh-act{height:48px;display:flex;align-items:center;padding:0 18px;font-size:14.5px;
+    color:#2b3138;cursor:pointer}
+  .sh-act:active{background:#F5F6F8}
+  .sh-act.danger{color:#E64340}
+  .sh-cancel{height:50px;display:flex;align-items:center;justify-content:center;
+    font-size:15px;color:#5b6470;border-top:8px solid #F3F5F7;cursor:pointer}
+  /* toast */
+  .toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);
+    background:rgba(0,0,0,.78);color:#fff;font-size:13px;padding:11px 18px;border-radius:10px;
+    opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:20;white-space:nowrap}
+  .toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+  /* ---------- 说明区 ---------- */
+  .panel{width:340px;flex:0 0 auto}
+  .panel h1{font-size:19px;margin-bottom:6px}
+  .panel .desc{font-size:13px;color:#5b6470;line-height:1.75;margin-bottom:14px}
+  .panel .desc b{color:#111}
+  .card{background:#fff;border:1px solid #dfe3e8;border-radius:12px;padding:14px 16px;
+    font-size:12.5px;line-height:1.9;color:#40474f;margin-bottom:12px}
+  .card b{color:#111}
+  .card ol{margin:6px 0 0 18px}
+  .card li{margin:3px 0}
+  .kbadge{display:inline-block;background:#EAF9F0;color:#07934C;border:1px solid #BFE9CF;
+    border-radius:5px;padding:0 5px;font-size:11px;margin:0 1px}
+  .panel .reset{width:100%;padding:11px;border-radius:10px;border:1px solid #dfe3e8;
+    background:#fff;font-size:13px;cursor:pointer;color:#2b3138}
+  .panel .reset:active{background:#f2f4f6}
+</style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+  <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+
+  <div class="infobar">
+    <div class="ava">无</div>
+    <div class="ib-name">无忧密码本<span class="vip">会员</span></div>
+    <div class="ib-right">
+      <span class="ib-cap">已用 <b id="capUsed">12</b> / <span id="capTotal">500</span> 条</span>
+      <div class="capbar"><i id="capFill" style="width:3%"></i></div>
+    </div>
+  </div>
+
+  <div class="top">
+    <div class="hamb" id="btnDrawer"><i></i><i></i><i></i></div>
+    <div class="title" id="topTitle">全部</div>
+    <div class="cnt" id="topCnt"></div>
+    <div class="ico plus" id="btnAdd">＋</div>
+  </div>
+
+  <div class="searchwrap">
+    <div class="searchbox">
+      <span style="color:#b3b9c0;font-size:13px;flex:0 0 auto">🔍</span>
+      <input id="searchInput" placeholder="搜索平台、账号…" autocomplete="off">
+      <span class="clr" id="btnSearchClose">✕</span>
+    </div>
+  </div>
+
+  <div class="main" id="listArea"></div>
+
+  <div class="tab">
+    <div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div>
+  </div>
+
+  <div class="mask" id="mask"></div>
+
+  <div class="drawer" id="drawer">
+    <div class="d-head">
+      <div class="d-name"><span class="d-ava">无</span>分组</div>
+      <div class="d-sub" id="drawerSub"></div>
+    </div>
+    <div class="d-list" id="drawerList"></div>
+    <div class="d-foot">
+      <div class="d-act" id="btnNewGroup"><span class="plus2">＋</span><span>新建分组</span></div>
+      <div class="d-act" id="btnEditGroups"><span class="ed">✎</span><span>编辑分组</span></div>
+    </div>
+  </div>
+
+  <div class="editor" id="editor">
+    <div class="top">
+      <div class="ico" id="btnEditorBack" style="font-size:17px">←</div>
+      <div class="title">编辑分组</div>
+      <div class="ico" id="btnEditorDone" style="font-size:13px;color:#07C160;font-weight:600;width:auto">完成</div>
+    </div>
+    <div class="ed-hint">拖动 <b>≡</b> 调整顺序 · 直接点名字可改 · 关掉开关即隐藏该分组</div>
+    <div class="ed-list" id="editorList"></div>
+    <div class="ed-foot">
+      <button class="btn" id="btnEditorNew">＋ 新建分组</button>
+      <span style="font-size:11.5px;color:#9AA0A6;margin-left:auto">改名与顺序会自动保存</span>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet">
+    <div class="sh-title" id="shTitle"></div>
+    <div class="sh-act" data-act="copyPwd">复制密码</div>
+    <div class="sh-act" data-act="copyAcc">复制账号</div>
+    <div class="sh-act" data-act="editItem">编辑这条</div>
+    <div class="sh-act danger" data-act="deleteItem">删除</div>
+    <div class="sh-cancel" id="shCancel">取消</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<div class="panel">
+  <h1>交互原型 · 密码页</h1>
+  <div class="desc">
+    这是<b>真能点的</b>原型，不是静态图。所有尺寸按 375pt 真实渲染（1rpx = 0.5px），配色取自项目现有 wxss。
+  </div>
+
+  <div class="card">
+    <b>布局 v2：搜索框改为常驻</b>
+    <ol>
+      <li>搜索框<b>始终显示</b>在工具栏下方（44px），不再点图标展开</li>
+      <li>工具栏里的 🔍 图标已移除（避免重复）</li>
+      <li>输入即搜，跨全部分组过滤；右侧 ✕ 清空</li>
+      <li>顶部总高：状态栏 26 + 信息栏 46 + 工具栏 44 + 搜索 44 = <b>160px</b><br>
+          对比改版前 ≈246px（且当时还要点开搜索），仍省 <b>86px</b></li>
+      <li>一屏仍可看 <b>约 12 条</b>（改版前 6–7 条）</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <b>关于「头像 + 容量」信息栏</b>
+    <ol>
+      <li><b>保留</b>：头像 / 昵称 / 会员徽章 / 已用·总容量 / 容量进度条，全部保留</li>
+      <li><b>压到 46px</b>：容量文字与进度条改成右侧竖排（文字 10.5px + 3px 细条），不再占一整行</li>
+      <li><b>永不被遮挡</b>：抽屉和遮罩都从信息栏<b>下方 72px 处</b>开始，头像和容量在抽屉展开时依然可见</li>
+      <li><b>随数据实时变</b>：删一条记录，容量数字和进度条会立刻更新（可以试试点 ··· → 删除）</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <b>可以试这些操作</b>
+    <ol>
+      <li>点左上角 <span class="kbadge">☰</span> → 抽屉滑出（280px，信息栏保持可见）</li>
+      <li>点某个分组 → 抽屉自动收回，列表切换</li>
+      <li>点分组标题（灰色条）→ 展开 / 收起</li>
+      <li>搜索框<b>常驻</b>，直接输入"微信"试试（右侧 ✕ 清空）</li>
+      <li>点行尾 <span class="kbadge">···</span> → 操作面板（复制密码等）</li>
+      <li>抽屉底部「<b>编辑分组</b>」→ 拖动排序、直接改名、开关隐藏</li>
+      <li>抽屉底部「<b>新建分组</b>」→ 手动建一个空分组</li>
+      <li>点遮罩任意处 → 关闭抽屉</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <b>「全部」和分组的关系</b>
+    <br>按你最早说的：<b>「全部」= 平铺，按录入时间倒序</b>（最新在最上），不折叠；
+    选具体平台才显示该平台的条目、并按账号折叠。
+    <br><br>
+    这样两个视图各有用途：「全部」用来"我最近加了什么"，分组用来"找某个平台"。
+  </div>
+
+  <div class="card">
+    <b>当前实现的取舍</b>
+    <ol>
+      <li>搜索时<b>强制展开</b>所有命中分组——否则搜到了却看不见</li>
+      <li>隐藏的分组<b>不出现在抽屉里</b>，但数据仍在（可在编辑页恢复）</li>
+      <li>改名/排序/隐藏<b>只存本地</b>（原型用内存），真实实现需存 storage 并考虑是否同步</li>
+      <li>「把某条记录移到别组」<b>没做</b>——它会破坏"同名自动归类"，需要单独设计</li>
+    </ol>
+  </div>
+
+  <button class="reset" id="btnReset">↺ 重置原型数据</button>
+</div>
+
+<script>
+/* ================= 数据 ================= */
+const COLORS = {
+  '微信':'#07C160','抖音':'#FE2C55','淘宝':'#FF5000','公司邮箱':'#3B82F6',
+  '支付宝':'#7C3AED','Steam':'#EF4444','招商银行':'#F59E0B','家里 WiFi':'#6366F1',
+  'QQ':'#0EA5E9','知乎':'#6366F1'
+};
+function seed(){
+  return [
+    {id:1,  platform:'微信',       name:'微信工作号',   account:'wxid_work',    created:10},
+    {id:2,  platform:'抖音',       name:'抖音小店号',   account:'shop_dy',      created:9},
+    {id:3,  platform:'微信',       name:'微信生活号',   account:'wxid_life',    created:8},
+    {id:4,  platform:'淘宝',       name:'淘宝主号',     account:'shop_2024',    created:7},
+    {id:5,  platform:'微信',       name:'企业微信',     account:'work@corp.cn', created:6},
+    {id:6,  platform:'公司邮箱',   name:'公司邮箱',     account:'me@corp.cn',   created:5},
+    {id:7,  platform:'抖音',       name:'抖音个人号',   account:'dy_me',        created:4},
+    {id:8,  platform:'微信',       name:'微信小号',     account:'wxid_small',   created:3},
+    {id:9,  platform:'Steam',      name:'Steam',        account:'player_one',   created:2},
+    {id:10, platform:'招商银行',   name:'招商银行卡',   account:'6225****1234', created:1},
+    {id:11, platform:'家里 WiFi',  name:'家里 WiFi',    account:'TP-LINK_5G',   created:0},
+    {id:12, platform:'抖音',       name:'抖音测试号',   account:'dy_test',      created:-1}
+  ];
+}
+const COLORS_CACHE = {};
+
+/* ================= 状态 ================= */
+let ITEMS = seed();
+let STATE = {
+  group: '全部',          // 当前选中分组
+  drawer: false,
+  searchOpen: false,
+  search: '',
+  collapsed: {},          // {组名: true}
+  order: [],              // 分组顺序（平台名数组）
+  names: {},              // {平台名: 自定义显示名}
+  hidden: {},             // {平台名: true}
+  extraGroups: []         // 手动新建的空分组
+};
+
+function resetState(){
+  ITEMS = seed();
+  STATE = { group:'全部', drawer:false, searchOpen:false, search:'',
+            collapsed:{}, order:[], names:{}, hidden:{}, extraGroups:[] };
+}
+
+/* ================= 工具 ================= */
+function colorOf(p){
+  if(!COLORS[p]){
+    let h = 0;
+    for(let i=0;i<p.length;i++) h = (h*31 + p.charCodeAt(i)) % 360;
+    COLORS[p] = 'hsl(' + h + ',62%,52%)';
+  }
+  return COLORS[p];
+}
+function displayName(p){ return STATE.names[p] || p; }
+function groups(){
+  // 平台 → 条目列表
+  const map = {};
+  ITEMS.forEach(it => {
+    (map[it.platform] = map[it.platform] || []).push(it);
+  });
+  // 合并手动新建的空分组
+  STATE.extraGroups.forEach(g => { if(!map[g]) map[g] = []; });
+  let names = Object.keys(map);
+  // 自定义顺序优先
+  if(STATE.order.length){
+    names.sort((a,b) => {
+      const ia = STATE.order.indexOf(a), ib = STATE.order.indexOf(b);
+      if(ia === -1 && ib === -1) return 0;
+      if(ia === -1) return 1;
+      if(ib === -1) return -1;
+      return ia - ib;
+    });
+  } else {
+    names.sort((a,b) => map[b].length - map[a].length);
+  }
+  // 隐藏的过滤掉（但"全部"永远在）
+  return names.filter(n => !STATE.hidden[n]).map(n => ({ name:n, items: map[n] }));
+}
+function visibleGroups(){ return groups(); }
+
+/* ================= 渲染列表 ================= */
+function render(){
+  // 信息栏容量同步（头像/容量 始终可见，不随分组变化）
+  const capTotal = 500;
+  const usedEl = document.getElementById('capUsed');
+  const fillEl = document.getElementById('capFill');
+  if(usedEl) usedEl.textContent = ITEMS.length;
+  if(fillEl) fillEl.style.width = Math.min(100, (ITEMS.length / capTotal) * 100) + '%';
+
+  const area = document.getElementById('listArea');
+  const titleEl = document.getElementById('topTitle');
+  const cntEl = document.getElementById('topCnt');
+  const q = STATE.search.trim().toLowerCase();
+
+  // ---- 搜索态：跨组过滤 ----
+  if(q){
+    const hit = ITEMS.filter(it =>
+      (it.name + ' ' + it.account + ' ' + it.platform).toLowerCase().indexOf(q) >= 0
+    ).sort((a,b) => b.created - a.created);
+    titleEl.textContent = '搜索';
+    cntEl.textContent = hit.length + ' 条';
+    if(!hit.length){
+      area.innerHTML = '<div class="empty">没有匹配「' + escapeHtml(STATE.search) + '」的记录<br>换个关键词试试</div>';
+      return;
+    }
+    let html = '';
+    hit.forEach(it => { html += rowHtml(it); });
+    area.innerHTML = html;
+    bindRows();
+    return;
+  }
+
+  // ---- 「全部」：平铺，按录入时间倒序 ----
+  if(STATE.group === '全部'){
+    const all = ITEMS.slice().sort((a,b) => b.created - a.created);
+    titleEl.textContent = '全部';
+    cntEl.textContent = all.length + ' 条';
+    if(!all.length){
+      area.innerHTML = '<div class="empty">还没有存密码<br>点右上角 ＋ 添加第一条</div>';
+      return;
+    }
+    let html = '';
+    all.forEach(it => { html += rowHtml(it); });
+    area.innerHTML = html;
+    bindRows();
+    return;
+  }
+
+  // ---- 某个平台：组内按账号折叠 ----
+  const g = visibleGroups().find(x => x.name === STATE.group);
+  if(!g){
+    titleEl.textContent = displayName(STATE.group);
+    cntEl.textContent = '0 条';
+    area.innerHTML = '<div class="empty">这个分组里还没有记录</div>';
+    return;
+  }
+  const items = g.items.slice().sort((a,b) => b.created - a.created);
+  titleEl.textContent = displayName(g.name);
+  cntEl.textContent = items.length + ' 条';
+
+  // 组内二次分组：按账号前缀粗略归类（演示"组内再折叠"）
+  const buckets = bucketize(items);
+  let html = '';
+  buckets.forEach(b => {
+    const key = g.name + '::' + b.label;
+    const isCollapsed = !!STATE.collapsed[key];
+    html += '<div class="gh' + (isCollapsed ? ' collapsed' : '') + '" data-gkey="' + escapeAttr(key) + '">'
+         +  '<span class="tri">▼</span><span class="gname">' + escapeHtml(b.label) + '</span>'
+         +  '<span class="cnt2">' + b.items.length + '</span></div>';
+    html += '<div class="group-body' + (isCollapsed ? ' collapsed' : '') + '" data-body="' + escapeAttr(key) + '">';
+    b.items.forEach(it => { html += rowHtml(it); });
+    html += '</div>';
+  });
+  area.innerHTML = html;
+  bindGroupHeads();
+  bindRows();
+  applyBodyHeight();
+}
+function bucketize(items){
+  // 少于 3 条不折叠，直接一组
+  if(items.length < 3) return [{ label:'全部 ' + items.length + ' 条', items }];
+  const buckets = [];
+  const push = (label, arr) => { if(arr.length) buckets.push({ label, items:arr }); };
+  const work = [], personal = [], other = [];
+  items.forEach(it => {
+    const t = (it.name + it.account).toLowerCase();
+    if(/work|corp|企业|公司|shop|店/.test(t)) work.push(it);
+    else if(/life|me|main|个人|生活|主号/.test(t)) personal.push(it);
+    else other.push(it);
+  });
+  push('工作 / 店铺', work);
+  push('个人', personal);
+  push('其他', other);
+  return buckets;
+}
+function rowHtml(it){
+  const letter = it.platform.slice(0,1);
+  const c = colorOf(it.platform);
+  return '<div class="r" data-id="' + it.id + '">'
+       +   '<div class="ic" style="background:' + hexToSoft(c) + ';color:' + c + '">' + escapeHtml(letter) + '</div>'
+       +   '<div class="info"><div class="nm">' + escapeHtml(it.name) + '</div>'
+       +   '<div class="sb">' + escapeHtml(it.account) + '</div></div>'
+       +   '<span class="dots" data-dots="' + it.id + '">···</span>'
+       + '</div>';
+}
+function hexToSoft(c){
+  if(c.charAt(0) !== '#') return 'rgba(0,0,0,.05)';
+  const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',.12)';
+}
+function applyBodyHeight(){
+  document.querySelectorAll('.group-body').forEach(el => {
+    el.style.maxHeight = el.classList.contains('collapsed') ? '0px' : (el.scrollHeight + 'px');
+  });
+}
+
+/* ================= 渲染抽屉 ================= */
+function renderDrawer(){
+  const list = document.getElementById('drawerList');
+  const gs = visibleGroups();
+  const total = ITEMS.length;
+  document.getElementById('drawerSub').textContent = '共 ' + total + ' 条 · ' + gs.length + ' 个分组';
+  let html = '<div class="d-item' + (STATE.group === '全部' ? ' on' : '') + '" data-g="全部">'
+           +   '<span class="txt">全部</span><span class="n">' + total + '</span></div>';
+  gs.forEach(g => {
+    html += '<div class="d-item' + (STATE.group === g.name ? ' on' : '') + '" data-g="' + escapeAttr(g.name) + '">'
+         +  '<span class="dot" style="background:' + colorOf(g.name) + '"></span>'
+         +  '<span class="txt">' + escapeHtml(displayName(g.name)) + '</span>'
+         +  '<span class="n">' + g.items.length + '</span></div>';
+  });
+  list.innerHTML = html;
+  list.querySelectorAll('.d-item').forEach(el => {
+    el.onclick = () => {
+      STATE.group = el.getAttribute('data-g');
+      closeDrawer();
+      render();
+      renderDrawer();
+    };
+  });
+}
+
+/* ================= 抽屉开合 ================= */
+function openDrawer(){
+  STATE.drawer = true;
+  document.getElementById('drawer').classList.add('show');
+  document.getElementById('mask').classList.add('show');
+  renderDrawer();
+}
+function closeDrawer(){
+  STATE.drawer = false;
+  document.getElementById('drawer').classList.remove('show');
+  document.getElementById('mask').classList.remove('show');
+}
+
+/* ================= 编辑分组 ================= */
+function openEditor(){
+  closeDrawer();
+  renderEditor();
+  document.getElementById('editor').classList.add('show');
+}
+function closeEditor(){
+  document.getElementById('editor').classList.remove('show');
+}
+function renderEditor(){
+  const wrap = document.getElementById('editorList');
+  const gs = groups();                       // 编辑页要显示隐藏项
+  const all = [{ name:'全部', items: ITEMS, locked:true }].concat(
+    gs.map(g => ({ name:g.name, items:g.items }))
+  );
+  // 隐藏项也要能恢复 → 把被隐藏的补回来
+  Object.keys(STATE.hidden).forEach(n => {
+    if(!all.find(x => x.name === n)){
+      all.push({ name:n, items: ITEMS.filter(it => it.platform === n), hidden:true });
+    }
+  });
+  let html = '';
+  all.forEach((g, idx) => {
+    const isHidden = !!STATE.hidden[g.name];
+    html += '<div class="ed-item" draggable="' + (g.locked ? 'false' : 'true') + '" data-idx="' + idx + '" data-g="' + escapeAttr(g.name) + '">'
+         +   '<span class="grip" style="' + (g.locked ? 'opacity:.25' : '') + '">≡</span>'
+         +   '<input class="ed-name" value="' + escapeAttr(displayName(g.name)) + '" ' + (g.locked ? 'disabled' : '') + ' data-g="' + escapeAttr(g.name) + '">'
+         +   '<span class="ed-cnt">' + g.items.length + '</span>'
+         +   (g.locked ? '<span style="font-size:11px;color:#c0c6cd;width:34px;text-align:center">固定</span>'
+                       : '<span class="sw ' + (isHidden ? '' : 'on') + '" data-sw="' + escapeAttr(g.name) + '"></span>')
+         + '</div>';
+  });
+  wrap.innerHTML = html;
+
+  // 改名
+  wrap.querySelectorAll('.ed-name').forEach(inp => {
+    inp.onchange = () => {
+      const g = inp.getAttribute('data-g');
+      const v = inp.value.trim();
+      if(!v){ inp.value = displayName(g); return; }
+      STATE.names[g] = v;
+      render(); renderDrawer();
+      toast('已改名为「' + v + '」');
+    };
+    inp.onclick = e => e.stopPropagation();
+  });
+  // 隐藏开关
+  wrap.querySelectorAll('.sw').forEach(sw => {
+    sw.onclick = (e) => {
+      e.stopPropagation();
+      const g = sw.getAttribute('data-sw');
+      if(STATE.hidden[g]){ delete STATE.hidden[g]; sw.classList.add('on'); toast('已显示「' + displayName(g) + '」'); }
+      else { STATE.hidden[g] = true; sw.classList.remove('on'); toast('已隐藏「' + displayName(g) + '」'); }
+      if(STATE.group === g && STATE.hidden[g]) STATE.group = '全部';
+      render(); renderDrawer(); renderEditor();
+    };
+  });
+  // 拖动排序
+  let dragIdx = null;
+  wrap.querySelectorAll('.ed-item').forEach(el => {
+    el.ondragstart = (e) => {
+      if(el.getAttribute('draggable') === 'false'){ e.preventDefault(); return; }
+      dragIdx = Number(el.getAttribute('data-idx'));
+      el.classList.add('dragging');
+    };
+    el.ondragend = () => el.classList.remove('dragging');
+    el.ondragover = (e) => {
+      if(dragIdx === null) return;
+      e.preventDefault();
+    };
+    el.ondrop = (e) => {
+      e.preventDefault();
+      if(dragIdx === null) return;
+      const toIdx = Number(el.getAttribute('data-idx'));
+      if(toIdx === dragIdx) return;
+      // 用当前可见顺序构造 order
+      const current = Array.from(wrap.querySelectorAll('.ed-item')).map(x => x.getAttribute('data-g')).filter(x => x !== '全部');
+      const moved = current.splice(dragIdx > 0 ? dragIdx - 1 : 0, 1)[0];
+      const target = toIdx > 0 ? toIdx - 1 : 0;
+      current.splice(target, 0, moved);
+      STATE.order = current;
+      renderEditor(); renderDrawer(); render();
+      toast('顺序已调整');
+    };
+  });
+}
+
+/* ================= 行交互 ================= */
+function bindRows(){
+  document.querySelectorAll('.r').forEach(row => {
+    row.onclick = (e) => {
+      if(e.target.classList.contains('dots')) return;
+      const id = Number(row.getAttribute('data-id'));
+      const it = ITEMS.find(x => x.id === id);
+      if(it) toast('打开详情：' + it.name);
+    };
+  });
+  document.querySelectorAll('.dots').forEach(d => {
+    d.onclick = (e) => {
+      e.stopPropagation();
+      const id = Number(d.getAttribute('data-dots'));
+      openSheet(id);
+    };
+  });
+}
+function bindGroupHeads(){
+  document.querySelectorAll('.gh').forEach(h => {
+    h.onclick = () => {
+      const key = h.getAttribute('data-gkey');
+      if(!key) return;
+      STATE.collapsed[key] = !STATE.collapsed[key];
+      const body = document.querySelector('[data-body="' + cssEscape(key) + '"]');
+      if(body){
+        body.classList.toggle('collapsed');
+        h.classList.toggle('collapsed');
+        body.style.maxHeight = body.classList.contains('collapsed') ? '0px' : (body.scrollHeight + 'px');
+      }
+    };
+  });
+}
+
+/* ================= 操作面板 ================= */
+let sheetItemId = null;
+function openSheet(id){
+  sheetItemId = id;
+  const it = ITEMS.find(x => x.id === id);
+  document.getElementById('shTitle').textContent = it ? (it.name + ' · ' + it.account) : '';
+  document.getElementById('sheet').classList.add('show');
+  document.getElementById('mask').classList.add('show');
+}
+function closeSheet(){
+  document.getElementById('sheet').classList.remove('show');
+  if(!STATE.drawer) document.getElementById('mask').classList.remove('show');
+  sheetItemId = null;
+}
+document.getElementById('sheet').addEventListener('click', (e) => {
+  const act = e.target.getAttribute && e.target.getAttribute('data-act');
+  if(act){
+    const it = ITEMS.find(x => x.id === sheetItemId);
+    if(act === 'copyPwd') toast('已复制密码（原型演示）');
+    if(act === 'copyAcc') toast('已复制账号：' + (it ? it.account : ''));
+    if(act === 'editItem') toast('打开编辑：' + (it ? it.name : ''));
+    if(act === 'deleteItem'){
+      ITEMS = ITEMS.filter(x => x.id !== sheetItemId);
+      toast('已删除');
+      render(); renderDrawer();
+    }
+    closeSheet();
+  }
+});
+
+/* ================= 新建分组 ================= */
+function newGroup(){
+  const name = prompt('给新分组起个名字：', '');
+  if(!name) return;
+  const n = name.trim();
+  if(!n) return;
+  if(groups().find(g => g.name === n) || STATE.extraGroups.indexOf(n) >= 0){
+    toast('「' + n + '」已存在');
+    return;
+  }
+  STATE.extraGroups.push(n);
+  renderDrawer(); renderEditor();
+  toast('已新建分组「' + n + '」');
+}
+
+/* ================= toast ================= */
+let toastTimer = null;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+/* ================= 事件绑定 ================= */
+document.getElementById('btnDrawer').onclick = () => {
+  if(STATE.drawer) closeDrawer(); else openDrawer();
+};
+document.getElementById('mask').onclick = () => {
+  if(document.getElementById('sheet').classList.contains('show')) { closeSheet(); return; }
+  closeDrawer();
+};
+document.getElementById('btnSearchClose').onclick = () => {
+  document.getElementById('searchInput').value = '';
+  STATE.search = '';
+  syncClear();
+  document.getElementById('searchInput').focus();
+  render();
+};
+function syncClear(){
+  const has = !!document.getElementById('searchInput').value;
+  document.getElementById('btnSearchClose').classList.toggle('show', has);
+}
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  STATE.search = e.target.value;
+  syncClear();
+  render();
+});
+document.getElementById('btnAdd').onclick = () => toast('打开添加页（原型演示）');
+document.getElementById('btnEditGroups').onclick = openEditor;
+document.getElementById('btnNewGroup').onclick = newGroup;
+document.getElementById('btnEditorBack').onclick = closeEditor;
+document.getElementById('btnEditorDone').onclick = () => { closeEditor(); render(); renderDrawer(); toast('已保存'); };
+document.getElementById('btnEditorNew').onclick = newGroup;
+document.getElementById('shCancel').onclick = closeSheet;
+document.getElementById('btnReset').onclick = () => {
+  resetState();
+  closeDrawer(); closeEditor(); closeSheet();
+  document.getElementById('searchInput').value = '';
+  syncClear();
+  render(); renderDrawer();
+  toast('已重置');
+};
+
+/* ================= 转义 ================= */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s){ return escapeHtml(s); }
+function cssEscape(s){ return String(s).replace(/"/g, '\\"'); }
+
+/* ================= 启动 ================= */
+render();
+renderDrawer();
+window.addEventListener('resize', applyBodyHeight);
+</script>
+</body>
+</html>

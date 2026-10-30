@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "comp-lock-screen": "../../components/comp-lock-screen/comp-lock-screen"
+  },
+  "navigationStyle": "custom"
+}

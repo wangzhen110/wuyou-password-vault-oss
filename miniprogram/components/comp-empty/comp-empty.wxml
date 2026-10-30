@@ -1,0 +1,14 @@
+<view class="c-empty">
+  <view class="c-empty__visual">
+    <view class="c-empty__ring"></view>
+    <view class="c-empty__lock">
+      <view class="c-empty__lock-shackle"></view>
+      <view class="c-empty__lock-body"></view>
+    </view>
+  </view>
+  <text class="c-empty__title">{{title}}</text>
+  <text class="c-empty__desc" wx:if="{{description}}">{{description}}</text>
+  <view class="c-empty__btn btn-press" wx:if="{{buttonText}}" bindtap="onButtonTap">
+    <text class="c-empty__btn-text">{{buttonText}}</text>
+  </view>
+</view>

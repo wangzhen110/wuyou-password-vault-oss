@@ -1,0 +1,13 @@
+{
+  "name": "payCallback",
+  "version": "4.3.15",
+  "description": "微信支付回调发货",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "4.0.2"
+  },
+  "overrides": {
+    "axios": "1.20.0",
+    "lodash.unset": "4.18.0"
+  }
+}

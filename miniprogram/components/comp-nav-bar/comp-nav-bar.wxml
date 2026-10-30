@@ -1,0 +1,12 @@
+<view class="c-nav {{transparent ? 'is-transparent' : ''}}" style="padding-top: {{statusBarHeight}}px">
+  <view class="c-nav__inner">
+    <view class="c-nav__left">
+      <view class="c-nav__back tappable" wx:if="{{back}}" bindtap="onBack" aria-role="button" aria-label="返回">
+        <view class="c-nav__back-arrow"></view>
+      </view>
+    </view>
+    <text class="c-nav__title">{{title}}</text>
+    <view class="c-nav__right"></view>
+  </view>
+</view>
+<view class="c-nav__placeholder" style="height: calc({{statusBarHeight}}px + 88rpx)" wx:if="{{!transparent}}"></view>

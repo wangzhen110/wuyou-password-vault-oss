@@ -1,0 +1,132 @@
+<view class="page">
+  <!-- 品牌头 -->
+  <view class="hero">
+    <image class="hero-logo" src="/images/app-logo.png" mode="aspectFill" />
+    <view class="hero-name">无忧密码本</view>
+    <view class="hero-slogan">只记一个密码，其余交给我们</view>
+  </view>
+
+  <!-- 我们为什么做这个 -->
+  <view class="card">
+    <view class="card-title">我们为什么做这个</view>
+    <view class="para">
+      手机里存着几十上百个账号：银行、支付、社交、工作。记不住，就写在备忘录、发给自己、或者所有账号用同一个密码——这比想象中危险得多。
+    </view>
+    <view class="para">
+      无忧密码本要解决的问题很简单：<text class="strong">让你只记一个主密码，其余的交给它保管。</text>
+    </view>
+  </view>
+
+  <!-- 关于安全 -->
+  <view class="card">
+    <view class="card-title">关于安全，你可以放心</view>
+
+    <view class="item">
+      <view class="item-body">
+        <view class="item-title">我们看不到你的密码</view>
+        <view class="item-desc">你的密码在手机上加好锁之后才上传。服务器上存的是一堆"打不开的乱码"——<text class="strong">没有你的主密码，连我们自己都解不开。</text></view>
+      </view>
+    </view>
+
+    <view class="item">
+      <view class="item-body">
+        <view class="item-title">你的主密码从不发送</view>
+        <view class="item-desc">解锁在你自己手机上完成，主密码永远不会送到我们的服务器上。就像保险箱的钥匙一直装在你脑子里，从来没交到过我们手上。</view>
+      </view>
+    </view>
+
+    <view class="item">
+      <view class="item-body">
+        <view class="item-title">银行同级别的加密</view>
+        <view class="item-desc">使用与银行、支付机构同级的加密标准，并且故意把加密过程做得很慢——<text class="strong">暴力猜一个合格的主密码，需要几百年。</text></view>
+      </view>
+    </view>
+
+    <view class="item">
+      <view class="item-body">
+        <view class="item-title">每个人的锁都不一样</view>
+        <view class="item-desc">你的密码库钥匙，由<text class="strong">你的主密码</text>加上一段<text class="strong">系统为你单独随机生成的数据</text>共同算出。所以哪怕两个人用了完全相同的主密码，他们的加密钥匙也完全不同——<text class="strong">破解了一个人的，对其他人毫无帮助，不存在"一把万能钥匙"。</text></view>
+      </view>
+    </view>
+
+    <view class="item">
+      <view class="item-body">
+        <view class="item-title">数据永远属于你</view>
+        <view class="item-desc">你可以随时导出全部数据（加密备份带走），也可以一键清空。我们不卖数据，也不分析你的密码内容。</view>
+        <view class="item-desc">而且说句实在的：从我们这里拿你的密码，对谁都不划算——破解一个加密密码库要烧掉几百年的算力，而骗子真要你的密码，发条短信骗你本人，成本几乎为零。<text class="strong">攻击者永远挑最便宜的路走，所以我们把"从我们这边拿"这条路修得又贵又长。</text></view>
+        <view class="item-desc quote"><text class="strong">一句话：收益边际无限低，破解成本无限高。</text></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 商业模式（国内用户最关心） -->
+  <view class="card">
+    <view class="card-title">我们靠什么活着</view>
+    <view class="para">
+      无忧密码本靠<text class="strong">年度会员和容量包收费</text>。
+    </view>
+    <view class="para">
+      没有广告，不卖数据，不分析你的密码内容——<text class="strong">我们没有别的收入来源，你的信任就是我们的生意。</text>
+    </view>
+  </view>
+
+  <!-- 如果服务器被攻破 -->
+  <view class="card">
+    <view class="card-title">如果我们的服务器被攻破呢？</view>
+    <view class="para">
+      新闻里偶尔能看到云端服务被黑的消息，你可能会担心。我们的答案是：
+    </view>
+    <view class="para">
+      服务器上<text class="strong">只有加密后的乱码</text>。就算最坏的情况发生，拿到这些乱码也打不开——因为解开它们需要你的主密码，<text class="strong">而你的主密码从来没离开过你的大脑。</text>
+    </view>
+  </view>
+
+  <!-- 我们具体知道你什么 -->
+  <view class="card">
+    <view class="card-title">我们具体知道你什么</view>
+    <view class="promise">· 你的微信账号标识（用来登录和隔离数据）</view>
+    <view class="promise">· 你加密后的密码库（我们打不开）</view>
+    <view class="promise">· 你的容量与会员状态（用来计费）</view>
+    <view class="para small" style="margin-top: 16rpx;">
+      仅此而已。我们<text class="strong">不知道</text>你的姓名、通讯录、位置，也不知道你保存的那些账号是什么。
+    </view>
+  </view>
+
+  <!-- 技术方案（公开可查） -->
+  <view class="card">
+    <view class="card-title">技术方案（给想深究的朋友）</view>
+    <view class="promise">· 密钥派生：PBKDF2-HMAC-SHA256，60 万次迭代（故意慢，让暴力破解变得不划算）</view>
+    <view class="promise">· 数据加密：AES-256-CBC + HMAC 完整性校验（业界标准，银行同款）</view>
+    <view class="promise">· 加密与解密全部在你的手机上完成，服务器只负责存放密文</view>
+    <view class="para small" style="margin-top: 16rpx;">
+      如果你懂技术、也愿意帮我们变得更安全，欢迎联系我们。
+    </view>
+  </view>
+
+  <!-- 承诺 -->
+  <view class="card">
+    <view class="card-title">我们的承诺</view>
+    <view class="promise">· 除了你自己的密码数据，什么都不收集</view>
+    <view class="promise">· 任何时候都可以删除账号和全部数据</view>
+    <view class="promise">· 发现安全问题，第一时间告知并处理</view>
+    <view class="promise">· 不做任何形式的密码内容分析或出售</view>
+  </view>
+
+  <!-- 诚实提醒 -->
+  <view class="card warn">
+    <view class="card-title">一个诚实的提醒</view>
+    <view class="para small">
+      主密码是唯一的钥匙，<text class="strong">忘记了谁都找不回</text>（这也是我们看不到你密码的代价）。
+      请务必记牢，并定期导出加密备份。
+    </view>
+    <view class="para small">
+      也没有任何产品能承诺"绝对安全"——我们能做的是把防护做到位，并把边界明明白白告诉你。
+    </view>
+  </view>
+
+  <!-- 底部 -->
+  <view class="footer">
+    <view class="footer-line">无忧密码本 v{{version}}</view>
+    <view class="footer-sub">端到端加密 · 零知识架构</view>
+  </view>
+</view>

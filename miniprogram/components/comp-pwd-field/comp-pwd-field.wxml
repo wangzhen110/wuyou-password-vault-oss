@@ -1,0 +1,22 @@
+<view class="c-pwd">
+  <text class="c-pwd__label">{{label}}</text>
+  <view class="c-pwd__row">
+    <input wx:if="{{!textarea}}" class="c-pwd__input" placeholder="{{placeholder}}" password="{{!show}}" value="{{value}}" bindinput="onInput" placeholder-class="c-pwd__ph"/>
+    <textarea wx:else class="c-pwd__input c-pwd__textarea" placeholder="{{placeholder}}" value="{{value}}" bindinput="onInput" placeholder-class="c-pwd__ph" auto-height maxlength="2000"/>
+    <view class="c-pwd__eye tappable" bindtap="onToggle" aria-role="button" aria-label="显示或隐藏">
+      <view class="c-pwd__eye-outer">
+        <view class="c-pwd__eye-dot {{show ? '' : 'off'}}"></view>
+      </view>
+      <view class="c-pwd__eye-slash {{show ? '' : 'on'}}"></view>
+    </view>
+    <view class="c-pwd__gen tappable" wx:if="{{showGen}}" bindtap="onGen">
+      <text class="c-pwd__gen-text">生成</text>
+    </view>
+  </view>
+  <view class="c-pwd__strength" wx:if="{{showStrength && strength >= 0}}">
+    <view class="c-pwd__bar {{strength >= 0 ? 'on' : ''}} {{strength === 0 ? 'lvl-weak' : strength === 1 ? 'lvl-mid' : 'lvl-strong'}}"></view>
+    <view class="c-pwd__bar {{strength >= 1 ? 'on' : ''}} {{strength === 0 ? 'lvl-weak' : strength === 1 ? 'lvl-mid' : 'lvl-strong'}}"></view>
+    <view class="c-pwd__bar {{strength >= 2 ? 'on' : ''}} {{strength === 2 ? 'lvl-strong' : strength === 0 ? 'lvl-weak' : 'lvl-mid'}}"></view>
+    <text class="c-pwd__strength-text {{strength === 0 ? 'lvl-weak' : strength === 1 ? 'lvl-mid' : 'lvl-strong'}}">{{strength === 0 ? '弱' : strength === 1 ? '中' : '强'}}</text>
+  </view>
+</view>

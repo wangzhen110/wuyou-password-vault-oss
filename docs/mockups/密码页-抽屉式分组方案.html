@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>密码页改版 · 抽屉式分组（按 Material 规范）</title>
+<style>
+  :root{--brand:#07C160;--page:#F7F8FA;--line:#EBEDF0;--t1:#1A1A1A;--t2:#575757;--t3:#9AA0A6;--side:#F5F6F8}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#E9EBEF;color:var(--t1);padding:24px 20px 60px}
+  h1{font-size:19px;margin-bottom:5px}
+  h2{font-size:14.5px;margin:26px 0 10px;padding-left:9px;border-left:3px solid var(--brand)}
+  .sub{font-size:13px;color:#5b6470;line-height:1.7;margin-bottom:6px}
+  .sub b{color:#111}
+  .row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+  .col{width:300px}
+  .tag{font-size:13px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+  .badge{font-size:10.5px;font-weight:500;background:var(--brand);color:#fff;padding:1px 7px;border-radius:20px}
+  .badge.gray{background:#8a929c}
+  .badge.blue{background:#3b82f6}
+  .meta{font-size:11.5px;color:#5b6470;margin-bottom:8px;line-height:1.5}
+  .meta b{color:#111}
+
+  .frame{width:300px;height:624px;overflow:hidden}
+  .phone{width:375px;height:780px;background:#fff;border-radius:30px;overflow:hidden;position:relative;
+    border:1px solid #d8dce2;box-shadow:0 8px 26px rgba(0,0,0,.13);display:flex;flex-direction:column;
+    transform:scale(.8);transform-origin:top left}
+  .status{height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:11px;color:#4a5158;flex:0 0 auto;background:#fff}
+
+  /* 顶栏 */
+  .top{height:44px;display:flex;align-items:center;gap:8px;padding:0 12px;background:#fff;border-bottom:1px solid var(--line);flex:0 0 auto}
+  .hamb{width:18px;height:13px;display:flex;flex-direction:column;justify-content:space-between;flex:0 0 auto}
+  .hamb i{height:2px;background:#3a4048;border-radius:2px;display:block}
+  .top-title{flex:1;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top-cnt{font-size:11.5px;color:var(--t3);flex:0 0 auto}
+  .top-plus{font-size:21px;color:var(--brand);font-weight:300;line-height:1;flex:0 0 auto}
+
+  /* 列表 */
+  .list{flex:1;overflow-y:auto;min-height:0}
+  .list::-webkit-scrollbar{width:0}
+  .gh{height:26px;display:flex;align-items:center;gap:5px;padding:0 12px;background:#FAFBFC;border-bottom:1px solid var(--line);font-size:11px;font-weight:600;color:#6b7280}
+  .gh .tri{font-size:8px;color:#9AA0A6}
+  .gh .cnt{margin-left:auto;font-weight:500;color:#a5abb3}
+  .r{height:46px;display:flex;align-items:center;gap:9px;padding:0 12px;border-bottom:1px solid var(--line)}
+  .r.ind{padding-left:24px}
+  .r .ic{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex:0 0 auto}
+  .r .info{flex:1;min-width:0}
+  .r .nm{font-size:13px;font-weight:500;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .r .sb{font-size:10.5px;color:var(--t2);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .r .dots{color:#c3c8cf;font-size:13px;flex:0 0 auto}
+
+  .tab{height:46px;background:#fff;border-top:1px solid var(--line);display:flex;flex:0 0 auto}
+  .tab div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:9.5px;color:#9AA0A6}
+  .tab div.on{color:var(--brand)}
+  .tab i{width:14px;height:14px;border-radius:4px;background:#dfe3e8}
+  .tab div.on i{background:var(--brand)}
+
+  /* 抽屉：280px（= Material 上限 280dp） */
+  .mask{position:absolute;inset:0;background:rgba(0,0,0,.34);z-index:8}
+  .drawer{position:absolute;left:0;top:0;bottom:0;width:280px;background:#fff;z-index:9;
+    box-shadow:4px 0 22px rgba(0,0,0,.20);display:flex;flex-direction:column;border-radius:0 16px 16px 0;overflow:hidden}
+  .d-head{padding:16px 16px 12px;border-bottom:1px solid var(--line);flex:0 0 auto}
+  .d-name{font-size:16px;font-weight:600;display:flex;align-items:center;gap:7px}
+  .d-ava{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#2CD06A,#06A855);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:600}
+  .d-sub{font-size:11.5px;color:var(--t3);margin-top:5px}
+  .d-list{flex:1;overflow-y:auto;padding:6px 0}
+  .d-list::-webkit-scrollbar{width:2px}
+  .d-list::-webkit-scrollbar-thumb{background:#d5d9de;border-radius:2px}
+  .d-item{height:44px;display:flex;align-items:center;gap:9px;padding:0 16px;font-size:14px;color:#2b3138;position:relative}
+  .d-item.on{background:#EAF9F0;color:#07934C;font-weight:600}
+  .d-item.on::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;background:var(--brand);border-radius:0 3px 3px 0}
+  .d-item .dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+  .d-item .txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .d-item .n{font-size:11.5px;color:#9AA0A6;font-weight:400}
+  .d-item.on .n{color:#07934C}
+  .d-foot{border-top:1px solid var(--line);padding:8px 0 10px;flex:0 0 auto}
+  .d-act{height:42px;display:flex;align-items:center;gap:9px;padding:0 16px;font-size:13.5px;color:#3a4048}
+  .d-act .plus{color:var(--brand);font-size:16px;font-weight:600}
+  .d-act .edit{color:#5b6470;font-size:14px}
+
+  /* 编辑态 */
+  .ed-item{height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--line)}
+  .ed-item .txt{flex:1;font-size:14px;color:#2b3138}
+  .ed-item .cnt{font-size:11.5px;color:#9AA0A6}
+  .ed-ic{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#8a929c;flex:0 0 auto}
+  .sw{width:34px;height:20px;border-radius:20px;background:#d9dde2;position:relative;flex:0 0 auto}
+  .sw.on{background:var(--brand)}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s}
+  .sw.on::after{left:16px}
+
+  .note{font-size:12px;color:#4a5158;background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:13px 15px;margin-top:22px;line-height:1.85}
+  .note b{color:#111}
+  .note ul{margin:6px 0 0 18px}.note li{margin:4px 0}
+  table{border-collapse:collapse;width:100%;margin-top:8px;font-size:11.5px}
+  th,td{border:1px solid #e3e6ea;padding:5px 7px;text-align:left}
+  th{background:#f5f7f9;font-weight:600}
+  code{background:#eef0f3;border:1px solid #dfe3e8;border-radius:3px;padding:0 3px;font-size:11px}
+</style>
+</head>
+<body>
+
+<h1>密码页改版：抽屉式分组</h1>
+<div class="sub">
+  按 Material 官方规范：手机屏幕用<b>覆盖式抽屉</b>（不是常驻侧栏），宽度上限 <b>280dp</b>。平时<b>一点地方都不占</b>，内容全宽。
+</div>
+
+<h2>四个关键界面</h2>
+<div class="row">
+
+  <!-- ① 默认态 -->
+  <div class="col">
+    <div class="tag"><span class="badge">① 默认</span> 内容全宽</div>
+    <div class="meta">顶栏 44px · 行高 46px · 一屏 <b>约 11 条</b> · 分组导航收在抽屉里</div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="top"><div class="hamb"><i></i><i></i><i></i></div><div class="top-title">全部</div><div class="top-cnt">12 条</div><div class="top-plus">＋</div></div>
+      <div class="list">
+        <div class="gh"><span class="tri">▼</span>微信<span class="cnt">5</span></div>
+        <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信工作号</div><div class="sb">wxid_work</div></div><span class="dots">···</span></div>
+        <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信生活号</div><div class="sb">wxid_life</div></div><span class="dots">···</span></div>
+        <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">企业微信</div><div class="sb">work@corp.cn</div></div><span class="dots">···</span></div>
+        <div class="gh"><span class="tri">▼</span>抖音<span class="cnt">3</span></div>
+        <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音小店号</div><div class="sb">shop_dy</div></div><span class="dots">···</span></div>
+        <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音个人号</div><div class="sb">dy_me</div></div><span class="dots">···</span></div>
+        <div class="gh"><span class="tri">▶</span>淘宝<span class="cnt">2</span></div>
+        <div class="gh"><span class="tri">▶</span>公司邮箱<span class="cnt">1</span></div>
+        <div class="gh"><span class="tri">▶</span>Steam<span class="cnt">1</span></div>
+        <div class="gh"><span class="tri">▶</span>招商银行<span class="cnt">1</span></div>
+        <div class="gh"><span class="tri">▶</span>家里 WiFi<span class="cnt">1</span></div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div></div>
+  </div>
+
+  <!-- ② 抽屉展开 -->
+  <div class="col">
+    <div class="tag"><span class="badge blue">② 点☰</span> 抽屉滑出 280px</div>
+    <div class="meta">宽度 = Material 上限 280dp · 项高 44 · 右侧留缝隙点一下即关</div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="top"><div class="hamb"><i></i><i></i><i></i></div><div class="top-title">全部</div><div class="top-cnt">12 条</div><div class="top-plus">＋</div></div>
+      <div class="list">
+        <div class="gh"><span class="tri">▼</span>微信<span class="cnt">5</span></div>
+        <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信工作号</div><div class="sb">wxid_work</div></div><span class="dots">···</span></div>
+        <div class="r"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信生活号</div><div class="sb">wxid_life</div></div><span class="dots">···</span></div>
+        <div class="gh"><span class="tri">▼</span>抖音<span class="cnt">3</span></div>
+        <div class="r"><div class="ic" style="background:#FFEEF0;color:#FE2C55">抖</div><div class="info"><div class="nm">抖音小店号</div><div class="sb">shop_dy</div></div><span class="dots">···</span></div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+      <div class="mask"></div>
+      <div class="drawer">
+        <div class="d-head">
+          <div class="d-name"><span class="d-ava">无</span>分组</div>
+          <div class="d-sub">共 12 条 · 8 个分组</div>
+        </div>
+        <div class="d-list">
+          <div class="d-item on"><span class="txt">全部</span><span class="n">12</span></div>
+          <div class="d-item"><span class="dot" style="background:#07C160"></span><span class="txt">微信</span><span class="n">5</span></div>
+          <div class="d-item"><span class="dot" style="background:#FE2C55"></span><span class="txt">抖音</span><span class="n">3</span></div>
+          <div class="d-item"><span class="dot" style="background:#FF5000"></span><span class="txt">淘宝</span><span class="n">2</span></div>
+          <div class="d-item"><span class="dot" style="background:#3B82F6"></span><span class="txt">公司邮箱</span><span class="n">1</span></div>
+          <div class="d-item"><span class="dot" style="background:#EF4444"></span><span class="txt">Steam</span><span class="n">1</span></div>
+          <div class="d-item"><span class="dot" style="background:#F59E0B"></span><span class="txt">招商银行</span><span class="n">1</span></div>
+          <div class="d-item"><span class="dot" style="background:#6366F1"></span><span class="txt">家里 WiFi</span><span class="n">1</span></div>
+        </div>
+        <div class="d-foot">
+          <div class="d-act"><span class="plus">＋</span><span>新建分组</span></div>
+          <div class="d-act"><span class="edit">✎</span><span>编辑分组</span></div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ③ 选中某组 -->
+  <div class="col">
+    <div class="tag"><span class="badge">③ 选「微信」</span> 组内折叠</div>
+    <div class="meta">抽屉自动收回 · 顶栏变组名 · 组内再按账号分组折叠</div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="top"><div class="hamb"><i></i><i></i><i></i></div><div class="top-title">微信</div><div class="top-cnt">5 条</div><div class="top-plus">＋</div></div>
+      <div class="list">
+        <div class="gh"><span class="tri">▼</span>工作号<span class="cnt">2</span></div>
+        <div class="r ind"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">企业微信</div><div class="sb">work@corp.cn</div></div><span class="dots">···</span></div>
+        <div class="r ind"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">工作小号</div><div class="sb">wxid_work2</div></div><span class="dots">···</span></div>
+        <div class="gh"><span class="tri">▼</span>个人号<span class="cnt">2</span></div>
+        <div class="r ind"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信生活号</div><div class="sb">wxid_life</div></div><span class="dots">···</span></div>
+        <div class="r ind"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="info"><div class="nm">微信主号</div><div class="sb">wxid_main</div></div><span class="dots">···</span></div>
+        <div class="gh"><span class="tri">▶</span>小号<span class="cnt">1</span></div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div></div>
+  </div>
+
+  <!-- ④ 编辑分组 -->
+  <div class="col">
+    <div class="tag"><span class="badge gray">④ 编辑分组</span> 自定义</div>
+    <div class="meta">改名 / 排序（≡拖动）/ 隐藏（开关）/ 新建</div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="top"><div class="hamb"><i></i><i></i><i></i></div><div class="top-title">编辑分组</div><div class="top-cnt">完成</div></div>
+      <div class="list">
+        <div style="padding:10px 16px 6px;font-size:11px;color:#9AA0A6;background:#FAFBFC;border-bottom:1px solid var(--line)">长按 ≡ 拖动排序 · 关掉开关即隐藏该分组</div>
+        <div class="ed-item"><span class="ed-ic">≡</span><span class="txt">全部</span><span class="cnt">12</span><span class="ed-ic">✎</span><span class="sw on"></span></div>
+        <div class="ed-item"><span class="ed-ic">≡</span><span class="txt">微信</span><span class="cnt">5</span><span class="ed-ic">✎</span><span class="sw on"></span></div>
+        <div class="ed-item"><span class="ed-ic">≡</span><span class="txt">抖音</span><span class="cnt">3</span><span class="ed-ic">✎</span><span class="sw on"></span></div>
+        <div class="ed-item"><span class="ed-ic">≡</span><span class="txt">淘宝</span><span class="cnt">2</span><span class="ed-ic">✎</span><span class="sw on"></span></div>
+        <div class="ed-item"><span class="ed-ic">≡</span><span class="txt">公司邮箱</span><span class="cnt">1</span><span class="ed-ic">✎</span><span class="sw on"></span></div>
+        <div class="ed-item"><span class="ed-ic">≡</span><span class="txt">Steam</span><span class="cnt">1</span><span class="ed-ic">✎</span><span class="sw off"></span></div>
+        <div style="padding:14px 16px;font-size:12px;color:#8a929c">未分组（新建的空分组会出现在这里）</div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div></div>
+  </div>
+
+</div>
+
+<h2>规范依据（官方原文）</h2>
+<div class="note">
+  <b>① 手机不用常驻侧栏</b><br>
+  Material3 源码 <code>PermanentNavigationDrawer</code> 注释原文：
+  <i>“The permanent navigation drawer is always visible and usually used for frequently switching destinations. <b>On mobile screens, use ModalNavigationDrawer instead.</b>”</i><br>
+  来源：androidx/androidx · NavigationDrawer.kt<br><br>
+  <b>② 抽屉宽度上限 280dp</b><br>
+  <code>design_navigation_max_width = 280dp</code>，项内边距 16dp、项间距 4dp<br>
+  来源：material-components-android · dimens.xml<br><br>
+  <b>③ 常驻窄栏只有 72dp（且是平板场景）</b><br>
+  <code>mtrl_navigation_rail_default_width = 72dp</code>、紧凑 56dp、文字 12sp<br>
+  来源：material-components-android · navigationrail/dimens.xml<br><br>
+  <b>④ 点区域下限</b><br>
+  微信小程序设计指南：可点击控件物理尺寸「大致在 7mm–9mm 之间」→ 本方案行高 46px（≈46pt），达标。
+</div>
+
+<h2>与现在对比</h2>
+<div class="note">
+  <table>
+    <tr><th>项</th><th>现在</th><th>本方案</th></tr>
+    <tr><td>顶部占用</td><td>≈492rpx（品牌块+搜索+chips+列表栏）</td><td><b>88rpx（一条顶栏）</b></td></tr>
+    <tr><td>条目行高</td><td>144rpx</td><td><b>92rpx</b></td></tr>
+    <tr><td>图标</td><td>80rpx</td><td>48rpx</td></tr>
+    <tr><td>一屏可见</td><td>6–7 条</td><td><b>约 11 条</b></td></tr>
+    <tr><td>平时是否占宽</td><td>—</td><td><b>不占</b>（分组收在抽屉里）</td></tr>
+    <tr><td>搜索</td><td>常驻大搜索框</td><td>顶栏图标，点开才展开</td></tr>
+  </table>
+</div>
+
+<div class="note" style="border-color:#FFD9A0;background:#FFFBF2">
+  <b>两个待你确认的细节</b>
+  <ul>
+    <li><b>搜索放哪</b>：顶栏只留「☰ 组名 ＋」，搜索要再占一个图标位。<br>方案 a：顶栏图标（省地方）；方案 b：下拉才出现搜索框（更隐蔽）。我建议 a。</li>
+    <li><b>「全部」是否也折叠</b>：现在图的「全部」是按组折叠的（微信段/抖音段…）。你也可以要「全部」直接平铺所有条目按录入时间倒序、不折叠。我建议<b>保留折叠</b>，否则「全部」和分组视图就重复了。</li>
+  </ul>
+</div>
+
+</body>
+</html>

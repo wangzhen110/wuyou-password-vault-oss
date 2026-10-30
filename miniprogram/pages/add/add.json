@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "comp-btn": "/components/comp-btn/comp-btn",
+    "comp-pwd-field": "/components/comp-pwd-field/comp-pwd-field",
+    "comp-nav-bar": "/components/comp-nav-bar/comp-nav-bar"
+  },
+  "navigationBarTitleText": "添加条目"
+}

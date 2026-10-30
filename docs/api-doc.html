@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>无忧密码本 · 开放 API 接入文档</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #fbfcfb;
+    color: #24312a;
+    line-height: 1.75;
+    padding: 32px 16px 80px;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  /* 头部 */
+  .hero {
+    display: flex; align-items: center; gap: 14px;
+    padding-bottom: 22px; margin-bottom: 26px;
+    border-bottom: 2px solid rgba(23, 194, 111, 0.25);
+  }
+  .hero img { width: 44px; height: 44px; border-radius: 12px; }
+  .hero h1 { font-size: 22px; font-weight: 700; color: #14261c; letter-spacing: .5px; }
+  .hero .sub { font-size: 13px; color: #8a9a91; margin-top: 2px; }
+
+  .ai-tip {
+    background: rgba(23, 194, 111, 0.08);
+    border-left: 4px solid #17c26f;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: #0e8a4f;
+    margin-bottom: 28px;
+  }
+
+  h2 {
+    font-size: 19px; font-weight: 700; color: #14261c;
+    margin: 40px 0 14px; padding-left: 12px;
+    border-left: 4px solid #17c26f;
+  }
+  h3 { font-size: 16px; font-weight: 600; color: #1f3b2c; margin: 26px 0 10px; }
+  p { font-size: 15px; color: #3d4f45; margin-bottom: 12px; }
+  ul, ol { margin: 0 0 14px 22px; font-size: 15px; color: #3d4f45; }
+  li { margin-bottom: 8px; }
+  code {
+    font-family: "SF Mono", Consolas, Menlo, monospace;
+    font-size: 13.5px;
+    background: rgba(23, 194, 111, 0.1);
+    color: #0e6b41;
+    padding: 2px 6px;
+    border-radius: 4px;
+    word-break: break-all;
+  }
+  pre {
+    background: #17211b;
+    color: #d7e6dd;
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 12px 0 18px;
+  }
+  pre code {
+    background: none; color: inherit; padding: 0;
+    font-size: 13px; line-height: 1.65;
+  }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 14px; margin: 12px 0 20px;
+  }
+  th, td {
+    text-align: left; padding: 10px 12px;
+    border-bottom: 1px solid #e6ece8;
+    vertical-align: top;
+  }
+  th { background: #f4f8f6; font-weight: 600; color: #24312a; white-space: nowrap; }
+  td code { font-size: 12.5px; }
+
+  .note {
+    background: #fff8e8;
+    border-left: 4px solid #e8a33d;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: #7a5a1e;
+    margin: 16px 0;
+  }
+  .danger {
+    background: #fdeeed;
+    border-left: 4px solid #c73e33;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: #8a2f27;
+    margin: 16px 0;
+  }
+  .footer {
+    margin-top: 56px; padding-top: 22px;
+    border-top: 1px solid #e6ece8;
+    text-align: center; font-size: 12.5px; color: #a8b8b0;
+  }
+  @media (max-width: 600px) {
+    body { padding: 20px 12px 60px; }
+    .hero h1 { font-size: 19px; }
+    table { font-size: 13px; }
+    th, td { padding: 8px; }
+    pre { padding: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <img src="logo.png" alt="无忧密码本">
+    <div>
+      <h1>无忧密码本 · 开放 API 接入文档</h1>
+      <div class="sub">v1 · 只读 · 会员专属 · 云端只返回密文</div>
+    </div>
+  </div>
+
+  <div class="ai-tip">
+    <strong>给 AI 的提示</strong>：本页是完整的接口手册。把这个链接发给 AI，说「按这份文档帮我写一个读取密码库的脚本」，AI 依据本页即可完成对接，无需额外信息。
+  </div>
+
+  <h2>一、这是什么</h2>
+  <p>开放 API 让第三方程序（脚本、插件、自建服务、AI 工具）读取你在无忧密码本里保存的账号密码，免去手动输入。</p>
+
+  <h3>三条硬约束</h3>
+  <ol>
+    <li><strong>接口只返回密文</strong>：<code>ciphertext</code> / <code>iv</code> / <code>mac</code> / <code>salt</code>，没有任何明文密码字段。</li>
+    <li><strong>解密在调用方本地完成</strong>：需要用户的主密码，通过 KDF 复现密钥后自行解密。服务端不掌握主密码。</li>
+    <li><strong>只读</strong>：本版本不支持第三方写入、修改、删除。</li>
+  </ol>
+
+  <h3>基础信息</h3>
+  <table>
+    <tr><th>Base URL</th><td><code>https://your-cloud-env-id-1448869858.ap-shanghai.app.tcloudbase.com/v1</code></td></tr>
+    <tr><th>鉴权</th><td><code>Authorization: Bearer &lt;token&gt;</code></td></tr>
+    <tr><th>内容类型</th><td><code>application/json</code>（UTF-8）</td></tr>
+    <tr><th>令牌有效期</th><td>7 天，可随时在小程序内吊销</td></tr>
+    <tr><th>限流</th><td>每令牌 60 次/分钟（超限 429）</td></tr>
+    <tr><th>设备上限</th><td>每账号 5 台</td></tr>
+    <tr><th>开通前提</th><td><strong>年度会员专属</strong>；非会员无法生成授权码，令牌在会员到期后立即失效</td></tr>
+  </table>
+
+  <h2>二、授权流程（三步）</h2>
+  <pre><code>① 用户在小程序：设置 → 开发者 → 开放 API 授权 → 生成授权码（8 位数字，5 分钟有效）
+② 第三方：POST /v1/token { code, device_name }   → 202 pending_confirmation
+   用户在小程序内看到设备名 → 点「允许接入」
+③ 第三方：再次 POST /v1/token { code, device_name } → 200 { token }</code></pre>
+  <ul>
+    <li>授权码<strong>一次性</strong>，用后即废，5 分钟过期。</li>
+    <li>第三步必须重新提交；令牌只在这一次响应中出现，服务端只保存其哈希。</li>
+    <li>用户拒绝 → 403 <code>rejected_by_user</code>；已用过 → 410 <code>code_used</code>。</li>
+  </ul>
+
+  <h2>三、接口</h2>
+
+  <h3>3.1 换取令牌</h3>
+  <p><code>POST /v1/token</code>（<code>GET</code> 等价，参数可用 query）</p>
+  <pre><code>// 请求
+{ "code": "123456", "device_name": "我的脚本" }
+
+// 等待用户确认（HTTP 202）
+{ "success": false, "status": "pending_confirmation", "message": "请在小程序内确认该设备接入" }
+
+// 成功签发（HTTP 200）
+{ "success": true, "token": "&lt;64 位十六进制&gt;", "expires_in": 604800, "scopes": ["items:read"] }</code></pre>
+  <table>
+    <tr><th>HTTP</th><th>error</th><th>说明</th></tr>
+    <tr><td>400</td><td><code>invalid_code</code></td><td>码格式不对（8 位数字）</td></tr>
+    <tr><td>404</td><td><code>code_not_found</code></td><td>码不存在</td></tr>
+    <tr><td>410</td><td><code>code_expired</code></td><td>码已过期</td></tr>
+    <tr><td>410</td><td><code>code_used</code></td><td>码已被使用</td></tr>
+    <tr><td>403</td><td><code>rejected_by_user</code></td><td>用户拒绝</td></tr>
+    <tr><td>429</td><td><code>too_many_attempts</code></td><td>同 IP 失败次数过多</td></tr>
+    <tr><td>410</td><td><code>code_locked</code></td><td>该码错误尝试过多已锁定</td></tr>
+  </table>
+
+  <h3>3.2 读取密码库公开参数</h3>
+  <p><code>GET /v1/vault/meta</code> · <code>Authorization: Bearer &lt;token&gt;</code></p>
+  <pre><code>{
+  "success": true,
+  "vault_meta": {
+    "version": 1,
+    "kdf": "PBKDF2-HMAC-SHA256",
+    "iterations": 600000,
+    "salt": "0123456789abcdef0123456789abcdef"
+  }
+}</code></pre>
+  <div class="note">
+    <strong>不含 verifier</strong>：服务端不返回 verifier（它是离线猜测主密码的凭据）。校验主密码是否正确，靠「解密后 MAC 校验是否通过」。
+  </div>
+
+  <h3>3.3 拉取密文条目</h3>
+  <p><code>GET /v1/items?since=&lt;毫秒时间戳&gt;&amp;limit=100</code></p>
+  <pre><code>{
+  "success": true,
+  "items": [
+    {
+      "id": "entry-1",
+      "crypto_version": 1,
+      "iv": "&lt;32 位十六进制&gt;",
+      "ciphertext": "&lt;偶数位十六进制&gt;",
+      "mac": "&lt;64 位十六进制&gt;",
+      "salt": "&lt;32 位十六进制&gt;",
+      "created_at": "2026-10-18T00:00:00.000Z",
+      "updated_at": "2026-10-18T00:00:00.000Z"
+    }
+  ],
+  "next_since": 1792290000000,
+  "server_time": 1792290000000
+}</code></pre>
+  <ul>
+    <li><code>since</code>：只返回 <code>updated_at</code> 晚于该时间的条目（增量同步）。</li>
+    <li><code>limit</code>：1–100，默认 100。</li>
+    <li><strong>排序</strong>：按 <code>updated_at</code> 升序，配合游标翻页不重不漏。</li>
+    <li><code>next_since</code>：满页时返回本页最新时间戳，下次作为 <code>since</code> 继续；未满页为 <code>null</code>（已取完）。</li>
+    <li>已软删除的条目不会返回。</li>
+  </ul>
+  <p><strong>增量同步标准写法</strong></p>
+  <pre><code>let since = 0;
+for (;;) {
+  const res = await fetch(`${BASE}/v1/items?since=${since}&amp;limit=100`, {
+    headers: { Authorization: `Bearer ${token}` },
+  }).then(r =&gt; r.json());
+  for (const item of res.items) await handle(item);
+  if (res.next_since == null) break;
+  since = res.next_since;
+}</code></pre>
+
+  <h3>3.4 通用错误</h3>
+  <table>
+    <tr><th>HTTP</th><th>error</th><th>处理建议</th></tr>
+    <tr><td>401</td><td><code>unauthorized</code></td><td>令牌缺失或无效，重新授权</td></tr>
+    <tr><td>403</td><td><code>token_revoked</code></td><td>用户已吊销，重新授权</td></tr>
+    <tr><td>403</td><td><code>token_expired</code></td><td>令牌过期（7 天），重新授权</td></tr>
+    <tr><td>429</td><td><code>rate_limited</code></td><td>超过 60 次/分钟，退避重试</td></tr>
+    <tr><td>403</td><td><code>vip_required</code></td><td>会员到期，开放 API 不可用（续费恢复）</td></tr>
+    <tr><td>404</td><td><code>not_found</code></td><td>路径错误</td></tr>
+    <tr><td>500</td><td><code>internal_error</code></td><td>服务端异常，可退避重试</td></tr>
+  </table>
+
+  <h2>四、本地解密规范（必须严格一致）</h2>
+  <p>格式：<strong>PBKDF2-HMAC-SHA256（60 万次）+ AES-256-CBC + Encrypt-then-MAC</strong></p>
+
+  <h3>4.1 派生密钥</h3>
+  <pre><code>material      = PBKDF2-HMAC-SHA256(masterPassword, salt, iterations=600000, dkLen=64)
+encryptionKey = material[0..32)   // 32 字节，AES-256 密钥
+macKey        = material[32..64)  // 32 字节，HMAC 密钥</code></pre>
+
+  <h3>4.2 验证并解密一条记录</h3>
+  <p><strong>认证数据（AAD）必须是这个顺序的 JSON 数组</strong>：</p>
+  <pre><code>const aad = JSON.stringify([
+  envelope.crypto_version,
+  envelope.salt,
+  envelope.id,
+  envelope.created_at,
+  envelope.updated_at,
+  envelope.iv,
+  envelope.ciphertext,
+]);</code></pre>
+  <ol>
+    <li>计算 <code>expectedMac = hex(HMAC-SHA256(key=macKey, msg=aad))</code>；</li>
+    <li>与 <code>envelope.mac</code> 常量时间比较，不一致 → <strong>拒绝该条（密文被篡改）</strong>；</li>
+    <li><code>AES-256-CBC</code> 解密 <code>ciphertext</code>（<code>iv</code> 为十六进制，PKCS#7 填充）；</li>
+    <li><code>JSON.parse</code> 得到条目对象（含 <code>platform</code>、<code>account</code>、<code>password</code> 等）。</li>
+  </ol>
+  <div class="danger">
+    <code>created_at</code> / <code>updated_at</code> 参与签名，<strong>不能省略或改写</strong>，否则验签失败。
+  </div>
+
+  <h3>4.3 完整 Node.js 示例</h3>
+  <pre><code>const crypto = require('crypto');
+
+function deriveKeys(masterPassword, saltHex, iterations) {
+  const material = crypto.pbkdf2Sync(
+    masterPassword, Buffer.from(saltHex, 'hex'), iterations, 64, 'sha256'
+  );
+  return { encryptionKey: material.subarray(0, 32), macKey: material.subarray(32, 64) };
+}
+
+function decryptItem(item, encryptionKey, macKey) {
+  const aad = JSON.stringify([
+    item.crypto_version, item.salt, item.id,
+    item.created_at, item.updated_at, item.iv, item.ciphertext,
+  ]);
+  const expected = crypto.createHmac('sha256', macKey).update(aad).digest('hex');
+  if (!crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(item.mac, 'hex'))) {
+    throw new Error('MAC 校验失败：密文可能被篡改');
+  }
+  const decipher = crypto.createDecipheriv('aes-256-cbc', encryptionKey, Buffer.from(item.iv, 'hex'));
+  const plain = Buffer.concat([decipher.update(Buffer.from(item.ciphertext, 'hex')), decipher.final()]);
+  return JSON.parse(plain.toString('utf8'));
+}</code></pre>
+
+  <h2>五、安全须知</h2>
+  <ol>
+    <li><strong>主密码只在本地使用</strong>：任何要求你把主密码上传到服务器的服务都应视为危险。</li>
+    <li>令牌只授予「读取密文」的权限；即使泄露，攻击者仍缺主密码。</li>
+    <li>请勿把 <code>encryptionKey</code> / <code>macKey</code> 持久化到磁盘，进程退出即失效更安全。</li>
+    <li>用户在小程序内可随时吊销设备，吊销立即生效。</li>
+    <li>全部访问写入审计日志（时间、设备、条目数量、IP），用户可在小程序内查看授权设备。</li>
+  </ol>
+
+  <h2>六、常见问题</h2>
+  <table>
+    <tr><th>问题</th><th>说明</th></tr>
+    <tr><td>令牌换到了但拉数据 401</td><td>确认 <code>Authorization: Bearer &lt;token&gt;</code> 格式；token 只出现一次，请立即保存</td></tr>
+    <tr><td>提交授权码一直 202</td><td>需要用户在小程序内点「允许接入」，然后<strong>重新提交</strong></td></tr>
+    <tr><td>解密报认证失败</td><td>AAD 字段顺序错或数据被改动；确认 <code>created_at</code> / <code>updated_at</code> 原样传入</td></tr>
+    <tr><td>主密码正确但解不开</td><td>用户可能改过主密码：重新 <code>GET /v1/vault/meta</code> 拿新 salt 与 iterations</td></tr>
+    <tr><td>能否写回密码</td><td>本版本只读，写入能力在后续版本开放</td></tr>
+    <tr><td>支持哪些端</td><td>任意能发 HTTPS 的程序</td></tr>
+  </table>
+
+  <div class="footer">
+    无忧密码本 · 端到端加密 · 零知识架构<br>
+    本文档为静态页面，可自由分享给开发者或 AI
+  </div>
+
+</div>
+</body>
+</html>

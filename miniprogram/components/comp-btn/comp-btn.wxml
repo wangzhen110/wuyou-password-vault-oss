@@ -1,0 +1,3 @@
+<view class="c-btn c-btn--{{variant}} c-btn--{{size}} btn-press {{disabled ? 'is-disabled' : ''}}" catchtap="onTap" aria-role="button" aria-disabled="{{disabled}}">
+  <slot></slot>
+</view>

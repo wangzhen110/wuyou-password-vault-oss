@@ -1,0 +1,236 @@
+<!-- detail 密码详情 V4.0：按类型渲染 + concealed/re-prompt + 格式化复制 -->
+<view class="page {{themeClass}}">
+<view class="container">
+
+  <comp-nav-bar title="条目详情" back="{{true}}"/>
+
+  <!-- 头部 -->
+  <view class="detail-hero">
+    <view class="detail-icon" style="background: {{iconBg}}">
+      <text class="detail-letter">{{typeName}}</text>
+    </view>
+    <text class="detail-platform">{{title}}</text>
+  </view>
+
+  <!-- ===== 登录类型（存量结构，行为不变） ===== -->
+  <view class="info-card" wx:if="{{entryType === 'login'}}">
+    <view class="info-row">
+      <view class="info-content">
+        <text class="info-label">账号</text>
+        <text class="info-value">{{account}}</text>
+      </view>
+      <view class="copy-btn tappable" bindtap="onCopyAccount">
+        <view class="copy-icon">
+          <view class="copy-rect"></view>
+          <view class="copy-rect copy-rect-inner"></view>
+        </view>
+        <text class="copy-text">复制</text>
+      </view>
+    </view>
+
+    <view class="info-divider"></view>
+
+    <view class="info-row">
+      <view class="info-content">
+        <text class="info-label">密码</text>
+        <text class="info-value" wx:if="{{showPassword}}">{{password}}</text>
+        <view class="pwd-mask" wx:else>
+          <view class="mask-dot"></view>
+          <view class="mask-dot"></view>
+          <view class="mask-dot"></view>
+          <view class="mask-dot"></view>
+          <view class="mask-dot"></view>
+          <view class="mask-dot"></view>
+          <view class="mask-dot"></view>
+          <view class="mask-dot"></view>
+        </view>
+      </view>
+      <view class="info-actions">
+        <view class="view-btn tappable" bindtap="onTogglePassword">
+          <view class="eye-sm-outer">
+            <view class="eye-sm-dot {{showPassword ? '' : 'hidden'}}"></view>
+          </view>
+        </view>
+        <view class="copy-btn tappable" bindtap="onCopyPassword">
+          <view class="copy-icon">
+            <view class="copy-rect"></view>
+            <view class="copy-rect copy-rect-inner"></view>
+          </view>
+          <text class="copy-text">复制</text>
+        </view>
+      </view>
+    </view>
+
+    <block wx:if="{{securityQuestion}}">
+      <view class="info-divider"></view>
+      <view class="info-row">
+        <view class="info-content">
+          <text class="info-label">密保问题</text>
+          <text class="info-value">{{securityQuestion}}</text>
+        </view>
+      </view>
+      <view class="info-divider"></view>
+      <view class="info-row">
+        <view class="info-content">
+          <text class="info-label">密保答案</text>
+          <text class="info-value">{{securityAnswer}}</text>
+        </view>
+      </view>
+    </block>
+
+    <block wx:if="{{bindPhone}}">
+      <view class="info-divider"></view>
+      <view class="info-row">
+        <view class="info-content">
+          <text class="info-label">绑定手机</text>
+          <text class="info-value">{{bindPhone}}</text>
+        </view>
+        <view class="copy-btn tappable" bindtap="onCopyBindPhone">
+          <view class="copy-icon">
+            <view class="copy-rect"></view>
+            <view class="copy-rect copy-rect-inner"></view>
+          </view>
+          <text class="copy-text">复制</text>
+        </view>
+      </view>
+    </block>
+
+    <block wx:if="{{notes}}">
+      <view class="info-divider"></view>
+      <view class="info-row info-row-top">
+        <view class="info-content">
+          <text class="info-label">备注</text>
+          <text class="info-value info-notes">{{notes}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- ===== 非 login 类型：模板字段渲染 ===== -->
+  <view class="info-card" wx:else>
+    <block wx:for="{{displayFields}}" wx:key="key" wx:for-index="idx">
+      <view wx:if="{{idx > 0}}" class="info-divider"></view>
+      <view class="info-row {{item.isMulti ? 'info-row-top' : ''}}">
+        <view class="info-content">
+          <text class="info-label">{{item.label}}</text>
+          <!-- 卡号：掩码/分段切换 -->
+          <block wx:if="{{item.isCardno}}">
+            <text class="info-value info-cardno" wx:if="{{item.revealed}}">{{item.value}}</text>
+            <text class="info-value" wx:else>{{item.masked}}</text>
+          </block>
+          <!-- concealed：掩码点/明文 -->
+          <block wx:elif="{{item.concealed}}">
+            <view class="pwd-mask" wx:if="{{!item.revealed}}">
+              <view class="mask-dot"></view>
+              <view class="mask-dot"></view>
+              <view class="mask-dot"></view>
+              <view class="mask-dot"></view>
+              <view class="mask-dot"></view>
+              <view class="mask-dot"></view>
+            </view>
+            <text class="info-value info-multi" wx:else>{{item.value}}</text>
+          </block>
+          <!-- 多行 -->
+          <text class="info-value info-multi" wx:elif="{{item.isMulti}}">{{item.value}}</text>
+          <!-- 普通 -->
+          <text class="info-value" wx:else>{{item.value}}</text>
+        </view>
+        <view class="info-actions">
+          <view class="view-btn tappable" wx:if="{{item.concealed || item.isCardno}}" bindtap="onToggleField" data-index="{{idx}}" aria-role="button" aria-label="显示或隐藏">
+            <view class="eye-sm-outer">
+              <view class="eye-sm-dot {{item.revealed ? '' : 'hidden'}}"></view>
+            </view>
+            <view class="rp-badge" wx:if="{{item.rePrompt}}"></view>
+          </view>
+          <view class="copy-btn tappable" bindtap="onCopyField" data-index="{{idx}}">
+            <view class="copy-icon">
+              <view class="copy-rect"></view>
+              <view class="copy-rect copy-rect-inner"></view>
+            </view>
+            <text class="copy-text">复制</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 服务器类型：host:port 快捷复制 -->
+    <block wx:if="{{entryType === 'server'}}">
+      <view class="info-divider"></view>
+      <view class="quick-row tappable" bindtap="onCopyHostPort">
+        <text class="quick-text">复制地址 host:port</text>
+        <view class="copy-icon">
+          <view class="copy-rect"></view>
+          <view class="copy-rect copy-rect-inner"></view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- ===== 自定义字段（任意类型） ===== -->
+  <block wx:if="{{customFields.length > 0}}">
+    <view class="section-title-sm">自定义字段</view>
+    <view class="info-card">
+      <block wx:for="{{customFields}}" wx:key="index" wx:for-index="idx">
+        <view wx:if="{{idx > 0}}" class="info-divider"></view>
+        <view class="info-row">
+          <view class="info-content">
+            <text class="info-label">{{item.label}}</text>
+            <block wx:if="{{item.concealed}}">
+              <view class="pwd-mask" wx:if="{{!item.revealed}}">
+                <view class="mask-dot"></view>
+                <view class="mask-dot"></view>
+                <view class="mask-dot"></view>
+                <view class="mask-dot"></view>
+              </view>
+              <text class="info-value" wx:else>{{item.value}}</text>
+            </block>
+            <text class="info-value" wx:else>{{item.value}}</text>
+          </view>
+          <view class="info-actions">
+            <view class="view-btn tappable" wx:if="{{item.concealed}}" bindtap="onToggleCustom" data-index="{{idx}}" aria-role="button" aria-label="显示或隐藏">
+              <view class="eye-sm-outer">
+                <view class="eye-sm-dot {{item.revealed ? '' : 'hidden'}}"></view>
+              </view>
+            </view>
+            <view class="copy-btn tappable" bindtap="onCopyCustom" data-index="{{idx}}">
+              <view class="copy-icon">
+                <view class="copy-rect"></view>
+                <view class="copy-rect copy-rect-inner"></view>
+              </view>
+              <text class="copy-text">复制</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <!-- 时间信息 -->
+  <view class="time-info">
+    <text class="time-text">创建于 {{createTime}}</text>
+    <text class="time-text" wx:if="{{updateTime && updateTime !== createTime}}">更新于 {{updateTime}}</text>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-area">
+    <comp-btn variant="primary" bind:tap="onEdit">编辑</comp-btn>
+    <comp-btn variant="danger" bind:tap="onDelete">删除</comp-btn>
+  </view>
+
+  <view class="safe-area-bottom"></view>
+
+  <!-- 敏感内容重验主密码（通用输入弹窗） -->
+  <comp-input-dialog
+    visible="{{repromptDialog.visible}}"
+    title="身份验证"
+    desc="查看敏感内容需要重验主密码"
+    fields="{{repromptFields}}"
+    busy="{{repromptDialog.busy}}"
+    error="{{repromptDialog.error}}"
+    confirm-text="验证"
+    busy-text="验证中..."
+    bind:confirm="onRepromptConfirm"
+    bind:close="onRepromptClose"
+  />
+</view>
+</view>

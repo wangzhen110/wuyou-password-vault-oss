@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>密码页布局 · 参考成熟产品后的新方案</title>
+<style>
+  :root{
+    --brand:#07C160; --bw-blue:#175DDC;
+    --page:#F7F8FA; --card:#fff; --line:#EBEDF0;
+    --t1:#1A1A1A; --t2:#575757; --t3:#9AA0A6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#E9EBEF;color:var(--t1);padding:26px 20px 70px}
+  h1{font-size:20px;margin-bottom:6px}
+  h2{font-size:15px;margin:28px 0 10px;padding-left:9px;border-left:3px solid var(--brand)}
+  .sub{font-size:13px;color:#5b6470;line-height:1.75;margin-bottom:14px}
+  .sub b{color:#111}
+  .row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+  .col{width:290px}
+  .tag{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+  .badge{font-size:10.5px;font-weight:500;background:var(--brand);color:#fff;padding:1px 7px;border-radius:20px}
+  .badge.gray{background:#8a929c}.badge.blue{background:var(--bw-blue)}.badge.dark{background:#3a4048}
+  .meta{font-size:11.5px;color:#5b6470;margin-bottom:8px;line-height:1.5}
+  .meta b{color:#111}
+
+  /* 参考截图 */
+  .shot{border-radius:14px;overflow:hidden;border:1px solid #cfd4da;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+  .shot img{display:block;width:100%;height:auto}
+
+  .phone{width:290px;height:600px;background:var(--page);border-radius:26px;overflow:hidden;position:relative;
+    border:1px solid #d8dce2;box-shadow:0 8px 26px rgba(0,0,0,.13)}
+  .phone.dark{background:#161616;border-color:#333}
+  .status{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:10.5px;color:#4a5158}
+  .phone.dark .status{color:#bbb}
+  .body{height:calc(600px - 24px - 50px);overflow:hidden}
+
+  /* ===== 方案 D：Bitwarden 式 ===== */
+  .navbar{height:46px;background:var(--bw-blue);display:flex;align-items:center;padding:0 12px;gap:10px;color:#fff}
+  .nav-ava{width:28px;height:28px;border-radius:50%;background:#0d3fa8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+  .nav-title{flex:1;text-align:center;font-size:15px;font-weight:600}
+  .nav-ic{width:17px;height:17px;border:2px solid #fff;border-radius:50%;position:relative;flex:0 0 auto}
+  .nav-ic::after{content:"";position:absolute;width:7px;height:2px;background:#fff;transform:rotate(45deg);right:-5px;bottom:-1px}
+  .nav-plus{font-size:19px;font-weight:300;line-height:1;flex:0 0 auto}
+  .vaultbar{height:38px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:13px;color:var(--t2);background:#fff;border-bottom:1px solid var(--line)}
+  .dots{font-size:15px;color:#9aa0a6;letter-spacing:1px}
+  .sect{height:26px;background:#EFF1F4;display:flex;align-items:center;padding:0 14px;font-size:10.5px;font-weight:700;color:#525a63;letter-spacing:.6px}
+  .sect .cnt{margin-left:auto;font-weight:500;color:#8a929c}
+  .bw-row{height:56px;display:flex;align-items:center;gap:11px;padding:0 14px;background:#fff;border-bottom:1px solid var(--line)}
+  .bw-logo{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex:0 0 auto}
+  .bw-info{flex:1;min-width:0}
+  .bw-name{font-size:15.5px;font-weight:500;line-height:1.25}
+  .bw-sub{font-size:12.5px;color:var(--t2);line-height:1.3;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ===== 方案 E：KeePassDX 式胶囊 ===== */
+  .k-toolbar{height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;color:#e8e8e8}
+  .k-menu{width:16px;height:12px;border-top:2px solid #cfcfcf;border-bottom:2px solid #cfcfcf;position:relative;flex:0 0 auto}
+  .k-menu::after{content:"";position:absolute;top:4px;left:0;width:16px;height:2px;background:#cfcfcf}
+  .k-title{flex:1;font-size:14px;font-weight:600}
+  .k-ic{width:16px;height:16px;border:1.8px solid #cfcfcf;border-radius:50%;flex:0 0 auto}
+  .k-pill{margin:0 10px 8px;background:#242424;border-radius:26px;height:64px;display:flex;align-items:center;gap:12px;padding:0 16px}
+  .k-pill .ic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:0 0 auto}
+  .k-info{flex:1;min-width:0}
+  .k-name{font-size:15px;color:#F1F1F1;font-weight:500}
+  .k-sub{font-size:11.5px;color:#9a9a9a;margin-top:2px}
+
+  /* ===== 方案 F：混合 ===== */
+  .f-top{height:46px;display:flex;align-items:center;padding:0 14px;gap:10px;background:#fff;border-bottom:1px solid var(--line)}
+  .f-ava{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#2CD06A,#06A855);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600}
+  .f-title{flex:1;font-size:15px;font-weight:600}
+  .f-search{width:16px;height:16px;border:2px solid #9aa0a6;border-radius:50%;position:relative;margin-right:4px}
+  .f-search::after{content:"";position:absolute;width:7px;height:2px;background:#9aa0a6;transform:rotate(45deg);right:-5px;bottom:-1px}
+  .f-plus{font-size:20px;color:var(--brand);font-weight:300;line-height:1}
+  .f-pill{margin:8px 12px 0;background:#fff;border:1px solid var(--line);border-radius:24px;height:60px;display:flex;align-items:center;gap:11px;padding:0 8px 0 12px;box-shadow:0 1px 5px rgba(0,0,0,.04)}
+  .f-pill .ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex:0 0 auto}
+  .f-info{flex:1;min-width:0}
+  .f-name{font-size:15px;font-weight:500}
+  .f-sub{font-size:12px;color:var(--t2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .f-act{font-size:11px;color:var(--brand);background:#F2FCF6;border:1px solid rgba(7,193,96,.4);border-radius:20px;padding:5px 11px;flex:0 0 auto}
+
+  .tab{position:absolute;left:0;right:0;bottom:0;height:50px;background:#fff;border-top:1px solid var(--line);display:flex}
+  .phone.dark .tab{background:#1a1a1a;border-top-color:#333}
+  .tab div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9.5px;color:#9AA0A6}
+  .tab div.on{color:var(--brand)}
+  .tab i{width:15px;height:15px;border-radius:4px;background:#dfe3e8}
+  .tab div.on i{background:var(--brand)}
+  .phone.dark .tab i{background:#3a3a3a}
+  .phone.dark .tab div.on i{background:#2CD06A}
+
+  .note{font-size:12px;color:#4a5158;background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;margin-top:25px;line-height:1.75}
+  .note b{color:#111}
+  .note ul{margin:6px 0 0 18px}
+  .note li{margin:3px 0}
+</style>
+</head>
+<body>
+
+<h1>看了成熟产品之后，重做的方案</h1>
+<div class="sub">
+  上一版我只是在"压缩行高"上做文章，方向错了。这次先把 <b>Bitwarden（iOS 官方截图）</b> 和 <b>KeePassDX（Android）</b> 的真实界面放在下面，然后按它们的规律重做三个方案。
+</div>
+
+<h2>一、参考的两个成熟产品（真实截图）</h2>
+<div class="row">
+  <div class="col">
+    <div class="tag"><span class="badge blue">参考 1</span> Bitwarden · iOS</div>
+    <div class="meta">来源：bitwarden/brand 官方仓库截图</div>
+    <div class="shot"><img src="refs/ref-bitwarden-ios.png" alt="Bitwarden iOS"></div>
+  </div>
+  <div class="col">
+    <div class="tag"><span class="badge dark">参考 2</span> KeePassDX · Android</div>
+    <div class="meta">来源：Kunzisoft/KeePassDX 官方仓库截图</div>
+    <div class="shot"><img src="refs/ref-keepassdx-android.jpg" alt="KeePassDX"></div>
+  </div>
+  <div class="col" style="width:330px">
+    <div class="tag">我看到的共同规律</div>
+    <div class="meta" style="line-height:1.8">
+      <b>① 顶部只有一条栏</b><br>标题 + 搜索图标 + 新建图标，全在 44–46px 里。搜索是<b>图标点开</b>，不是常驻大搜索框；没有横向 chips。<br><br>
+      <b>② 不靠卡片堆质感</b><br>Bitwarden 是纯白分隔列表；KeePassDX 是胶囊形圆角卡。<b>都不是</b>我们这种"圆角矩形+阴影"的厚卡。<br><br>
+      <b>③ 靠彩色 logo 和字号做层级</b><br>主标题明显大（15–17px 粗），副标题小（12–13px 灰）；图标是真实品牌色。<br><br>
+      <b>④ 每行有可见的操作入口</b><br>Bitwarden 右侧「···」，KeePassDX 右侧「›」。<b>不靠长按</b>。<br><br>
+      <b>⑤ 行高 44–64px</b><br>比我们现在 72px 小，但因为字号大、logo 彩色，<b>不觉得挤</b>。
+    </div>
+  </div>
+</div>
+
+<h2>二、按这些规律重做的三个方案</h2>
+<div class="row">
+
+  <!-- D -->
+  <div class="col">
+    <div class="tag"><span class="badge blue">方案 D</span> Bitwarden 式·纯列表</div>
+    <div class="meta">顶栏整合 · 行高 <b>56px</b> · 一屏 <b>8 条+分组</b> · 每行「···」</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="body">
+        <div class="navbar">
+          <div class="nav-ava">无</div>
+          <div class="nav-title">密码库</div>
+          <div class="nav-ic"></div>
+          <div class="nav-plus">+</div>
+        </div>
+        <div class="vaultbar"><span>全部条目</span><span class="dots">···</span></div>
+        <div class="sect">收藏<span class="cnt">3</span></div>
+        <div class="bw-row"><div class="bw-logo" style="background:#07C160">微</div><div class="bw-info"><div class="bw-name">微信</div><div class="bw-sub">wxid_abc123</div></div><span class="dots">···</span></div>
+        <div class="bw-row"><div class="bw-logo" style="background:#FF5000">淘</div><div class="bw-info"><div class="bw-name">淘宝</div><div class="bw-sub">shop_2024</div></div><span class="dots">···</span></div>
+        <div class="bw-row"><div class="bw-logo" style="background:#3B82F6">邮</div><div class="bw-info"><div class="bw-name">公司邮箱</div><div class="bw-sub">me@corp.cn</div></div><span class="dots">···</span></div>
+        <div class="sect">登录<span class="cnt">7</span></div>
+        <div class="bw-row"><div class="bw-logo" style="background:#7C3AED">支</div><div class="bw-info"><div class="bw-name">支付宝</div><div class="bw-sub">138****8888</div></div><span class="dots">···</span></div>
+        <div class="bw-row"><div class="bw-logo" style="background:#0EA5E9">Q</div><div class="bw-info"><div class="bw-name">QQ</div><div class="bw-sub">10001</div></div><span class="dots">···</span></div>
+        <div class="bw-row"><div class="bw-logo" style="background:#EF4444">游</div><div class="bw-info"><div class="bw-name">Steam</div><div class="bw-sub">player_one</div></div><span class="dots">···</span></div>
+        <div class="bw-row"><div class="bw-logo" style="background:#6366F1">知</div><div class="bw-info"><div class="bw-name">知乎</div><div class="bw-sub">reader_01</div></div><span class="dots">···</span></div>
+        <div class="sect">其他<span class="cnt">2</span></div>
+        <div class="bw-row"><div class="bw-logo" style="background:#F59E0B">卡</div><div class="bw-info"><div class="bw-name">招商银行卡</div><div class="bw-sub">6225 **** 1234</div></div><span class="dots">···</span></div>
+        <div class="bw-row"><div class="bw-logo" style="background:#10B981">WF</div><div class="bw-info"><div class="bw-name">家里 WiFi</div><div class="bw-sub">TP-LINK_5G</div></div><span class="dots">···</span></div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div>
+  </div>
+
+  <!-- E -->
+  <div class="col">
+    <div class="tag"><span class="badge dark">方案 E</span> KeePassDX 式·胶囊</div>
+    <div class="meta">深色 · 大彩色圆图标 · 行高 <b>64px+8</b> · 一屏 <b>5 条</b></div>
+    <div class="phone dark">
+      <div class="status"><span>8:59</span><span>▲ ▮ ⌁ ▮</span></div>
+      <div class="body" style="padding-top:2px">
+        <div class="k-toolbar">
+          <div class="k-menu"></div>
+          <div class="k-title">无忧密码库</div>
+          <div class="k-ic"></div>
+          <div class="k-ic" style="border-radius:3px"></div>
+          <div class="nav-plus" style="color:#cfcfcf">⋮</div>
+        </div>
+        <div class="k-pill"><div class="ic" style="background:#07C160;color:#fff">微</div><div class="k-info"><div class="k-name">微信</div><div class="k-sub">wxid_abc123</div></div></div>
+        <div class="k-pill"><div class="ic" style="background:#FF5000;color:#fff">淘</div><div class="k-info"><div class="k-name">淘宝</div><div class="k-sub">shop_2024</div></div></div>
+        <div class="k-pill"><div class="ic" style="background:#3B82F6;color:#fff">邮</div><div class="k-info"><div class="k-name">公司邮箱</div><div class="k-sub">me@corp.cn</div></div></div>
+        <div class="k-pill"><div class="ic" style="background:#7C3AED;color:#fff">支</div><div class="k-info"><div class="k-name">支付宝</div><div class="k-sub">138****8888</div></div></div>
+        <div class="k-pill"><div class="ic" style="background:#0EA5E9;color:#fff">Q</div><div class="k-info"><div class="k-name">QQ</div><div class="k-sub">10001</div></div></div>
+        <div class="k-pill"><div class="ic" style="background:#EF4444;color:#fff">游</div><div class="k-info"><div class="k-name">Steam</div><div class="k-sub">player_one</div></div></div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div>
+  </div>
+
+  <!-- F -->
+  <div class="col">
+    <div class="tag"><span class="badge">推荐</span> 方案 F · 混合</div>
+    <div class="meta">顶栏整合 + 胶囊卡 + 行内复制 · 行高 <b>60px</b> · 一屏 <b>7 条</b></div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● ⌁ ▮</span></div>
+      <div class="body">
+        <div class="f-top">
+          <div class="f-ava">无</div>
+          <div class="f-title">我的密码</div>
+          <div class="f-search"></div>
+          <div class="f-plus">+</div>
+        </div>
+        <div class="f-pill"><div class="ic" style="background:#E8F8EF;color:#07C160">微</div><div class="f-info"><div class="f-name">微信</div><div class="f-sub">wxid_abc123</div></div><span class="f-act">复制</span></div>
+        <div class="f-pill"><div class="ic" style="background:#FFF0E8;color:#FF5000">淘</div><div class="f-info"><div class="f-name">淘宝</div><div class="f-sub">shop_2024</div></div><span class="f-act">复制</span></div>
+        <div class="f-pill"><div class="ic" style="background:#EAF2FF;color:#3B82F6">邮</div><div class="f-info"><div class="f-name">公司邮箱</div><div class="f-sub">me@corp.cn</div></div><span class="f-act">复制</span></div>
+        <div class="f-pill"><div class="ic" style="background:#F3EEFF;color:#7C3AED">支</div><div class="f-info"><div class="f-name">支付宝</div><div class="f-sub">138****8888</div></div><span class="f-act">复制</span></div>
+        <div class="f-pill"><div class="ic" style="background:#E8F8EF;color:#07C160">服</div><div class="f-info"><div class="f-name">阿里云服务器</div><div class="f-sub">root@47.98.x.x</div></div><span class="f-act">复制</span></div>
+        <div class="f-pill"><div class="ic" style="background:#FFEEF0;color:#EF4444">游</div><div class="f-info"><div class="f-name">Steam</div><div class="f-sub">player_one</div></div><span class="f-act">复制</span></div>
+        <div class="f-pill"><div class="ic" style="background:#EEF2FF;color:#6366F1">知</div><div class="f-info"><div class="f-name">知乎</div><div class="f-sub">reader_01</div></div><span class="f-act">复制</span></div>
+      </div>
+      <div class="tab"><div class="on"><i></i>密码</div><div><i></i>生成</div><div><i></i>我的</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+  <b>三个方案的本质区别</b>
+  <ul>
+    <li><b>D 最"干净"</b>：白底纯列表 + 分组灰条，信息密度最高，最像专业工具；但视觉最朴素，没有品牌感。</li>
+    <li><b>E 最有"质感"</b>：深色 + 胶囊 + 彩色圆图标，最像现代 App；但一屏只能看 5 条，条目多时滚得累。</li>
+    <li><b>F 折中</b>：浅色顶栏整合 + 胶囊卡（比现在的矩形卡柔和）+ 行内复制；一屏 7 条，兼顾观感和效率。<b>我推荐它。</b></li>
+  </ul>
+  <br>
+  <b>三个方案都做的事</b>（这是真正的病根）：把"品牌信息块 + 常驻大搜索框 + chips"三行压成 <b>一条顶栏</b>，搜索改为点图标展开。
+  这一步就能让首屏多出约 <b>180rpx</b>，内容区直接多看 2–3 条——<b>不靠压行高</b>。
+</div>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "编辑资料",
+  "usingComponents": {
+    "comp-nav-bar": "/components/comp-nav-bar/comp-nav-bar"
+  }
+}

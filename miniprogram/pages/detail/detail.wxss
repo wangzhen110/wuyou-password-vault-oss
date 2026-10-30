@@ -1,0 +1,302 @@
+/* detail 详情页样式 V5.0 - 无AI味 */
+@import '../../styles/theme.wxss';
+
+.page {
+  background: var(--bg-page);
+  min-height: 100vh;
+}
+
+.container {
+  padding: 0 var(--sp-lg);
+  min-height: 100vh;
+}
+
+.status-bar-placeholder {
+  height: 96rpx;
+}
+
+.page-header {
+  padding: 96rpx 0 var(--sp-lg);
+}
+
+.page-title {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* 平台头部 */
+.detail-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--sp-xl) 0 var(--sp-32);
+  gap: var(--sp-md);
+}
+
+.detail-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-float);
+}
+
+.detail-letter {
+  font-size: var(--fs-xxl);
+  font-weight: 700;
+}
+
+.detail-platform {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 信息卡片 */
+.info-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  border: 1rpx solid var(--border-color);
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  padding: var(--sp-md);
+  min-height: var(--tap-min-size);
+}
+
+.info-row-top {
+  align-items: flex-start;
+}
+
+.info-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.info-label {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: var(--sp-2);
+}
+
+.info-value {
+  font-size: var(--fs-base);
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.info-notes {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: var(--lh-relaxed);
+}
+
+.info-divider {
+  height: 1rpx;
+  background: var(--border-color);
+  margin-left: var(--sp-md);
+}
+
+/* 密码遮罩 - 纯CSS */
+.pwd-mask {
+  display: flex;
+  gap: 8rpx;
+  padding-top: 4rpx;
+}
+.mask-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--text-primary);
+}
+
+/* 操作按钮组 */
+.info-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  flex-shrink: 0;
+}
+
+/* 纯CSS眼睛 */
+.view-btn {
+  width: var(--tap-min-size);
+  height: var(--tap-min-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.eye-sm-outer {
+  width: 24rpx;
+  height: 16rpx;
+  border: 3rpx solid var(--color-primary);
+  border-radius: 50%;
+  position: relative;
+}
+.eye-sm-dot {
+  width: 6rpx;
+  height: 6rpx;
+  background: var(--color-primary);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.eye-sm-dot.hidden {
+  opacity: 0;
+}
+
+/* 纯CSS复制图标 */
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-sm);
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+  min-height: var(--tap-min-size);
+}
+.copy-icon {
+  width: 22rpx;
+  height: 22rpx;
+  position: relative;
+}
+.copy-rect {
+  width: 16rpx;
+  height: 20rpx;
+  border: 2rpx solid #FFFFFF;
+  border-radius: 3rpx;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.copy-rect-inner {
+  top: 4rpx;
+  left: 4rpx;
+}
+.copy-text {
+  font-size: var(--fs-sm);
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+/* 时间信息 */
+.time-info {
+  padding: var(--sp-md) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.time-text {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* 操作区域 */
+.action-area {
+  padding: var(--sp-lg) 0 var(--sp-32);
+  display: flex;
+  gap: var(--sp-md);
+}
+
+.edit-btn {
+  flex: 1;
+  height: 88rpx;
+  background: var(--color-primary);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(7,193,96,0.25);
+}
+.edit-text {
+  color: #FFFFFF;
+  font-size: var(--fs-base);
+  font-weight: 600;
+}
+
+.delete-btn {
+  flex: 1;
+  height: 88rpx;
+  background: var(--bg-card);
+  border: 2rpx solid var(--color-danger);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.delete-text {
+  color: var(--color-danger);
+  font-size: var(--fs-base);
+  font-weight: 500;
+}
+/* ===== V4 新增：类型渲染 + re-prompt + 快捷复制 ===== */
+.detail-letter {
+  font-size: var(--fs-sm);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+.info-cardno {
+  font-family: Menlo, Consolas, monospace;
+  letter-spacing: 2rpx;
+}
+.info-multi {
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: var(--lh-relaxed);
+}
+.section-title-sm {
+  display: block;
+  margin: var(--sp-24) var(--sp-16) var(--sp-8);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+.info-card {
+  margin: 0 var(--sp-16);
+}
+.time-info {
+  margin: var(--sp-16) var(--sp-16) 0;
+}
+.action-area {
+  display: flex;
+  gap: var(--sp-16);
+  padding: var(--sp-24) var(--sp-16) 0;
+}
+.action-area > comp-btn,
+.action-area .c-btn {
+  flex: 1;
+}
+/* re-prompt 小盾点：需重验的字段在眼睛图标上带标记 */
+.rp-badge {
+  position: absolute;
+  right: 2rpx;
+  bottom: 2rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: var(--color-warning);
+}
+.view-btn {
+  position: relative;
+}
+/* host:port 快捷复制行 */
+.quick-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 88rpx;
+  padding: 0 var(--sp-8);
+}
+.quick-text {
+  font-size: var(--fs-sm);
+  color: var(--color-primary);
+}

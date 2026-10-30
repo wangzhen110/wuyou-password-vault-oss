@@ -1,0 +1,131 @@
+<!-- comp-lock-screen V5.1 - 主题跟随（深浅色由页面传入 themeClass） -->
+<view class="page {{themeClass}}">
+  <view class="lock-screen">
+    <view class="lock-recovery-tip" wx:if="{{recoveryMode}}">
+      <text class="lock-recovery-tip-text">检测到云端备份：请输入原来的主密码恢复数据</text>
+    </view>
+    <!-- 品牌行置顶：与胶囊对齐后略低；logo + 品牌名 -->
+    <view class="brand-header" style="top: {{brandTop}}px">
+      <image class="brand-header-logo" src="/assets/app-logo.png" mode="aspectFit"/>
+      <text class="brand-header-name">无忧密码本</text>
+    </view>
+
+    <!-- 身份标识：已设头像显示用户头像（一眼确认解锁对象），未设置回退锁图标 -->
+    <view class="brand-area">
+      <image wx:if="{{userAvatar}}" class="brand-avatar" src="{{userAvatar}}" mode="aspectFill"/>
+      <view wx:else class="brand-icon">
+        <view class="lock-body"></view>
+        <view class="lock-shackle"></view>
+      </view>
+      <text class="brand-sub">{{isFirstUse ? '微信已自动登录，此密码仅用于加密数据' : '输入主密码解锁'}}</text>
+    </view>
+
+    <!-- 密码输入 -->
+    <view class="input-area">
+      <view class="pwd-input-wrap">
+        <input class="pwd-input" type="text" maxlength="20"
+               password="{{!showPwd}}"
+               value="{{password}}"
+               bindinput="onInput"
+               bindfocus="onFocus"
+               bindblur="onBlur"
+               bindconfirm="onSubmit"
+               confirm-type="done"
+               confirm-hold="{{true}}"
+               placeholder="输入密码"
+               placeholder-class="pwd-placeholder"/>
+        <view class="eye-toggle tappable" bindtap="onToggleShow">
+          <view class="eye-l-outer">
+            <view class="eye-l-dot {{showPwd ? '' : 'hidden'}}"></view>
+          </view>
+          <view class="eye-l-slash {{showPwd ? '' : 'show'}}"></view>
+        </view>
+      </view>
+
+      <!-- 密码强度色条（首次设置：主密码框正下方，成熟方案的分段色条） -->
+      <view class="strength-area" wx:if="{{isFirstUse}}">
+        <view class="strength-bar">
+          <view class="strength-bar-fill fill-{{pwdStrength}}" style="width: {{pwdStrength === 0 ? 33 : pwdStrength === 1 ? 66 : 100}}%"></view>
+        </view>
+        <text class="strength-text strength-text-{{pwdStrength}}">{{pwdStrength === 0 ? '弱：至少 8 位，12 位以下需字母+数字' : pwdStrength === 1 ? '中：已满足基本要求' : '强：密码强度良好'}}</text>
+      </view>
+
+      <!-- 主密码提示（解锁模式：hint 非空时显示"查看提示"入口） -->
+      <view class="hint-area" wx:if="{{!isFirstUse}}">
+        <text class="hint-link tappable" bindtap="onToggleHint">{{showHint ? '收起提示' : '密码提示'}}</text>
+        <text class="hint-text" wx:if="{{showHint}}">{{hint || '尚未设置密码提示。解锁后在「设置 → 主密码提示」中添加'}}</text>
+      </view>
+      <!-- 错误提示（解锁模式：紧贴主密码框下方；高度固定，避免顶动布局） -->
+      <view class="error-area" wx:if="{{!isFirstUse}}">
+        <text class="error-text">{{errorMsg || ''}}</text>
+      </view>
+    </view>
+
+    <!-- 确认密码（首次设置时显示） -->
+    <view class="confirm-area" wx:if="{{isFirstUse}}">
+      <view class="pwd-input-wrap">
+        <input class="pwd-input" type="text" maxlength="20"
+               password="{{!showConfirmPwd}}"
+               value="{{confirmPassword}}"
+               bindinput="onConfirmInput"
+               bindconfirm="onSubmit"
+               confirm-type="done"
+               confirm-hold="{{true}}"
+               placeholder="确认密码"
+               placeholder-class="pwd-placeholder"/>
+        <view class="eye-toggle tappable" bindtap="onToggleConfirmShow">
+          <view class="eye-l-outer">
+            <view class="eye-l-dot {{showConfirmPwd ? '' : 'hidden'}}"></view>
+          </view>
+          <view class="eye-l-slash {{showConfirmPwd ? '' : 'show'}}"></view>
+        </view>
+      </view>
+
+      <!-- 两次输入一致性（首次设置：确认密码框正下方） -->
+      <view class="match-area" wx:if="{{isFirstUse && confirmPassword}}">
+        <text class="match-text {{password === confirmPassword ? 'match-ok' : 'match-bad'}}">{{password === confirmPassword ? '✓ 两次输入一致' : '✗ 两次输入不一致'}}</text>
+      </view>
+      <!-- 错误提示（首次设置：落在确认密码框正下方，符合"错误紧跟出错输入框"的直觉） -->
+      <view class="error-area" wx:if="{{isFirstUse}}">
+        <text class="error-text">{{errorMsg || ''}}</text>
+      </view>
+
+      <!-- 邀请码（选填） -->
+      <view class="pwd-input-wrap invite-wrap">
+        <input class="pwd-input pwd-input-invite" type="text" maxlength="12"
+               value="{{inviteCode}}"
+               bindinput="onInviteInput"
+               placeholder="邀请码（选填）"
+               placeholder-class="pwd-placeholder"/>
+      </view>
+    </view>
+
+    <!-- 解锁按钮 -->
+    <view class="unlock-btn tappable {{canSubmit ? '' : 'disabled'}}" bindtap="onSubmit">
+      <text class="unlock-text">{{submitting ? ((unlockStage || '解密中...') + (unlockPct > 0 ? ' ' + unlockPct + '%' : '')) : (isFirstUse ? '设置密码' : '解锁')}}</text>
+    </view>
+
+    <!-- 解锁进度：把「卡在解锁中」变成用户能复述的事实（2026-10-25 iOS 排查） -->
+    <view class="unlock-progress" wx:if="{{submitting}}">
+      <text class="unlock-progress-text">已用 {{unlockElapsed}} 秒，请勿退出</text>
+      <view class="unlock-retry-wrap" wx:if="{{unlockStalled}}">
+        <text class="unlock-progress-warn">耗时超出预期，可点重试</text>
+        <view class="unlock-retry tappable" bindtap="onRetryUnlock">
+          <text class="unlock-retry-text">重试</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 安全提示 -->
+    <view class="security-tip">
+      <text class="tip-text">这是唯一解锁密码，忘记无法找回</text>
+      <text class="tip-text">请妥善保管</text>
+    </view>
+
+
+    <!-- 演示体验入口（审核与首次体验用；只读示例数据，不接触真实密码库） -->
+    <view class="demo-entry tappable" bindtap="onEnterDemo">
+      <text class="demo-entry-text">先看看效果？进入演示模式（示例数据）</text>
+    </view>
+  </view>
+</view>

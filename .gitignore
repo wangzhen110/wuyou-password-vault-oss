@@ -1,0 +1,32 @@
+node_modules/
+project.private.config.json
+*.log
+.env*
+*.pem
+*.key
+*.p12
+*.pfx
+scripts/*query.json
+scripts/*update.json
+scripts/production-user-*.json
+scripts/id-projection.json
+scripts/empty-query.json
+
+# 本地数据备份（含敏感字段，禁止入库）
+backups/
+
+# 构建产物 / 临时文件
+preview-qr*.png
+50
+coverage/
+.playwright-cli/
+
+# 后台管理本地访问口令
+docs/admin/.access-key
+
+# ===== 开源前清理（2026-10-30）：以下含真实身份/运营数据，禁止入库 =====
+.workbuddy/
+.workbuddy-ai/
+PROJECT_MEMORY.md
+docs/admin/
+docs/HANDOFF-codex.md

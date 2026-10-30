@@ -1,0 +1,73 @@
+.c-empty {
+  padding: 96rpx var(--sp-32);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.c-empty__visual {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: var(--sp-20);
+}
+.c-empty__ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 3rpx dashed var(--border-color);
+  border-radius: 50%;
+}
+/* 锁图标：flex 纵向居中排列（锁环在上、锁体在下），几何由 flex 保证对齐，不手写偏移坐标 */
+.c-empty__lock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.c-empty__lock-body {
+  width: 44rpx;
+  height: 32rpx;
+  background: var(--text-muted);
+  border-radius: 8rpx;
+  opacity: 0.75;
+}
+.c-empty__lock-shackle {
+  width: 28rpx;
+  height: 24rpx;
+  border: 6rpx solid var(--text-muted);
+  border-bottom: none;
+  border-radius: 14rpx 14rpx 0 0;
+  opacity: 0.75;
+}
+.c-empty__title {
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.c-empty__desc {
+  margin-top: var(--sp-8);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-align: center;
+}
+.c-empty__btn {
+  margin-top: var(--sp-24);
+  min-height: var(--tap-min-size);
+  padding: 0 var(--sp-32);
+  display: flex;
+  align-items: center;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+.c-empty__btn-text {
+  color: #FFFFFF;
+  font-size: var(--fs-sm);
+}

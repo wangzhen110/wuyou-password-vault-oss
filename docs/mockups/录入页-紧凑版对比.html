@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>录入页 · 紧凑版对比</title>
+<style>
+  :root{
+    --bg-page:#121212; --bg-card:#1E1E1E; --bg-input:#2A2A2A;
+    --t1:#E8E8E8; --t2:#B0B0B0; --border:#333; --brand:#2CD06A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#E9EBEF;color:#1A1A1A;padding:24px 20px 60px}
+  h1{font-size:19px;margin-bottom:5px;color:#111}
+  .sub{font-size:13px;color:#5b6470;line-height:1.7;margin-bottom:18px}
+  .sub b{color:#111}
+  .row{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+  .col{width:300px}
+  .tag{font-size:13px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:6px;color:#111}
+  .badge{font-size:10.5px;font-weight:500;background:var(--brand);color:#0b2a18;padding:1px 7px;border-radius:20px}
+  .badge.gray{background:#8a929c;color:#fff}
+  .meta{font-size:11.5px;color:#5b6470;margin-bottom:8px;line-height:1.5}
+  .meta b{color:#111}
+
+  .frame{width:300px;height:630px;overflow:hidden}
+  .phone{width:375px;height:788px;background:var(--bg-page);border-radius:30px;overflow:hidden;
+    position:relative;border:1px solid #3a3a3a;box-shadow:0 10px 30px rgba(0,0,0,.35);
+    transform:scale(.8);transform-origin:top left;display:flex;flex-direction:column;color:var(--t1)}
+  .status{height:26px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 14px;font-size:11px;color:#cfcfcf;flex:0 0 auto}
+  .nav{height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;flex:0 0 auto}
+  .nav-back{width:10px;height:10px;border-left:2px solid var(--t1);border-bottom:2px solid var(--t1);
+    transform:rotate(45deg);margin-left:2px}
+  .nav-title{flex:1;text-align:center;font-size:16px;font-weight:600}
+  .nav-save{font-size:14px;color:var(--brand);font-weight:500}
+  .body{flex:1;overflow-y:auto;min-height:0}
+  .body::-webkit-scrollbar{width:0}
+
+  /* ---------- 大版（现状 A）---------- */
+  .type-scroll{padding:8px 12px 0;display:flex;gap:8px;overflow-x:auto}
+  .type-scroll::-webkit-scrollbar{height:0}
+  .type-pill{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 16px;
+    border-radius:16px;background:var(--bg-input);border:1px solid transparent;white-space:nowrap;flex:0 0 auto}
+  .type-pill.on{background:rgba(44,208,106,.14);border-color:var(--brand)}
+  .type-pill span{font-size:13px;color:var(--t2)}
+  .type-pill.on span{color:var(--brand);font-weight:600}
+  .tp-ic{width:14px;height:14px;border:1.5px solid var(--t2);border-radius:3px}
+  .type-pill.on .tp-ic{border-color:var(--brand)}
+
+  .section-label{font-size:14px;color:var(--t2);margin:8px 16px 4px}
+  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:4px 16px 3px}
+  .g-item{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .p-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;
+    justify-content:center;font-size:14px;font-weight:700}
+  .p-name{font-size:10px;color:var(--t2)}
+  .more-platforms{padding:0 16px 4px;font-size:12px;color:var(--brand)}
+
+  .form-card{margin:8px;background:var(--bg-card);border-radius:8px;padding:4px 16px;border:1px solid var(--border)}
+  .field{padding:6px 0;display:flex;flex-direction:column;gap:4px}
+  .label{font-size:14px;color:var(--t2)}
+  .input{min-height:44px;padding:0 16px;background:var(--bg-input);border-radius:8px;
+    font-size:16px;color:var(--t1);display:flex;align-items:center}
+  .input.ph{color:#6b6b6b}
+  .divider{height:1px;background:var(--border)}
+  .pwd-row{display:flex;align-items:center;gap:8px}
+  .pwd-row .input{flex:1}
+  .gen-btn{padding:0 14px;height:44px;border-radius:8px;background:rgba(44,208,106,.14);
+    color:var(--brand);font-size:13px;display:flex;align-items:center;flex:0 0 auto}
+  .strength{display:flex;gap:3px;margin-top:5px}
+  .strength i{height:3px;flex:1;border-radius:2px;background:#3a3a3a}
+  .strength i.on{background:var(--brand)}
+  .more{margin:8px;background:var(--bg-card);border-radius:8px;border:1px solid var(--border);
+    padding:0 16px;min-height:44px;display:flex;align-items:center;justify-content:space-between}
+  .more span{font-size:14px;color:var(--t2)}
+  .arrow{width:8px;height:8px;border-right:1.5px solid var(--t2);border-bottom:1.5px solid var(--t2);transform:rotate(45deg)}
+  .save-area{padding:12px 16px 8px}
+  .save-btn{height:48px;border-radius:8px;background:var(--brand);color:#08301a;
+    display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600}
+
+  /* ---------- 紧凑版 ---------- */
+  .c .type-scroll{padding:6px 12px 0;gap:6px}
+  .c .type-pill{min-height:28px;padding:0 13px;border-radius:14px;gap:5px}
+  .c .type-pill span{font-size:12.5px}
+  .c .tp-ic{width:12px;height:12px}
+  .c .section-label{font-size:13px;margin:6px 14px 2px}
+  .c .grid{grid-template-columns:repeat(6,1fr);gap:4px;padding:2px 14px 2px}
+  .c .p-icon{width:28px;height:28px;border-radius:7px;font-size:12px}
+  .c .p-name{font-size:9.5px}
+  .c .more-platforms{font-size:11.5px;padding:0 14px 2px}
+  .c .form-card{margin:6px 10px;padding:0 12px;border-radius:8px}
+  /* 关键：字段改单行（标签左、输入右），省掉标签独占一行 */
+  .c .field{padding:0;flex-direction:row;align-items:center;gap:10px;min-height:46px}
+  .c .label{font-size:13.5px;width:60px;flex:0 0 auto;color:var(--t2)}
+  .c .input{flex:1;min-height:38px;padding:0 10px;background:transparent;font-size:15px;border-radius:6px}
+  .c .input:active{background:rgba(255,255,255,.04)}
+  .c .pwd-row{gap:6px}
+  .c .gen-btn{height:32px;padding:0 11px;font-size:12px;border-radius:6px}
+  .c .strength{margin-top:3px}
+  .c .more{margin:6px 10px;padding:0 12px;min-height:40px}
+  .c .more span{font-size:13.5px}
+  .c .save-area{padding:8px 12px 6px}
+  .c .save-btn{height:44px;font-size:15px}
+
+  .note{font-size:12px;color:#4a5158;background:#fff;border:1px solid #dfe3e8;
+    border-radius:10px;padding:13px 15px;margin-top:24px;line-height:1.85;max-width:960px}
+  .note b{color:#111}
+  .note ul{margin:6px 0 0 18px}.note li{margin:4px 0}
+  table{border-collapse:collapse;width:100%;margin-top:8px;font-size:11.5px}
+  th,td{border:1px solid #e3e6ea;padding:5px 7px;text-align:left}
+  th{background:#f5f7f9;font-weight:600}
+  .warn{background:#FFF7E6;border-color:#FFD9A0}
+  code{background:#eef0f3;border:1px solid #dfe3e8;border-radius:3px;padding:0 3px;font-size:11px}
+</style>
+</head>
+<body>
+
+<h1>录入页 · 紧凑版对比</h1>
+<div class="sub">
+  <b>压缩思路：</b>控件本身已经接近热区底线（44px），真正能省的是<b>布局方式</b>——
+  把「标签独占一行 + 输入框一行」改成「标签在左、输入在右」的<b>单行字段</b>，一个字段从 57px 降到 46px。
+</div>
+
+<div class="row">
+
+  <!-- 大版 -->
+  <div class="col">
+    <div class="tag"><span class="badge gray">当前 A 版</span> 标签+输入 各占一行</div>
+    <div class="meta">前置区 <b>≈112px</b> · 三个字段 <b>≈171px</b> · 保存前总高 <b>≈380px</b></div>
+    <div class="frame"><div class="phone">
+      <div class="status"><span>23:20</span><span>5G ▮ 59</span></div>
+      <div class="nav"><div class="nav-back"></div><div class="nav-title">添加密码</div><div class="nav-save">保存</div></div>
+      <div class="body">
+        <div class="type-scroll">
+          <div class="type-pill on"><div class="tp-ic"></div><span>登录</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>服务器</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>银行卡</span></div>
+        </div>
+        <div class="section-label">选择平台</div>
+        <div class="grid">
+          <div class="g-item"><div class="p-icon" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><div class="p-name">微信</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(254,44,85,.14);color:#FE2C55">抖</div><div class="p-name">抖音</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(255,80,0,.14);color:#FF5000">淘</div><div class="p-name">淘宝</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(59,130,246,.14);color:#3B82F6">邮</div><div class="p-name">邮箱</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(124,58,237,.14);color:#7C3AED">支</div><div class="p-name">支付宝</div></div>
+        </div>
+        <div class="more-platforms">更多平台 ›</div>
+        <div class="form-card">
+          <div class="field"><div class="label">账号</div><div class="input ph">手机号 / 邮箱</div></div>
+          <div class="divider"></div>
+          <div class="field"><div class="label">密码</div>
+            <div class="pwd-row"><div class="input ph">输入密码</div><div class="gen-btn">生成</div></div>
+            <div class="strength"><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <div class="more"><span>更多信息（选填）</span><div class="arrow"></div></div>
+        <div class="save-area"><div class="save-btn">保存</div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 紧凑版 -->
+  <div class="col">
+    <div class="tag"><span class="badge">紧凑版</span> 单行字段 + 全控件瘦身</div>
+    <div class="meta">前置区 <b>≈92px</b> · 三个字段 <b>≈138px</b> · 保存前总高 <b>≈290px</b>（省 24%）</div>
+    <div class="frame"><div class="phone c">
+      <div class="status"><span>23:20</span><span>5G ▮ 59</span></div>
+      <div class="nav"><div class="nav-back"></div><div class="nav-title">添加密码</div><div class="nav-save">保存</div></div>
+      <div class="body">
+        <div class="type-scroll">
+          <div class="type-pill on"><div class="tp-ic"></div><span>登录</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>服务器</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>银行卡</span></div>
+        </div>
+        <div class="section-label">选择平台</div>
+        <div class="grid">
+          <div class="g-item"><div class="p-icon" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><div class="p-name">微信</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(254,44,85,.14);color:#FE2C55">抖</div><div class="p-name">抖音</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(255,80,0,.14);color:#FF5000">淘</div><div class="p-name">淘宝</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(59,130,246,.14);color:#3B82F6">邮</div><div class="p-name">邮箱</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(124,58,237,.14);color:#7C3AED">支</div><div class="p-name">支付宝</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(150,150,150,.14);color:#aaa">更</div><div class="p-name">更多</div></div>
+        </div>
+        <div class="form-card">
+          <div class="field"><div class="label">账号</div><div class="input ph">手机号 / 邮箱</div></div>
+          <div class="divider"></div>
+          <div class="field"><div class="label">密码</div>
+            <div class="pwd-row"><div class="input ph">输入密码</div><div class="gen-btn">生成</div></div>
+          </div>
+          <div class="strength" style="margin:0 0 8px 70px"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+        </div>
+        <div class="more"><span>更多信息（选填）</span><div class="arrow"></div></div>
+        <div class="save-area"><div class="save-btn">保存</div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 极简版 -->
+  <div class="col">
+    <div class="tag"><span class="badge" style="background:#3b82f6;color:#fff">极简</span> 一行内联标签</div>
+    <div class="meta">前置区 <b>≈92px</b> · 字段 <b>≈128px</b> · 总高 <b>≈270px</b>（省 29%）</div>
+    <div class="frame"><div class="phone c">
+      <div class="status"><span>23:20</span><span>5G ▮ 59</span></div>
+      <div class="nav"><div class="nav-back"></div><div class="nav-title">添加密码</div><div class="nav-save">保存</div></div>
+      <div class="body">
+        <div class="type-scroll">
+          <div class="type-pill on"><div class="tp-ic"></div><span>登录</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>服务器</span></div>
+          <div class="type-pill"><div class="tp-ic"></div><span>银行卡</span></div>
+        </div>
+        <div class="section-label">选择平台</div>
+        <div class="grid">
+          <div class="g-item"><div class="p-icon" style="background:rgba(44,208,106,.14);color:#2CD06A">微</div><div class="p-name">微信</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(254,44,85,.14);color:#FE2C55">抖</div><div class="p-name">抖音</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(255,80,0,.14);color:#FF5000">淘</div><div class="p-name">淘宝</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(59,130,246,.14);color:#3B82F6">邮</div><div class="p-name">邮箱</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(124,58,237,.14);color:#7C3AED">支</div><div class="p-name">支付宝</div></div>
+          <div class="g-item"><div class="p-icon" style="background:rgba(150,150,150,.14);color:#aaa">更</div><div class="p-name">更多</div></div>
+        </div>
+        <div class="form-card">
+          <div class="field" style="min-height:42px"><div class="label" style="width:48px;font-size:13px">账号</div><div class="input ph" style="min-height:34px">手机号 / 邮箱</div></div>
+          <div class="divider"></div>
+          <div class="field" style="min-height:42px"><div class="label" style="width:48px;font-size:13px">密码</div>
+            <div class="pwd-row"><div class="input ph" style="min-height:34px">输入密码</div><div class="gen-btn" style="height:28px;font-size:11.5px;padding:0 9px">生成</div></div>
+          </div>
+        </div>
+        <div class="more" style="min-height:36px"><span style="font-size:13px">更多信息（选填）</span><div class="arrow" style="width:7px;height:7px"></div></div>
+        <div class="save-area" style="padding:6px 12px"><div class="save-btn" style="height:42px;font-size:14.5px">保存</div></div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<div class="note">
+  <b>尺寸对照表</b>
+  <table>
+    <tr><th>控件</th><th>当前</th><th>紧凑版</th><th>极简版</th><th>备注</th></tr>
+    <tr><td>类型 pill 高</td><td>32px</td><td>28px</td><td>28px</td><td>横向点击仍够</td></tr>
+    <tr><td>平台图标</td><td>34px</td><td>28px</td><td>28px</td><td>一屏放 6 个（原 5 个）</td></tr>
+    <tr><td>字段布局</td><td>标签独立一行</td><td><b>标签左+输入右</b></td><td>同左，更紧</td><td><b>省地方的主要来源</b></td></tr>
+    <tr><td>单字段高</td><td>≈57px</td><td>≈46px</td><td>≈42px</td><td>—</td></tr>
+    <tr><td>输入框可视高</td><td>44px</td><td>38px</td><td>34px</td><td>整行仍可点，热区不受影响</td></tr>
+    <tr><td>保存按钮</td><td>48px</td><td>44px</td><td>42px</td><td>44px 是热区安全线</td></tr>
+    <tr><td>保存前总高</td><td>≈380px</td><td><b>≈290px</b></td><td><b>≈270px</b></td><td>都比现在省 24%+</td></tr>
+  </table>
+  <br>
+  <b>关键一点：省地方靠的是「布局」不是「缩小控件」</b>
+  <ul>
+    <li>把标签从"独占一行"改成"在左边"，一个字段省 11px，三个字段省 33px。</li>
+    <li>输入框看似变矮（44→38），但<b>整行 46px 都可点</b>，热区没有变小——这是常见的误解。</li>
+    <li>保存按钮 44px 是底线，再小手指容易点空（微信规范要求 7–9mm ≈ 44–50px）。</li>
+  </ul>
+  <div style="margin-top:12px;padding:10px 12px;background:#FFF7E6;border:1px solid #FFD9A0;border-radius:8px">
+    <b>⚠️ 极简版我不推荐</b>：虽然又省 20px，但保存按钮 42px、输入可视高 34px 已经<b>低于或贴近热区底线</b>，
+    手指粗的用户容易点错；而且在深色背景上，单行字段的边界不够明显，可能看不出哪里能点。
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,382 @@
+/* 锁屏样式修订：统一对比度 */
+
+.lock-screen {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx var(--sp-xl);
+  /* 背景由宿主页 .page 提供；此处不透明背景会盖住页面的 top-gradient 渐变层（2026-10-24） */
+  background: transparent;
+  gap: var(--sp-32);
+}
+
+/* 品牌标识 */
+.brand-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-md);
+}
+
+/* 纯CSS锁图标 - 大号 */
+.brand-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2CD06A, #06A855);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 60rpx rgba(7,193,96,0.3);
+  position: relative;
+}
+
+.lock-body {
+  width: 40rpx;
+  height: 32rpx;
+  border: 4rpx solid #FFFFFF;
+  border-radius: 8rpx;
+  margin-top: 18rpx;
+}
+
+.lock-shackle {
+  position: absolute;
+  top: 22rpx;
+  width: 24rpx;
+  height: 20rpx;
+  border: 4rpx solid #FFFFFF;
+  border-bottom: none;
+  border-radius: 14rpx 14rpx 0 0;
+}
+
+/* 品牌行置顶：垂直位置由 js 按胶囊真实坐标注入（与胶囊对齐后略低） */
+.brand-header {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+.brand-header-logo {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
+}
+.brand-header-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 2rpx;
+}
+.brand-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(44, 208, 106, 0.85);
+  box-shadow: 0 0 60rpx rgba(7,193,96,0.3);
+}
+/* 品牌名移至页底小字 */
+/* 品牌名移至页底小字的旧样式已随品牌行置顶移除 */
+
+.brand-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+/* 密码输入 */
+.input-area {
+  width: 100%;
+}
+
+/* 邀请码（选填）与密码区留出明显间隔，避免误填 */
+.invite-wrap {
+  margin-top: 48rpx;
+}
+
+.confirm-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  /* 两个密码框要紧挨着；邀请码单独拉开（见 .invite-wrap） */
+  gap: 0;
+  margin-top: 4rpx;
+}
+
+.pwd-input-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  padding: 0 var(--sp-md);
+  border: 2rpx solid var(--border-color);
+  transition: border-color var(--transition-fast);
+}
+
+.pwd-input-wrap:focus-within {
+  border-color: #2CD06A;
+}
+
+.pwd-input {
+  flex: 1;
+  height: 96rpx;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+}
+
+.pwd-placeholder {
+  color: var(--text-muted);
+}
+
+/* 纯CSS眼睛 - 高对比度 */
+.eye-toggle {
+  width: var(--tap-min-size);
+  height: var(--tap-min-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.eye-l-outer {
+  width: 28rpx;
+  height: 18rpx;
+  border: 3rpx solid var(--text-secondary);
+  border-radius: 50%;
+  position: relative;
+}
+.eye-l-dot {
+  width: 8rpx;
+  height: 8rpx;
+  background: var(--text-secondary);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.eye-l-dot.hidden { opacity: 0; }
+/* 眼睛斜线：绝对定位必须给 left/top，否则停在静态位置（左上角） */
+.eye-l-slash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -15rpx;
+  margin-top: -1.5rpx;
+  width: 30rpx;
+  height: 3rpx;
+  background: var(--text-secondary);
+  transform: rotate(-45deg);
+  opacity: 0;
+}
+.eye-l-slash.show { opacity: 1; }
+
+/* 错误提示 */
+/* 错误提示区固定高度（紧凑）：既避免提示出现时顶动布局，又不把两个密码框推远 */
+.error-area {
+  min-height: 30rpx;
+  padding: 2rpx 0;
+  display: flex;
+  align-items: center;
+}
+.error-text {
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  color: #FF6B6B;
+}
+
+/* 解锁按钮 */
+.unlock-btn {
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #2CD06A, #06A855);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 32rpx rgba(7,193,96,0.35);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+.unlock-btn.disabled {
+  opacity: 0.4;
+  box-shadow: none;
+}
+.unlock-btn:active:not(.disabled) {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+.unlock-text {
+  color: #FFFFFF;
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+/* 安全提示 - 提高对比度 */
+.security-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.tip-text {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* 生物识别解锁按钮（纯CSS指纹图标） */
+.bio-btn {
+  margin-top: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+.bio-icon {
+  width: 52px;
+  height: 52px;
+  position: relative;
+}
+.bio-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(44, 208, 106, 0.5);
+}
+.bio-ring.r1 { top: 0; left: 0; right: 0; bottom: 0; }
+.bio-ring.r2 { top: 8px; left: 8px; right: 8px; bottom: 8px; }
+.bio-ring.r3 { top: 16px; left: 16px; right: 16px; bottom: 16px; }
+.bio-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: #2CD06A;
+}
+.bio-btn:active .bio-icon { opacity: 0.6; }
+.bio-text {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 演示模式入口（审核体验用，弱化视觉，不抢主按钮注意力） */
+.demo-entry {
+  margin-top: 20rpx;
+  padding: 14rpx 24rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--border-color);
+  background: var(--bg-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.demo-entry-text {
+  font-size: 23rpx;
+  color: var(--text-secondary);
+}
+
+
+/* 换设备恢复提示 */
+.lock-recovery-tip {
+  margin: 16rpx 40rpx 0;
+  padding: 16rpx 24rpx;
+  border-radius: 12rpx;
+  background: rgba(44, 208, 106, 0.12);
+  border: 1rpx solid rgba(44, 208, 106, 0.4);
+}
+.lock-recovery-tip-text {
+  font-size: 24rpx;
+  color: #2CD06A;
+  line-height: 1.5;
+}
+
+/* 主密码提示（解锁模式）：入口在输入框右下角，点击弹出气泡 */
+.hint-area { position: relative; display: flex; justify-content: flex-end; padding: 8rpx 12rpx 0; }
+.hint-link { font-size: 24rpx; color: var(--text-muted); }
+.hint-link:active { opacity: 0.6; }
+/* 气泡：锚定在链接上方右对齐，深色底白字（深浅主题下均可读），带小三角指向链接 */
+.hint-text {
+  position: absolute;
+  bottom: calc(100% + 14rpx);
+  right: 0;
+  max-width: 420rpx;
+  background: rgba(44, 44, 46, 0.95);
+  color: #ffffff;
+  font-size: 24rpx;
+  line-height: 1.5;
+  border-radius: 12rpx;
+  padding: 14rpx 20rpx;
+  z-index: 20;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.25);
+}
+.hint-text::after {
+  content: '';
+  position: absolute;
+  bottom: -16rpx;
+  right: 48rpx;
+  border: 8rpx solid transparent;
+  border-top-color: rgba(44, 44, 46, 0.95);
+}
+
+/* 密码强度色条（首次设置，主密码框正下方） */
+.strength-area { padding: 10rpx 8rpx 0; }
+.strength-bar {
+  width: 100%;
+  height: 8rpx;
+  border-radius: 4rpx;
+  background: rgba(127, 127, 127, 0.18);
+  overflow: hidden;
+}
+.strength-bar-fill { height: 100%; border-radius: 4rpx; transition: width 0.25s ease; }
+.fill-0 { background: #E64340; }
+.fill-1 { background: #ED6A0C; }
+.fill-2 { background: #2CD06A; }
+.strength-text { display: block; margin-top: 8rpx; font-size: 22rpx; }
+.strength-text-0 { color: #E64340; }
+.strength-text-1 { color: #ED6A0C; }
+.strength-text-2 { color: #2CD06A; }
+
+/* 两次输入一致性（确认密码框正下方） */
+.match-area { padding: 6rpx 8rpx 0; }
+.match-text { font-size: 22rpx; }
+.match-ok { color: #2CD06A; }
+.match-bad { color: #E64340; }
+
+/* 解锁进度（2026-10-25）：让用户看见解密在推进，并暴露停滞时的重试出口 */
+.unlock-progress {
+  margin-top: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+.unlock-progress-text {
+  font-size: 22rpx;
+  color: var(--text-weak, rgba(255, 255, 255, 0.62));
+}
+.unlock-progress-warn {
+  font-size: 22rpx;
+  color: #E6A23C;
+}
+.unlock-retry-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+.unlock-retry {
+  padding: 12rpx 40rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.28);
+}
+.unlock-retry-text {
+  font-size: 24rpx;
+  color: var(--text-strong, rgba(255, 255, 255, 0.88));
+}
